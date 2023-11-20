@@ -1,0 +1,28 @@
+{
+    "name": "EnergyPlus_federate_1",
+    "core_type": "zmq",
+    "log_level": "warning",
+    "period": 60,
+    "uninterruptible": false,
+    "terminate_on_error": true,
+    "wait_for_current_time_update": true,
+    "publications": [    {
+      "global": true,
+      "key": "EnergyPlus/Main Zone Thermostat Air Temperature",
+      "type": "double",
+      "unit": "C"
+    }],
+    "subscriptions": [{
+      "global": true,
+      "key": "Thermostat/Heating Setpoint Temperature",
+      "type": "double",
+      "unit": "C"
+    },
+    {
+      "global": true,
+      "key": "Thermostat/Cooling Setpoint Temperature",
+      "type": "double",
+      "unit": "C"
+    }]
+  }
+  

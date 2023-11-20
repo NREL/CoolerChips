@@ -1,0 +1,19 @@
+{
+    "name": "cooler_chips_broker",
+    "broker": true,
+    "federates": [
+      {
+        "directory": ".",
+        "exec": "python -u EnergyPlus.py",
+        "host": "localhost",
+        "name": "EnergyPlus_federate"
+      },
+      {
+        "directory": ".",
+        "exec": "python -u Thermostat.py",
+        "host": "localhost",
+        "name": "Thermostat_federate"
+      }
+    ]
+  }
+  

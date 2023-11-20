@@ -1,1 +1,1 @@
-# CoolerChips
+## This is an EnergyPlus HELICS federate example. 
