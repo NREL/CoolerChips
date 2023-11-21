@@ -144,11 +144,12 @@ async def main():
 
     
     # Plot the results
+    fig = plt.figure()
     sns.lineplot(data=df, x="time", y="whole_building_energy")
     plt.title("Facility Total Building Electricity Demand Rate")
     plt.xlabel("Time (hours)")
     plt.ylabel("Electricity Demand Rate (W)")
-    plt.savefig('EnergyPlusExample/output.png')
+    plt.savefig('output.png')
     plt.show()
 
     # Cleanup
