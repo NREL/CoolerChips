@@ -15,3 +15,5 @@ chmod +x "/workspaces/CoolerChips/EnergyPlus-9.6.0-f420c06a69-Linux-Ubuntu20.04-
 echo y | sudo /workspaces/CoolerChips/EnergyPlus-9.6.0-f420c06a69-Linux-Ubuntu20.04-x86_64.sh
 
 pip install helics
+
+helics run --path=/workspaces/CoolerChips/EnergyPlusExample/runner.json

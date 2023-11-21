@@ -87,11 +87,11 @@ if __name__ == "__main__":
         logger.debug(f"Granted time {grantedtime}")
         
         for j in range(0, pub_count):
-            heating_setpoint = 10.0
-            h.helicsPublicationPublishDouble(pubid[0], heating_setpoint)
-            cooling_setpoint = 40.0
-            h.helicsPublicationPublishDouble(pubid[1], cooling_setpoint)
-            logger.debug(f"\tPublishing {h.helicsPublicationGetName(pubid[j])} value '{heating_setpoint}' at time {grantedtime}")            
+            T_delta_supply = 4
+            h.helicsPublicationPublishDouble(pubid[0], T_delta_supply)
+            T_delta_return = -1
+            h.helicsPublicationPublishDouble(pubid[1], T_delta_return)
+            logger.debug(f"\tPublishing {h.helicsPublicationGetName(pubid[j])} value '{T_delta_supply}' at time {grantedtime}")            
 
         for j in range(0, sub_count):
             logger.debug(f"Thermostat {j + 1} time {grantedtime}")            

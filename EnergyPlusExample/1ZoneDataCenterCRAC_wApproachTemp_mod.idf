@@ -60,7 +60,7 @@
     1,                       !- Begin Month
     1,                       !- Begin Day of Month
     ,                        !- Begin Year
-    1,                       !- End Month
+    12,                      !- End Month
     31,                      !- End Day of Month
     ,                        !- End Year
     Tuesday,                 !- Day of Week for Start Day
@@ -69,24 +69,6 @@
     No,                      !- Apply Weekend Holiday Rule
     Yes,                     !- Use Weather File Rain Indicators
     Yes;                     !- Use Weather File Snow Indicators
-
-  RunPeriod,
-    Jul,                     !- Name
-    7,                       !- Begin Month
-    1,                       !- Begin Day of Month
-    ,                        !- Begin Year
-    7,                       !- End Month
-    31,                      !- End Day of Month
-    ,                        !- End Year
-    Tuesday,                 !- Day of Week for Start Day
-    Yes,                     !- Use Weather File Holidays and Special Days
-    Yes,                     !- Use Weather File Daylight Saving Period
-    No,                      !- Apply Weekend Holiday Rule
-    Yes,                     !- Use Weather File Rain Indicators
-    Yes;                     !- Use Weather File Snow Indicators
-
-
-
 
   Site:Location,
     Denver Centennial CO USA WMO=724666,  !- Name
@@ -773,18 +755,8 @@
 
   ThermostatSetpoint:DualSetpoint,
     DualSetPoint,            !- Name
-    Heating Setpoint Schedule Mod,  !- Heating Setpoint Temperature Schedule Name
-    Cooling Return Air Setpoint Schedule Mod;  !- Cooling Setpoint Temperature Schedule Name
-
-  Schedule:Constant,
-    Heating Setpoint Schedule Mod,                  !- Name
-    Any Number,                    !- Schedule Type Limits Name
-    15.0;                       !- Hourly Value
-
-  Schedule:Constant,
-    Cooling Return Air Setpoint Schedule Mod,                  !- Name
-    Any Number,                    !- Schedule Type Limits Name
-    29.3;                       !- Hourly Value
+    Heating Setpoint Schedule,  !- Heating Setpoint Temperature Schedule Name
+    Cooling Return Air Setpoint Schedule;  !- Cooling Setpoint Temperature Schedule Name
 
   Schedule:Compact,
     Heating Setpoint Schedule,  !- Name
@@ -836,10 +808,20 @@
     ITE-CPU,                 !- CPU End-Use Subcategory
     ITE-Fans,                !- Fan End-Use Subcategory
     ITE-UPS,                 !- Electric Power Supply End-Use Subcategory
-    2,                       !- Supply Temperature Difference {deltaC}
-    ,                        !- Supply Temperature Difference Schedule
-    -1,                      !- Return Temperature Difference {deltaC}
-    ;                        !- Return Temperature Difference Schedule
+    ,                       !- Supply Temperature Difference {deltaC}
+    Supply Temperature Difference Schedule Mod,                        !- Supply Temperature Difference Schedule
+    ,                      !- Return Temperature Difference {deltaC}
+    Return Temperature Difference Schedule Mod;                        !- Return Temperature Difference Schedule
+
+  Schedule:Constant,
+    Supply Temperature Difference Schedule Mod,                  !- Name
+    Any Number,                    !- Schedule Type Limits Name
+    2;                       !- Hourly Value
+
+  Schedule:Constant,
+    Return Temperature Difference Schedule Mod,                  !- Name
+    Any Number,                    !- Schedule Type Limits Name
+    -1;                       !- Hourly Value
 
   Curve:Quadratic,
     ECM FanPower fFlow,      !- Name
@@ -1246,12 +1228,12 @@
 
 EnergyManagementSystem:Actuator,
     myHEATINGSETP_override,    !- Name
-    Heating Setpoint Schedule Mod,          !- Actuated Component Unique Name
+    Supply Temperature Difference Schedule Mod,          !- Actuated Component Unique Name
     Schedule:Constant,  !- Actuated Component Type
     Schedule Value;      !- Actuated Component Control Type
 
 EnergyManagementSystem:Actuator,
     myCOOLINGSETP_override,    !- Name
-    Cooling Return Air Setpoint Schedule Mod,          !- Actuated Component Unique Name
+    Return Temperature Difference Schedule Mod,          !- Actuated Component Unique Name
     Schedule:Constant,  !- Actuated Component Type
     Schedule Value;      !- Actuated Component Control Type    

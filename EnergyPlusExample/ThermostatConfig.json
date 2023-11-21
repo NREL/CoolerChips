@@ -1,31 +1,30 @@
 {
-    "core_name": "Thermostat",
-    "core_type": "zmq",
-    "log_level": "warning",
-    "name": "Thermostat",
-    "period": 60,
-    "publications": [
-        {
-          "global": true,
-          "key": "Thermostat/Heating Setpoint Temperature",
-          "type": "double",
-          "unit": "C"
-        },
-        {
-          "global": true,
-          "key": "Thermostat/Cooling Setpoint Temperature",
-          "type": "double",
-          "unit": "C"
-        }],
-    "subscriptions": [
+  "core_name": "Thermostat",
+  "core_type": "zmq",
+  "log_level": "warning",
+  "name": "Thermostat",
+  "period": 60,
+  "publications": [
       {
         "global": true,
-        "key": "EnergyPlus/Main Zone Thermostat Air Temperature",
+        "key": "Thermostat/Supply Temperature Difference",
         "type": "double",
         "unit": "C"
-      }
-    ],
-    "terminate_on_error": true,
-    "uninterruptible": false
-  }
-  
+      },
+      {
+        "global": true,
+        "key": "Thermostat/Return Temperature Difference",
+        "type": "double",
+        "unit": "C"
+      }],
+  "subscriptions": [
+    {
+      "global": true,
+      "key": "EnergyPlus/whole_building_energy",
+      "type": "double",
+      "unit": "C"
+    }
+  ],
+  "terminate_on_error": true,
+  "uninterruptible": false
+}

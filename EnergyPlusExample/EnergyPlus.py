@@ -35,7 +35,7 @@ api = EnergyPlusAPI()
 state = api.state_manager.new_state()
 
 # Paths for EnergyPlus input and output
-output_dir = '/workspaces/CoolerChips/EnergyPlusExampleoutput'
+output_dir = '/workspaces/CoolerChips/EnergyPlusExample/Output'
 idf_path = os.path.join('/workspaces/CoolerChips/EnergyPlusExample/1ZoneDataCenterCRAC_wApproachTemp_mod.idf')
 epw_path = os.path.join(ENERGYPLUS_INSTALL_PATH, 'WeatherData', 'USA_IL_Chicago-OHare.Intl.AP.725300_TMY3.epw')
 
@@ -88,7 +88,7 @@ async def main():
     number_of_days = 365 
     total_timesteps = 24 * 7 * number_of_days
     time_interval = 60 * 10 # get this from IDF timestep?
-    temp_dict = {'time':[], 'temperature':[]}
+    temp_dict = {'time':[], 'whole_building_energy':[]}
     
     warmup_done = False
     warmup_count = 0
@@ -108,22 +108,22 @@ async def main():
             currenttime = h.helicsFederateGetCurrentTime(federate)
             
             # if h.helicsInputIsUpdated(sub):
-            heating_setpoint = h.helicsInputGetDouble((subid[0]))
-            cooling_setpoint = h.helicsInputGetDouble((subid[1]))
-            # Set the setpoint in EnergyPlus
-            heating_setpoint_handle = api.exchange.get_actuator_handle(state, "Schedule:Constant", "Schedule Value", "HEATING SETPOINT SCHEDULE MOD")
-            cooling_setpoint_handle = api.exchange.get_actuator_handle(state, "Schedule:Constant", "Schedule Value", "Cooling Return Air Setpoint Schedule Mod")   
-            api.exchange.set_actuator_value(state, heating_setpoint_handle, heating_setpoint)
-            api.exchange.set_actuator_value(state, cooling_setpoint_handle, cooling_setpoint)
-            logger.debug(f"Received setpoint: {heating_setpoint} at time {currenttime}. Got handle {heating_setpoint_handle}")
-            logger.debug(f"Received setpoint: {cooling_setpoint} at time {currenttime}. Got handle {cooling_setpoint_handle}")
+            T_delta_supply = h.helicsInputGetDouble((subid[0]))
+            T_delta_return = h.helicsInputGetDouble((subid[1]))
+            # Set the T_delta in EnergyPlus
+            T_del_supp_handle = api.exchange.get_actuator_handle(state, "Schedule:Constant", "Schedule Value", "Supply Temperature Difference Schedule Mod")
+            T_del_ret_handle = api.exchange.get_actuator_handle(state, "Schedule:Constant", "Schedule Value", "Return Temperature Difference Schedule Mod")
+            api.exchange.set_actuator_value(state, T_del_supp_handle, T_delta_supply)
+            api.exchange.set_actuator_value(state, T_del_ret_handle, T_delta_return)
+            logger.debug(f"Received T_delta: {T_delta_supply} at time {currenttime}. Got handle {T_del_supp_handle}")
+            logger.debug(f"Received T_delta: {T_delta_return} at time {currenttime}. Got handle {T_del_ret_handle}")
             
-            temperature_handle = api.exchange.get_variable_handle(state, "Zone Air Temperature", "Main Zone")
-            zone_temperature = api.exchange.get_variable_value(state, temperature_handle)
-            print(f"Current time: {currenttime}, current sim time : {api.exchange.current_sim_time(state)}, outdoor temperature: {zone_temperature}") 
-            h.helicsPublicationPublishDouble(pubid[0], zone_temperature)
+            whole_building_energy_handle = api.exchange.get_variable_handle(state, "Facility Total Building Electricity Demand Rate", "Whole Building")
+            whole_building_energy = api.exchange.get_variable_value(state, whole_building_energy_handle)
+            print(f"Current time: {currenttime}, current sim time : {api.exchange.current_sim_time(state)}, whole_building_energy: {whole_building_energy}") 
+            h.helicsPublicationPublishDouble(pubid[0], whole_building_energy)
             temp_dict['time'].append(api.exchange.current_sim_time(state))
-            temp_dict['temperature'].append(zone_temperature)
+            temp_dict['whole_building_energy'].append(whole_building_energy)
             if api.exchange.current_sim_time(state) < total_timesteps:
                 grantedtime = h.helicsFederateRequestTime(federate, currenttime+time_interval)
                 print(f"Granted time: {grantedtime-currenttime}")
@@ -144,10 +144,11 @@ async def main():
 
     
     # Plot the results
-    sns.lineplot(data=df, x="time", y="temperature")
-    plt.title("Main Zone Thermostat Air Temperature")
+    sns.lineplot(data=df, x="time", y="whole_building_energy")
+    plt.title("Facility Total Building Electricity Demand Rate")
     plt.xlabel("Time (hours)")
-    plt.ylabel("Temperature (C)")
+    plt.ylabel("Electricity Demand Rate (W)")
+    plt.savefig('EnergyPlusExample/output.png')
     plt.show()
 
     # Cleanup
