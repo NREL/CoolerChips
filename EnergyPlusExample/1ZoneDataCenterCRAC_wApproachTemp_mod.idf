@@ -1225,15 +1225,3 @@
     ENDIF;                   !- <none>
 
   Output:Variable,*,PUE,Hourly;
-
-EnergyManagementSystem:Actuator,
-    myHEATINGSETP_override,    !- Name
-    Supply Temperature Difference Schedule Mod,          !- Actuated Component Unique Name
-    Schedule:Constant,  !- Actuated Component Type
-    Schedule Value;      !- Actuated Component Control Type
-
-EnergyManagementSystem:Actuator,
-    myCOOLINGSETP_override,    !- Name
-    Return Temperature Difference Schedule Mod,          !- Actuated Component Unique Name
-    Schedule:Constant,  !- Actuated Component Type
-    Schedule Value;      !- Actuated Component Control Type    
