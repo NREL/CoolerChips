@@ -1,19 +1,19 @@
 {
-  "core_name": "Thermostat",
+  "core_name": "Controller",
   "core_type": "zmq",
   "log_level": "warning",
-  "name": "Thermostat",
+  "name": "Controller",
   "period": 60,
   "publications": [
       {
         "global": true,
-        "key": "Thermostat/Supply Temperature Difference",
+        "key": "Controller/Supply Temperature Difference",
         "type": "double",
         "unit": "C"
       },
       {
         "global": true,
-        "key": "Thermostat/Return Temperature Difference",
+        "key": "Controller/Return Temperature Difference",
         "type": "double",
         "unit": "C"
       }],

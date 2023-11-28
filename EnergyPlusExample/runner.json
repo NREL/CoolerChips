@@ -10,9 +10,9 @@
       },
       {
         "directory": ".",
-        "exec": "python -u Thermostat.py",
+        "exec": "python -u Controller.py",
         "host": "localhost",
-        "name": "Thermostat_federate"
+        "name": "Controller_federate"
       }
     ]
   }

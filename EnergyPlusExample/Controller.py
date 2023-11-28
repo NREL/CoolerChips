@@ -31,7 +31,7 @@ def destroy_federate(fed):
 if __name__ == "__main__":
 
     ##############  Registering  federate from json  ##########################
-    fed = h.helicsCreateValueFederateFromConfig("./ThermostatConfig.json")
+    fed = h.helicsCreateValueFederateFromConfig("ControllerConfig.json")
     federate_name = h.helicsFederateGetName(fed)
     logger.info(f"Created federate {federate_name}")
 
@@ -58,12 +58,10 @@ if __name__ == "__main__":
     h.helicsFederateEnterExecutingMode(fed)
     logger.info("Entered HELICS execution mode")
     
-    
     number_of_days = 365 
     total_timesteps = 24 * 7 * number_of_days
     total_interval = total_timesteps * 60
     time_interval = 60 * 10 # get this from IDF timestep?
-    temp_dict = {'time':[], 'temperature':[]}
     
     # Blocking call for a time request at simulation time 0
     initial_time = 60
@@ -72,7 +70,7 @@ if __name__ == "__main__":
     logger.debug(f"Granted time {grantedtime}")
     
     grantedtime = 0
-    zone_temp = {}
+    whole_building_energy = {}
     time_sim = []
 
 
@@ -82,22 +80,19 @@ if __name__ == "__main__":
 
         # Time request for the next physical interval to be simulated
         requested_time = grantedtime + time_interval
-        logger.debug(f"Requesting time {requested_time}")
+        # logger.debug(f"Requesting time {requested_time}")
         grantedtime = h.helicsFederateRequestTime(fed, requested_time)
-        logger.debug(f"Granted time {grantedtime}")
+        # logger.debug(f"Granted time {grantedtime}")
         
         for j in range(0, pub_count):
-            T_delta_supply = 4
+            T_delta_supply = 2
             h.helicsPublicationPublishDouble(pubid[0], T_delta_supply)
             T_delta_return = -1
             h.helicsPublicationPublishDouble(pubid[1], T_delta_return)
-            logger.debug(f"\tPublishing {h.helicsPublicationGetName(pubid[j])} value '{T_delta_supply}' at time {grantedtime}")            
+            # logger.debug(f"\tPublishing {h.helicsPublicationGetName(pubid[j])} value '{T_delta_supply}' at time {grantedtime}")            
 
         for j in range(0, sub_count):
-            logger.debug(f"Thermostat {j + 1} time {grantedtime}")            
-            zone_temp[j] = h.helicsInputGetDouble((subid[j]))
-            logger.debug(f"\tZone Temperature: {zone_temp[j]:.2f} from"
-                        f" input {h.helicsSubscriptionGetTarget(subid[j])}")
+            whole_building_energy[j] = h.helicsInputGetDouble((subid[j]))
             
         time_sim.append(grantedtime)
             
