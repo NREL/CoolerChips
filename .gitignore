@@ -1,4 +1,5 @@
 EnergyPlus-9.6.0-f420c06a69-Linux-Ubuntu20.04-x86_64.sh
 EnergyPlusExample/Output/
-EnergyPlusExample/*.log
 EnergyPlusExample/EnergyPlus
+*.log
+*.png
