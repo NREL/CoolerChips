@@ -1,4 +1,0 @@
-[2023-11-20 17:13:03.917] [console] [error] commERROR||13072-TGrTG-l8D8V-WZnOf-7VEKN (1)[connecting]::Unable to bind zmq reply socket giving up tcp://127.0.0.1:23405
-[2023-11-20 17:13:03.917] [console] [error] commERROR||13072-TGrTG-l8D8V-WZnOf-7VEKN (1)[connecting]::receiver connection failure
-Broker is unable to connect
-

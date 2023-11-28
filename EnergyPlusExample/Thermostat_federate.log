@@ -1,8 +1,0 @@
-Created federate Thermostat
-	Number of subscriptions: 1
-	Number of publications: 2
-/usr/local/python/3.10.8/lib/python3.10/site-packages/helics/capi.py:9014: UserWarning: This is deprecated. Use `helicsInputGetTarget` instead.
-  warnings.warn("This is deprecated. Use `helicsInputGetTarget` instead.")
-	Registered subscription---> EnergyPlus/Main Zone Thermostat Air Temperature
-	Registered publication---> Thermostat/Heating Setpoint Temperature
-	Registered publication---> Thermostat/Cooling Setpoint Temperature
