@@ -31,7 +31,7 @@ def destroy_federate(fed):
 if __name__ == "__main__":
 
     ##############  Registering  federate from json  ##########################
-    fed = h.helicsCreateValueFederateFromConfig("ThermostatConfig.json")
+    fed = h.helicsCreateValueFederateFromConfig("./ThermostatConfig.json")
     federate_name = h.helicsFederateGetName(fed)
     logger.info(f"Created federate {federate_name}")
 

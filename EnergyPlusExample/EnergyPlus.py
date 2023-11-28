@@ -1,7 +1,7 @@
 import os
 import sys
 import logging
-import numpy as np
+from pathlib import Path
 import asyncio
 import seaborn as sns
 import matplotlib.pyplot as plt
@@ -9,7 +9,7 @@ from datetime import datetime, timedelta
 import pandas as pd
 
 
-ENERGYPLUS_INSTALL_PATH = '/usr/local/EnergyPlus-9-6-0'
+ENERGYPLUS_INSTALL_PATH = 'EnergyPlus'
 # Add the path to the pyenergyplus directory to sys.path
 sys.path.append(ENERGYPLUS_INSTALL_PATH)
 from pyenergyplus.api import EnergyPlusAPI
@@ -20,7 +20,6 @@ logger.addHandler(logging.StreamHandler())
 logger.setLevel(logging.DEBUG)
 
 # EnergyPlus and HELICS configuration paths
-ENERGYPLUS_INSTALL_PATH = '/usr/local/EnergyPlus-9-6-0'
 ENERGYPLUS_CONFIG_PATH = "EnergyPlusConfig.json"
 
 # Add the EnergyPlus API directory to sys.path
@@ -35,9 +34,11 @@ api = EnergyPlusAPI()
 state = api.state_manager.new_state()
 
 # Paths for EnergyPlus input and output
-output_dir = '/workspaces/CoolerChips/EnergyPlusExample/Output'
-idf_path = os.path.join('/workspaces/CoolerChips/EnergyPlusExample/1ZoneDataCenterCRAC_wApproachTemp_mod.idf')
+output_dir = './Output'
+idf_path = os.path.join('./1ZoneDataCenterCRAC_wApproachTemp_mod.idf')
 epw_path = os.path.join(ENERGYPLUS_INSTALL_PATH, 'WeatherData', 'USA_IL_Chicago-OHare.Intl.AP.725300_TMY3.epw')
+
+Path(output_dir).mkdir(parents=True, exist_ok=True)
 
 # Asynchronous function to run EnergyPlus
 async def run_energyplus(state):
