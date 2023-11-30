@@ -74,8 +74,8 @@ def main():
 
     # Set total number of timesteps and time interval
     number_of_days = 365
-    total_timesteps = 24 * 7 * number_of_days
-    time_interval = 60 * 10  # TODO: get this from IDF timestep?
+    total_hours = 24 * 7 * number_of_days
+    time_interval_seconds = 60 * 10  # TODO: get this from IDF timestep?
 
     # Initialize a dictionary to store the results
     temp_dict = {"time": [], "whole_building_energy": []}
@@ -95,7 +95,16 @@ def main():
     # This callback is called at each timestep, and sets the T_delta in EnergyPlus
     def timestep_callback(state):
         if warmup_done:
+            logger.debug(f"Entered timestep callback at time {api.exchange.current_sim_time(state)}")
             currenttime = h.helicsFederateGetCurrentTime(federate)
+            # What is the current time? Why does helicsFederateGetCurrentTime have a federate argument?
+            if api.exchange.current_sim_time(state) < total_hours:
+                grantedtime = h.helicsFederateRequestTime(
+                    federate, currenttime + time_interval_seconds
+                )
+                # Does this block until the time is granted?
+                print(f"\tGranted time interval: {grantedtime-currenttime}")
+                currenttime = h.helicsFederateGetCurrentTime(federate)
 
             # Set the T_delta in EnergyPlus
             T_del_supp_handle = api.exchange.get_actuator_handle(
@@ -110,8 +119,8 @@ def main():
                 "Schedule Value",
                 "Return Temperature Difference Schedule Mod",
             )
-            logger.debug(f"Got T_del_supp_handle {T_del_supp_handle}")
-            logger.debug(f"Got T_del_ret_handle {T_del_ret_handle}")
+            # logger.debug(f"\tGot T_del_supp_handle {T_del_supp_handle}")
+            # logger.debug(f"\tGot T_del_ret_handle {T_del_ret_handle}")
 
             T_delta_supply = 2
             T_delta_return = -1
@@ -120,11 +129,11 @@ def main():
             if h.helicsInputIsUpdated(subid[1]):
                 T_delta_return = h.helicsInputGetDouble((subid[1]))
             logger.debug(
-                f"Received T_delta: {T_delta_supply} at time {currenttime}. Got handle {T_del_supp_handle}"
+                f"\tReceived T_delta: {T_delta_supply} at time {currenttime}. Got handle {T_del_supp_handle}"
             )
-            logger.debug(
-                f"Received T_delta: {T_delta_return} at time {currenttime}. Got handle {T_del_ret_handle}"
-            )
+            # logger.debug(
+            #     f"\tReceived T_delta: {T_delta_return} at time {currenttime}. Got handle {T_del_ret_handle}"
+            # )
             api.exchange.set_actuator_value(state, T_del_supp_handle, T_delta_supply)
             api.exchange.set_actuator_value(state, T_del_ret_handle, T_delta_return)
 
@@ -137,17 +146,11 @@ def main():
                 api.exchange.get_variable_value(state, whole_building_energy_handle), 4
             )
             print(
-                f"Current time: {currenttime}, current sim time : {api.exchange.current_sim_time(state)}, whole_building_energy: {whole_building_energy}"
+                f"\tCurrent time: {currenttime}, current sim time : {api.exchange.current_sim_time(state)}, whole_building_energy: {whole_building_energy}"
             )
             h.helicsPublicationPublishDouble(pubid[0], whole_building_energy)
             temp_dict["time"].append(api.exchange.current_sim_time(state))
             temp_dict["whole_building_energy"].append(whole_building_energy)
-            if api.exchange.current_sim_time(state) < total_timesteps:
-                grantedtime = h.helicsFederateRequestTime(
-                    federate, currenttime + time_interval
-                )
-                print(f"Granted time: {grantedtime-currenttime}")
-                currenttime = h.helicsFederateGetCurrentTime(federate)
 
     # Register callbacks
     api.runtime.callback_after_new_environment_warmup_complete(

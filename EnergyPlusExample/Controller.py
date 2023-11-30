@@ -1,3 +1,4 @@
+import time
 import helics as h
 import logging
 
@@ -44,9 +45,9 @@ if __name__ == "__main__":
     logger.info("Entered HELICS execution mode")
 
     number_of_days = 365
-    total_timesteps = 24 * 7 * number_of_days
-    total_interval = total_timesteps * 60
-    time_interval = 60 * 10  # get this from IDF timestep?
+    total_hours = 24 * 7 * number_of_days
+    total_seconds = total_hours * 60 * 60
+    time_interval_seconds = 1  # get this from IDF timestep?
 
     # Blocking call for a time request at simulation time 0
     initial_time = 60
@@ -60,20 +61,23 @@ if __name__ == "__main__":
 
     ########## Main co-simulation loop ########################################
     # As long as granted time is in the time range to be simulated...
-    while grantedtime < total_interval:
+    while grantedtime < total_seconds:
 
         # Time request for the next physical interval to be simulated
-        requested_time = grantedtime + time_interval
+        requested_time_seconds = grantedtime + time_interval_seconds
         # logger.debug(f"Requesting time {requested_time}")
-        grantedtime = h.helicsFederateRequestTime(fed, requested_time)
+        grantedtime = h.helicsFederateRequestTime(fed, requested_time_seconds)
         # logger.debug(f"Granted time {grantedtime}")
+        logger.debug(f"Granted time {grantedtime} seconds while requested time {requested_time_seconds} seconds with time interval {time_interval_seconds} seconds")
 
-        for j in range(0, pub_count):
-            T_delta_supply = 2
-            h.helicsPublicationPublishDouble(pubid[0], T_delta_supply)
-            T_delta_return = -1
-            h.helicsPublicationPublishDouble(pubid[1], T_delta_return)
-            # logger.debug(f"\tPublishing {h.helicsPublicationGetName(pubid[j])} value '{T_delta_supply}' at time {grantedtime}")
+        # for j in range(0, pub_count):
+        # time.sleep(grantedtime / 10000000000)
+        T_delta_supply = 2 + grantedtime / 1000000000
+        h.helicsPublicationPublishDouble(pubid[0], T_delta_supply)
+        T_delta_return = -1
+        h.helicsPublicationPublishDouble(pubid[1], T_delta_return)
+        logger.debug(f"\tPublishing {h.helicsPublicationGetName(pubid[0])} value '{T_delta_supply}'. Sleeping for {grantedtime / 10000000000} seconds")
+
 
         for j in range(0, sub_count):
             whole_building_energy[j] = h.helicsInputGetDouble((subid[j]))
