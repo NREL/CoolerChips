@@ -45,9 +45,9 @@ if __name__ == "__main__":
     logger.info("Entered HELICS execution mode")
 
     number_of_days = 365
-    total_hours = 24 * 7 * number_of_days
+    total_hours = 24 * number_of_days
     total_seconds = total_hours * 60 * 60
-    time_interval_seconds = 1  # get this from IDF timestep?
+    time_interval_seconds = 10  # get this from IDF timestep?
 
     # Blocking call for a time request at simulation time 0
     initial_time = 60

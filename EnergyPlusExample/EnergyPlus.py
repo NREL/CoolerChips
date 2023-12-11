@@ -74,7 +74,7 @@ def main():
 
     # Set total number of timesteps and time interval
     number_of_days = 365
-    total_hours = 24 * 7 * number_of_days
+    total_hours = 24 * number_of_days
     time_interval_seconds = 60 * 10  # TODO: get this from IDF timestep?
 
     # Initialize a dictionary to store the results

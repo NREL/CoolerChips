@@ -3,7 +3,7 @@
   "core_type": "zmq",
   "log_level": "warning",
   "name": "Controller",
-  "period": 1,
+  "period": 10,
   "publications": [
       {
         "global": true,
