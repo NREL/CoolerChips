@@ -10,7 +10,7 @@
     "global": true,
     "key": "EnergyPlus/whole_building_energy",
     "type": "double",
-    "unit": "C"
+    "unit": "J"
   }],
   "subscriptions": [{
     "global": true,
