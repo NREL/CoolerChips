@@ -4,7 +4,7 @@
     "federates": [
       {
         "directory": ".",
-        "exec": "python -u EnergyPlus.py",
+        "exec": "python -u EP3.py",
         "host": "localhost",
         "name": "EnergyPlus_federate"
       },

@@ -7,16 +7,16 @@ logger = logging.getLogger(__name__)
 logger.addHandler(logging.StreamHandler())
 logger.setLevel(logging.DEBUG)
 
-PUBS = [{"Name": "Controller/Supply Temperature Difference",
+PUBS = [{"Name": "Schedule Constant/Schedule Value/Supply Temperature Difference Schedule Mod",
          "Type": "double",
          "Units": "C",
          "Global": True},
-        {"Name": "Controller/Return Temperature Difference",
+        {"Name": "Schedule Constant/Schedule Value/Return Temperature Difference Schedule Mod",
          "Type": "double",
          "Units": "C",
          "Global": True}]
 
-SUBS = [{"Name": "EnergyPlus/whole_building_energy",
+SUBS = [{"Name": "Whole Building/Facility Total Building Electricity Demand Rate",
               "Type": "double",
               "Units": "J",
               "Global": True}]
@@ -57,6 +57,7 @@ if __name__ == "__main__":
     
     pubid = {}
     for i in range(0, len(PUBS)):
+        print(f"Registering publication {PUBS[i]['Name']}, {PUBS[i]['Type']}, {PUBS[i]['Units']}""")
         pubid[i] = h.helicsFederateRegisterGlobalTypePublication(
             fed, PUBS[i]["Name"] , PUBS[i]["Type"], PUBS[i]["Units"]
         )
@@ -64,6 +65,8 @@ if __name__ == "__main__":
     subid = {}
     for i in range(0, len(SUBS)):
         subid[i] = h.helicsFederateRegisterSubscription(fed, SUBS[i]["Name"], SUBS[i]["Units"])
+        
+    print(f"Subscriptions: {subid}")
 
     sub_count = h.helicsFederateGetInputCount(fed)
     logger.debug(f"\tNumber of subscriptions: {sub_count}")
@@ -77,6 +80,7 @@ if __name__ == "__main__":
         subid[i] = h.helicsFederateGetInputByIndex(fed, i)
         sub_name = h.helicsSubscriptionGetTarget(subid[i])
         logger.debug(f"\tRegistered subscription---> {sub_name}")
+    print(f"Subscriptions: {subid}")
 
     pubid = {}
     for i in range(0, pub_count):

@@ -20,9 +20,6 @@ logger.setLevel(logging.DEBUG)
 # EnergyPlus and HELICS configuration paths
 ENERGYPLUS_CONFIG_PATH = "EnergyPlusConfig.json"
 
-# Add the EnergyPlus API directory to sys.path
-sys.path.append(ENERGYPLUS_INSTALL_PATH)
-
 # Initialize EnergyPlus API and create a new state
 api = EnergyPlusAPI()
 state = api.state_manager.new_state()
