@@ -1,7 +1,7 @@
 """An example for how to use the EnergyPlus Python API with HELICS."""
 from dataclasses import dataclass
 import federate as ep_fed
-import EnergyPlusExample.definitions as definitions
+import definitions
 import sys
 
 # We specify the path to the EnergyPlus installation directory
@@ -35,6 +35,8 @@ class energyplus_runner:
         self.epw_path = epw_path
         self.idf_path = idf_path
         self.api = EnergyPlusAPI()
+        self.warmup_done = False
+        self.warmup_count = 0
         self.ep_federate = ep_fed.energyplus_federate(definitions.CONFIG_PATH)
         self.actuators = [
             Actuator(
@@ -80,8 +82,17 @@ class energyplus_runner:
                 state, handle
             )
 
+
+    def _warmup_complete_callback(self, state):
+        # There are multiple warmup periods in this IDF, so we need to go through this
+        print(f"Warmup {self.warmup_count+1} complete!")
+        self.warmup_count = self.warmup_count + 1
+        if self.warmup_count > 2:
+            self.warmup_done = True
+
+
     def _timestep_callback(self, state):
-        if self.api.exchange.warmup_flag(state) == 0:
+        if self.warmup_done:
 
             # Request next time
             self.ep_federate.request_time()
@@ -97,6 +108,9 @@ class energyplus_runner:
     def run(self):
         state = self.api.state_manager.new_state()
         # Register callbacks
+        self.api.runtime.callback_after_new_environment_warmup_complete(
+        state, self._warmup_complete_callback
+        )
         self.api.runtime.callback_end_zone_timestep_after_zone_reporting(
             state, self._timestep_callback
         )

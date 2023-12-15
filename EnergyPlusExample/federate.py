@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-import EnergyPlusExample.definitions as definitions
+import definitions
 import logging
 
 
@@ -103,7 +103,7 @@ class energyplus_federate:
                 self.subs[sub_key].value = h.helicsInputGetDouble(self.subs[sub_key].id)
             else:
                 self.subs[sub_key].value = 0
-                self.logger.warning(f"{sub_key} was not updated, set to zero.")
+                self.logger.warning(f"{sub_key} was not updated at {self.granted_time}, set to zero.")
 
         return self.subs
 
