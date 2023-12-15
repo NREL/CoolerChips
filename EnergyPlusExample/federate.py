@@ -17,6 +17,7 @@ class Sub:
     value: float = None
 
 
+# Define a dictionary to store the results - unnecessary if you don't need it. 
 results = {"Energy": [], "Time": []}
 
 
@@ -36,12 +37,28 @@ class energyplus_federate:
             )
         )
         self.logger.debug(f"Time interval is {self.time_interval_seconds} seconds")
+        
+    def create_value_federate(self, fedinitstring, name, period):
+        """Create a value federate with the given name and time period."""
+        import helics as h
+        
+        fedinfo = h.helicsCreateFederateInfo()
+        h.helicsFederateInfoSetCoreTypeFromString(fedinfo, "zmq")  # ZMQ is the default and works well for small co-simulations
+        h.helicsFederateInfoSetCoreInitString(fedinfo, fedinitstring)  # Can be used to set number of federates, etc
+        h.helicsFederateInfoSetIntegerProperty(fedinfo, h.HELICS_PROPERTY_INT_LOG_LEVEL, definitions.LOG_LEVEL_MAP["helics_log_level_warning"])
+        h.helicsFederateInfoSetTimeProperty(fedinfo, h.HELICS_PROPERTY_TIME_PERIOD, period)
+        h.helicsFederateInfoSetFlagOption(fedinfo, h.HELICS_FLAG_UNINTERRUPTIBLE, True)  # Forces the granted time to be the requested time (i.e., EnergyPlus timestep)
+        h.helicsFederateInfoSetFlagOption(fedinfo, h.HELICS_FLAG_TERMINATE_ON_ERROR, True)  # Stop the whole co-simulation if there is an error
+        h.helicsFederateInfoSetFlagOption(
+            fedinfo, h.HELICS_FLAG_WAIT_FOR_CURRENT_TIME_UPDATE, True
+        )  #This makes sure that this federate will be the last one granted a given time step. Thus it will have the most up-to-date values for all other federates.
+        fed = h.helicsCreateValueFederate(name, fedinfo)
+        return fed                                          
 
     # Function to create and configure HELICS federate
     def setup_helics_federate(self, config_path):
         import helics as h
-
-        self.federate = h.helicsCreateValueFederateFromConfig(config_path)
+        self.federate = self.create_value_federate("", "EnergyPlus_federate_1", 600)
         self.logger.info("HELICS federate for EnergyPlus created.")
         self.register_pubs()
         self.register_subs()
