@@ -3,3 +3,4 @@ EnergyPlusExample/Output/
 EnergyPlusExample/EnergyPlus
 *.log
 *.png
+*.pyc

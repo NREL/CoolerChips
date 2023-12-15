@@ -17,15 +17,13 @@ class Sub:
     value: float = None
 
 
+results = {"Energy": [], "Time": []}
 
-results = {"Energy": [],
-           "Time": []}
 
 class energyplus_federate:
-    
     def __init__(self, config_path):
         import helics as h
-        
+
         self.logger = logging.getLogger(__name__)
         self.subs = {}
         self.pubs = {}
@@ -44,7 +42,7 @@ class energyplus_federate:
     # Function to create and configure HELICS federate
     def setup_helics_federate(self, config_path):
         import helics as h
-        
+
         print(config_path)
         self.federate = h.helicsCreateValueFederateFromConfig(config_path)
         print("HELICS federate created")
@@ -52,22 +50,14 @@ class energyplus_federate:
         self.register_subs()
         h.helicsFederateEnterExecutingMode(self.federate)
         self.logger.info("Entered HELICS execution mode")
-        
-
-    # def generate_pub_sub_lists(self):
-    #     import helics as h
-        
-    #     for i in range(0, defs.ACTUATORS):  # subs
-    #         self.subs.append(
-    #             Sub(name=h.helicsSubscriptionGetTarget(self.subid[i]), id=i)
-    #         )
-    #     for i in range(0, defs.SENSORS):
-    #         self.pubs.append(Pub(name=h.helicsPublicationGetName(self.pubid[i]), id=i))
 
     def register_pubs(self):  # Sensors
         import helics as h
+
         for i in range(0, len(defs.SENSORS)):
-            print(f'Registering publication: {defs.SENSORS[i]["variable_key"]}/{defs.SENSORS[i]["variable_name"]}')
+            print(
+                f'Registering publication: {defs.SENSORS[i]["variable_key"]}/{defs.SENSORS[i]["variable_name"]}'
+            )
             pubid = h.helicsFederateRegisterGlobalTypePublication(
                 self.federate,
                 f'{defs.SENSORS[i]["variable_key"]}/{defs.SENSORS[i]["variable_name"]}',
@@ -81,8 +71,11 @@ class energyplus_federate:
 
     def register_subs(self):  # Actuators
         import helics as h
+
         for i in range(0, len(defs.ACTUATORS)):
-            print(f'Registering subscription: {defs.ACTUATORS[i]["component_type"]}/{defs.ACTUATORS[i]["control_type"]}/{defs.ACTUATORS[i]["actuator_key"]}')
+            print(
+                f'Registering subscription: {defs.ACTUATORS[i]["component_type"]}/{defs.ACTUATORS[i]["control_type"]}/{defs.ACTUATORS[i]["actuator_key"]}'
+            )
             subid = h.helicsFederateRegisterSubscription(
                 self.federate,
                 f'{defs.ACTUATORS[i]["component_type"]}/{defs.ACTUATORS[i]["control_type"]}/{defs.ACTUATORS[i]["actuator_key"]}',
@@ -95,28 +88,35 @@ class energyplus_federate:
 
     def request_time(self):
         import helics as h
+
         requested_time_seconds = self.granted_time + self.time_interval_seconds
         self.granted_time = h.helicsFederateRequestTime(
             self.federate, requested_time_seconds
         )
-        print(f"Requested time {requested_time_seconds}, granted time {self.granted_time}")
+        print(
+            f"Requested time {requested_time_seconds}, granted time {self.granted_time}"
+        )
         return self.granted_time
 
     def update_actuators(self):
         import helics as h
+
         for sub_key in self.subs:
             if h.helicsInputIsUpdated(self.subs[sub_key].id):
                 self.subs[sub_key].value = h.helicsInputGetDouble(self.subs[sub_key].id)
             else:
                 self.subs[sub_key].value = 0
                 print(f"{sub_key} was not updated, set to zero.")
-                
+
         return self.subs
 
     def update_sensors(self):
         import helics as h
+
         for pub_key in self.pubs:
-            h.helicsPublicationPublishDouble(self.pubs[pub_key].id, self.pubs[pub_key].value)
+            h.helicsPublicationPublishDouble(
+                self.pubs[pub_key].id, self.pubs[pub_key].value
+            )
         if pub_key == "Whole Building/Facility Total Building Electricity Demand Rate":
             results["Energy"].append(self.pubs[pub_key].value)
             results["Time"].append(self.granted_time)
@@ -124,6 +124,7 @@ class energyplus_federate:
     # Function to clean up HELICS federate
     def destroy_federate(self):
         import helics as h
+
         h.helicsFederateFinalize(self.federate)
         h.helicsFederateFree(self.federate)
         h.helicsCloseLibrary()

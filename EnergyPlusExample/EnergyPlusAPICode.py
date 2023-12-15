@@ -10,6 +10,7 @@ ENERGYPLUS_INSTALL_PATH = "./EnergyPlus"
 sys.path.append(ENERGYPLUS_INSTALL_PATH)
 from pyenergyplus.api import EnergyPlusAPI
 
+
 @dataclass
 class Actuator:
     component_type: str
@@ -26,6 +27,7 @@ class Sensor:
     variable_unit: str = None
     pub_instance: ep_fed.Pub = None  # The current value of the sensor is stored here
     sensor_handle: str = None
+
 
 class energyplus_runner:
     def __init__(self, output_dir, epw_path, idf_path):
@@ -45,8 +47,9 @@ class energyplus_runner:
                 component_type=actuator["component_type"],
                 control_type=actuator["control_type"],
                 actuator_key=actuator["actuator_key"],
-                sub_instance=self.ep_federate.subs[f'{actuator["component_type"]}/{actuator["control_type"]}/{actuator["actuator_key"]}'],
-                
+                sub_instance=self.ep_federate.subs[
+                    f'{actuator["component_type"]}/{actuator["control_type"]}/{actuator["actuator_key"]}'
+                ],
             )
             for actuator in defs.ACTUATORS
         ]
@@ -55,7 +58,9 @@ class energyplus_runner:
                 variable_name=sensor["variable_name"],
                 variable_key=sensor["variable_key"],
                 variable_unit=sensor["variable_unit"],
-                pub_instance=self.ep_federate.pubs[f'{sensor["variable_key"]}/{sensor["variable_name"]}'],
+                pub_instance=self.ep_federate.pubs[
+                    f'{sensor["variable_key"]}/{sensor["variable_name"]}'
+                ],
             )
             for sensor in defs.SENSORS
         ]
@@ -81,12 +86,6 @@ class energyplus_runner:
                 state, handle
             )
 
-    def _warmup_complete_callback(self, state):
-        print(f"Warmup {self.warmup_count+1} complete!")
-        self.warmup_count = self.warmup_count + 1
-        if self.warmup_count > 2:
-            self.warmup_done = True
-
     def _timestep_callback(self, state):
         if self.api.exchange.warmup_flag(state) == 0:
 
@@ -100,15 +99,11 @@ class energyplus_runner:
             # Get sensor values from EnergyPlus and publish them
             self.get_sensors(state)
             self.ep_federate.update_sensors()
-            
 
     def run(self):
-        # self.ep_federate = 
+        # self.ep_federate =
         state = self.api.state_manager.new_state()
         # Register callbacks
-        self.api.runtime.callback_after_new_environment_warmup_complete(
-            state, self._warmup_complete_callback
-        )
         self.api.runtime.callback_end_zone_timestep_after_zone_reporting(
             state, self._timestep_callback
         )
@@ -122,19 +117,18 @@ class energyplus_runner:
                 "-w",
                 self.epw_path,
                 self.idf_path,
-            ]
+            ],
         )
         print(f"EnergyPlus exited with code: {exit_code}")
         self.ep_federate.destroy_federate()
 
 
-energyplus_runner = energyplus_runner(defs.OUTPUT_DIR, 
-                                      defs.EPW_PATH, 
-                                      defs.IDF_PATH)
+energyplus_runner = energyplus_runner(defs.OUTPUT_DIR, defs.EPW_PATH, defs.IDF_PATH)
 energyplus_runner.run()
 
-# plot hs.results["Time"] vs hs.results["Energy"]
+# plot ep_fed.results["Time"] vs ep_fed.results["Energy"]
 import matplotlib.pyplot as plt
+
 plt.plot(ep_fed.results["Time"], ep_fed.results["Energy"])
 plt.xlabel("Time (s)")
 plt.ylabel("Energy (J)")
