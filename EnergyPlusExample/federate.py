@@ -78,7 +78,7 @@ class energyplus_federate:
                 f'{definitions.ACTUATORS[i]["component_type"]}/{definitions.ACTUATORS[i]["control_type"]}/{definitions.ACTUATORS[i]["actuator_key"]}',
                 definitions.ACTUATORS[i]["actuator_unit"],
             )
-            sub_name = h.helicsSubscriptionGetTarget(subid)
+            sub_name = h.helicsInputGetTarget(subid)
             if sub_name not in self.subs:
                 self.subs[sub_name] = Sub(name=sub_name, id=subid)
             self.logger.debug(f"\tRegistered subscription---> {sub_name}")

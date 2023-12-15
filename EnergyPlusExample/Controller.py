@@ -5,7 +5,7 @@ import logging
 
 logger = logging.getLogger(__name__)
 logger.addHandler(logging.StreamHandler())
-logger.setLevel(logging.DEBUG)
+logger.setLevel(logging.INFO)
 
 PUBS = [{"Name": "Schedule:Constant/Schedule Value/Supply Temperature Difference Schedule Mod",
          "Type": "double",
@@ -61,32 +61,19 @@ if __name__ == "__main__":
         pubid[i] = h.helicsFederateRegisterGlobalTypePublication(
             fed, PUBS[i]["Name"] , PUBS[i]["Type"], PUBS[i]["Units"]
         )
+        pub_name = h.helicsPublicationGetName(pubid[i])
+        logger.debug(f"\tRegistered publication---> {pub_name}")
 
     subid = {}
     for i in range(0, len(SUBS)):
         subid[i] = h.helicsFederateRegisterSubscription(fed, SUBS[i]["Name"], SUBS[i]["Units"])
+        sub_name = h.helicsInputGetTarget(subid[i])
+        logger.debug(f"\tRegistered subscription---> {sub_name}")
         
-    print(f"Subscriptions: {subid}")
-
     sub_count = h.helicsFederateGetInputCount(fed)
     logger.debug(f"\tNumber of subscriptions: {sub_count}")
     pub_count = h.helicsFederateGetPublicationCount(fed)
     logger.debug(f"\tNumber of publications: {pub_count}")
-
-    # Diagnostics to confirm JSON config correctly added the required
-    #   publications, and subscriptions.
-    subid = {}
-    for i in range(0, sub_count):
-        subid[i] = h.helicsFederateGetInputByIndex(fed, i)
-        sub_name = h.helicsSubscriptionGetTarget(subid[i])
-        logger.debug(f"\tRegistered subscription---> {sub_name}")
-    print(f"Subscriptions: {subid}")
-
-    pubid = {}
-    for i in range(0, pub_count):
-        pubid[i] = h.helicsFederateGetPublicationByIndex(fed, i)
-        pub_name = h.helicsPublicationGetName(pubid[i])
-        logger.debug(f"\tRegistered publication---> {pub_name}")
 
     ##############  Entering Execution Mode  ##################################
     h.helicsFederateEnterExecutingMode(fed)
@@ -109,8 +96,6 @@ if __name__ == "__main__":
     logger.debug(f"Granted time {grantedtime}")
 
     grantedtime = 0
-    whole_building_energy = {}
-    time_sim = []
 
     ########## Main co-simulation loop ########################################
     # As long as granted time is in the time range to be simulated...
@@ -120,7 +105,6 @@ if __name__ == "__main__":
         requested_time_seconds = grantedtime + time_interval_seconds
         # logger.debug(f"Requesting time {requested_time}")
         grantedtime = h.helicsFederateRequestTime(fed, requested_time_seconds)
-        # logger.debug(f"Granted time {grantedtime}")
         # logger.debug(f"Granted time {grantedtime} seconds while requested time {requested_time_seconds} seconds with time interval {time_interval_seconds} seconds")
 
         T_delta_supply = 3 + grantedtime / 1000000000
@@ -129,11 +113,6 @@ if __name__ == "__main__":
         h.helicsPublicationPublishDouble(pubid[1], T_delta_return)
         # logger.debug(f"\tPublishing {h.helicsPublicationGetName(pubid[0])} value '{T_delta_supply}'.")
 
-
-        for j in range(0, sub_count):
-            whole_building_energy[j] = h.helicsInputGetDouble((subid[j]))
-
-        time_sim.append(grantedtime)
 
     # Cleaning up HELICS stuff once we've finished the co-simulation.
     destroy_federate(fed)
