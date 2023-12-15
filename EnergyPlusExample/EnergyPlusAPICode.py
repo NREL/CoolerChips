@@ -1,4 +1,4 @@
-"""This file to contain everything that is needed to run the EnergyPlus example."""
+"""An example for how to use the EnergyPlus Python API with HELICS."""
 from dataclasses import dataclass
 import federate as ep_fed
 import EnergyPlusExample.definitions as definitions
@@ -31,16 +31,10 @@ class Sensor:
 
 class energyplus_runner:
     def __init__(self, output_dir, epw_path, idf_path):
-        print("Hello")
         self.output_dir = output_dir
         self.epw_path = epw_path
         self.idf_path = idf_path
         self.api = EnergyPlusAPI()
-
-        self.T_delta_supply = 0
-        self.T_delta_return = 0
-        self.warmup_done = False
-        self.warmup_count = 0
         self.ep_federate = ep_fed.energyplus_federate(definitions.CONFIG_PATH)
         self.actuators = [
             Actuator(
@@ -101,7 +95,6 @@ class energyplus_runner:
             self.ep_federate.update_sensors()
 
     def run(self):
-        # self.ep_federate =
         state = self.api.state_manager.new_state()
         # Register callbacks
         self.api.runtime.callback_end_zone_timestep_after_zone_reporting(
@@ -123,7 +116,9 @@ class energyplus_runner:
         self.ep_federate.destroy_federate()
 
 
-energyplus_runner = energyplus_runner(definitions.OUTPUT_DIR, definitions.EPW_PATH, definitions.IDF_PATH)
+energyplus_runner = energyplus_runner(
+    definitions.OUTPUT_DIR, definitions.EPW_PATH, definitions.IDF_PATH
+)
 energyplus_runner.run()
 
 # plot ep_fed.results["Time"] vs ep_fed.results["Energy"]
