@@ -7,11 +7,11 @@ logger = logging.getLogger(__name__)
 logger.addHandler(logging.StreamHandler())
 logger.setLevel(logging.DEBUG)
 
-PUBS = [{"Name": "Schedule Constant/Schedule Value/Supply Temperature Difference Schedule Mod",
+PUBS = [{"Name": "Schedule:Constant/Schedule Value/Supply Temperature Difference Schedule Mod",
          "Type": "double",
          "Units": "C",
          "Global": True},
-        {"Name": "Schedule Constant/Schedule Value/Return Temperature Difference Schedule Mod",
+        {"Name": "Schedule:Constant/Schedule Value/Return Temperature Difference Schedule Mod",
          "Type": "double",
          "Units": "C",
          "Global": True}]
@@ -121,13 +121,13 @@ if __name__ == "__main__":
         # logger.debug(f"Requesting time {requested_time}")
         grantedtime = h.helicsFederateRequestTime(fed, requested_time_seconds)
         # logger.debug(f"Granted time {grantedtime}")
-        logger.debug(f"Granted time {grantedtime} seconds while requested time {requested_time_seconds} seconds with time interval {time_interval_seconds} seconds")
+        # logger.debug(f"Granted time {grantedtime} seconds while requested time {requested_time_seconds} seconds with time interval {time_interval_seconds} seconds")
 
-        T_delta_supply = 2 + grantedtime / 1000000000
+        T_delta_supply = 3 + grantedtime / 1000000000
         h.helicsPublicationPublishDouble(pubid[0], T_delta_supply)
         T_delta_return = -1
         h.helicsPublicationPublishDouble(pubid[1], T_delta_return)
-        logger.debug(f"\tPublishing {h.helicsPublicationGetName(pubid[0])} value '{T_delta_supply}'. Sleeping for {grantedtime / 10000000000} seconds")
+        # logger.debug(f"\tPublishing {h.helicsPublicationGetName(pubid[0])} value '{T_delta_supply}'.")
 
 
         for j in range(0, sub_count):
