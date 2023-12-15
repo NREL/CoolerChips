@@ -4,13 +4,13 @@
     "federates": [
       {
         "directory": ".",
-        "exec": "python -u EnergyPlusAPICode.py",
+        "exec": "python -u energyPlusAPI_Example.py",
         "host": "localhost",
         "name": "EnergyPlus_federate"
       },
       {
         "directory": ".",
-        "exec": "python -u Controller.py",
+        "exec": "python -u controller.py",
         "host": "localhost",
         "name": "Controller_federate"
       }

@@ -1,6 +1,5 @@
 
 IDF_PATH = "1ZoneDataCenterCRAC_wApproachTemp_mod.idf"
-CONFIG_PATH = "EnergyPlusConfig.json"
 OUTPUT_DIR = "./Output"
 EPW_PATH = "./EnergyPlus/WeatherData/USA_IL_Chicago-OHare.Intl.AP.725300_TMY3.epw"
 

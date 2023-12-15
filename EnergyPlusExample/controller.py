@@ -18,7 +18,7 @@ def create_value_federate(fedinitstring, name, period):
     h.helicsFederateInfoSetCoreInitString(
         fedinfo, fedinitstring
     )  # Can be used to set number of federates, etc
-    h.helicsFederateInfoSetIntegerProperty(fedinfo, h.HELICS_PROPERTY_INT_LOG_LEVEL, 1)
+    h.helicsFederateInfoSetIntegerProperty(fedinfo, h.HELICS_PROPERTY_INT_LOG_LEVEL, definitions.LOG_LEVEL_MAP["helics_log_level_warning"])
     h.helicsFederateInfoSetTimeProperty(fedinfo, h.HELICS_PROPERTY_TIME_PERIOD, period)
     h.helicsFederateInfoSetFlagOption(
         fedinfo, h.HELICS_FLAG_UNINTERRUPTIBLE, True
@@ -105,15 +105,11 @@ if __name__ == "__main__":
     logger.debug(f"Time interval is {time_interval_seconds} seconds")
 
     # Blocking call for a time request at simulation time 0
-    initial_time = 0
-
     logger.debug(
-        f"Current time is {h.helicsFederateGetCurrentTime(fed)}. Requesting initial time {initial_time}"
+        f"Current time is {h.helicsFederateGetCurrentTime(fed)}."
     )
-    grantedtime = h.helicsFederateRequestTime(fed, initial_time)
-    logger.debug(f"Granted time {grantedtime}")
-
     grantedtime = 0
+    logger.debug(f"Granted time {grantedtime}")
 
     ########## Main co-simulation loop ########################################
     # As long as granted time is in the time range to be simulated...
@@ -121,7 +117,7 @@ if __name__ == "__main__":
 
         # Time request for the next physical interval to be simulated
         requested_time_seconds = grantedtime + time_interval_seconds
-        # logger.debug(f"Requesting time {requested_time}")
+        # logger.debug(f"Requesting time {requested_time_seconds}")
         grantedtime = h.helicsFederateRequestTime(fed, requested_time_seconds)
         # logger.debug(f"Granted time {grantedtime} seconds while requested time {requested_time_seconds} seconds with time interval {time_interval_seconds} seconds")
 
@@ -130,6 +126,8 @@ if __name__ == "__main__":
         T_delta_return = -1
         h.helicsPublicationPublishDouble(pubid[1], T_delta_return)
         # logger.debug(f"\tPublishing {h.helicsPublicationGetName(pubid[0])} value '{T_delta_supply}'.")
+        # logger.debug(f"\tPublishing {h.helicsPublicationGetName(pubid[1])} value '{T_delta_return}'.")
 
     # Cleaning up HELICS stuff once we've finished the co-simulation.
+    logger.debug(f"Destroying federate at time {grantedtime} seconds")
     destroy_federate(fed)

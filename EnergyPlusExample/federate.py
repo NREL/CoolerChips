@@ -22,15 +22,16 @@ results = {"Energy": [], "Time": []}
 
 
 class energyplus_federate:
-    def __init__(self, config_path):
+    def __init__(self):
         import helics as h
 
         self.logger = logging.getLogger(__name__)
+        self.logger.setLevel(logging.DEBUG)
         self.subs = {}
         self.pubs = {}
         self.granted_time = 0
         self.federate = None
-        self.setup_helics_federate(config_path)
+        self.setup_helics_federate()
         self.time_interval_seconds = int(
             h.helicsFederateGetTimeProperty(
                 self.federate, h.HELICS_PROPERTY_TIME_PERIOD
@@ -45,7 +46,7 @@ class energyplus_federate:
         fedinfo = h.helicsCreateFederateInfo()
         h.helicsFederateInfoSetCoreTypeFromString(fedinfo, "zmq")  # ZMQ is the default and works well for small co-simulations
         h.helicsFederateInfoSetCoreInitString(fedinfo, fedinitstring)  # Can be used to set number of federates, etc
-        h.helicsFederateInfoSetIntegerProperty(fedinfo, h.HELICS_PROPERTY_INT_LOG_LEVEL, definitions.LOG_LEVEL_MAP["helics_log_level_warning"])
+        h.helicsFederateInfoSetIntegerProperty(fedinfo, h.HELICS_PROPERTY_INT_LOG_LEVEL, definitions.LOG_LEVEL_MAP["helics_log_level_trace"])
         h.helicsFederateInfoSetTimeProperty(fedinfo, h.HELICS_PROPERTY_TIME_PERIOD, period)
         h.helicsFederateInfoSetFlagOption(fedinfo, h.HELICS_FLAG_UNINTERRUPTIBLE, True)  # Forces the granted time to be the requested time (i.e., EnergyPlus timestep)
         h.helicsFederateInfoSetFlagOption(fedinfo, h.HELICS_FLAG_TERMINATE_ON_ERROR, True)  # Stop the whole co-simulation if there is an error
@@ -56,7 +57,7 @@ class energyplus_federate:
         return fed                                          
 
     # Function to create and configure HELICS federate
-    def setup_helics_federate(self, config_path):
+    def setup_helics_federate(self ):
         import helics as h
         self.federate = self.create_value_federate("", "EnergyPlus_federate_1", 600)
         self.logger.info("HELICS federate for EnergyPlus created.")

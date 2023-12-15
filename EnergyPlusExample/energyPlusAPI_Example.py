@@ -37,7 +37,7 @@ class energyplus_runner:
         self.api = EnergyPlusAPI()
         self.warmup_done = False
         self.warmup_count = 0
-        self.ep_federate = ep_fed.energyplus_federate(definitions.CONFIG_PATH)
+        self.ep_federate = ep_fed.energyplus_federate()
         self.actuators = [
             Actuator(
                 component_type=actuator["component_type"],
@@ -126,7 +126,7 @@ class energyplus_runner:
                 self.idf_path,
             ],
         )
-        print(f"EnergyPlus exited with code: {exit_code}")
+        print(f"EnergyPlus exited with code: {exit_code}, at HELICS time {self.ep_federate.granted_time}.")
         self.ep_federate.destroy_federate()
 
 
