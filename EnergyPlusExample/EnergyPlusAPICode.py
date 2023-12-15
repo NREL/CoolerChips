@@ -1,7 +1,7 @@
 """This file to contain everything that is needed to run the EnergyPlus example."""
 from dataclasses import dataclass
 import federate as ep_fed
-import defs
+import EnergyPlusExample.definitions as definitions
 import sys
 
 # We specify the path to the EnergyPlus installation directory
@@ -41,7 +41,7 @@ class energyplus_runner:
         self.T_delta_return = 0
         self.warmup_done = False
         self.warmup_count = 0
-        self.ep_federate = ep_fed.energyplus_federate(defs.CONFIG_PATH)
+        self.ep_federate = ep_fed.energyplus_federate(definitions.CONFIG_PATH)
         self.actuators = [
             Actuator(
                 component_type=actuator["component_type"],
@@ -51,7 +51,7 @@ class energyplus_runner:
                     f'{actuator["component_type"]}/{actuator["control_type"]}/{actuator["actuator_key"]}'
                 ],
             )
-            for actuator in defs.ACTUATORS
+            for actuator in definitions.ACTUATORS
         ]
         self.sensors = [
             Sensor(
@@ -62,7 +62,7 @@ class energyplus_runner:
                     f'{sensor["variable_key"]}/{sensor["variable_name"]}'
                 ],
             )
-            for sensor in defs.SENSORS
+            for sensor in definitions.SENSORS
         ]
 
     def set_actuators(self, state):
@@ -123,7 +123,7 @@ class energyplus_runner:
         self.ep_federate.destroy_federate()
 
 
-energyplus_runner = energyplus_runner(defs.OUTPUT_DIR, defs.EPW_PATH, defs.IDF_PATH)
+energyplus_runner = energyplus_runner(definitions.OUTPUT_DIR, definitions.EPW_PATH, definitions.IDF_PATH)
 energyplus_runner.run()
 
 # plot ep_fed.results["Time"] vs ep_fed.results["Energy"]

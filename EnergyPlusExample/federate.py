@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-import defs
+import EnergyPlusExample.definitions as definitions
 import logging
 
 
@@ -29,9 +29,7 @@ class energyplus_federate:
         self.pubs = {}
         self.granted_time = 0
         self.federate = None
-        print("Setting up HELICS federate")
         self.setup_helics_federate(config_path)
-        print("HELICS federate setup complete")
         self.time_interval_seconds = int(
             h.helicsFederateGetTimeProperty(
                 self.federate, h.HELICS_PROPERTY_TIME_PERIOD
@@ -43,9 +41,8 @@ class energyplus_federate:
     def setup_helics_federate(self, config_path):
         import helics as h
 
-        print(config_path)
         self.federate = h.helicsCreateValueFederateFromConfig(config_path)
-        print("HELICS federate created")
+        self.logger.info("HELICS federate for EnergyPlus created.")
         self.register_pubs()
         self.register_subs()
         h.helicsFederateEnterExecutingMode(self.federate)
@@ -54,15 +51,15 @@ class energyplus_federate:
     def register_pubs(self):  # Sensors
         import helics as h
 
-        for i in range(0, len(defs.SENSORS)):
-            print(
-                f'Registering publication: {defs.SENSORS[i]["variable_key"]}/{defs.SENSORS[i]["variable_name"]}'
+        for i in range(0, len(definitions.SENSORS)):
+            self.logger.info(
+                f'Registering publication: {definitions.SENSORS[i]["variable_key"]}/{definitions.SENSORS[i]["variable_name"]}'
             )
             pubid = h.helicsFederateRegisterGlobalTypePublication(
                 self.federate,
-                f'{defs.SENSORS[i]["variable_key"]}/{defs.SENSORS[i]["variable_name"]}',
+                f'{definitions.SENSORS[i]["variable_key"]}/{definitions.SENSORS[i]["variable_name"]}',
                 "double",
-                defs.SENSORS[i]["variable_unit"],
+                definitions.SENSORS[i]["variable_unit"],
             )
             pub_name = h.helicsPublicationGetName(pubid)
             if pub_name not in self.pubs:
@@ -72,14 +69,14 @@ class energyplus_federate:
     def register_subs(self):  # Actuators
         import helics as h
 
-        for i in range(0, len(defs.ACTUATORS)):
-            print(
-                f'Registering subscription: {defs.ACTUATORS[i]["component_type"]}/{defs.ACTUATORS[i]["control_type"]}/{defs.ACTUATORS[i]["actuator_key"]}'
+        for i in range(0, len(definitions.ACTUATORS)):
+            self.logger.info(
+                f'Registering subscription: {definitions.ACTUATORS[i]["component_type"]}/{definitions.ACTUATORS[i]["control_type"]}/{definitions.ACTUATORS[i]["actuator_key"]}'
             )
             subid = h.helicsFederateRegisterSubscription(
                 self.federate,
-                f'{defs.ACTUATORS[i]["component_type"]}/{defs.ACTUATORS[i]["control_type"]}/{defs.ACTUATORS[i]["actuator_key"]}',
-                defs.ACTUATORS[i]["actuator_unit"],
+                f'{definitions.ACTUATORS[i]["component_type"]}/{definitions.ACTUATORS[i]["control_type"]}/{definitions.ACTUATORS[i]["actuator_key"]}',
+                definitions.ACTUATORS[i]["actuator_unit"],
             )
             sub_name = h.helicsSubscriptionGetTarget(subid)
             if sub_name not in self.subs:
@@ -93,7 +90,7 @@ class energyplus_federate:
         self.granted_time = h.helicsFederateRequestTime(
             self.federate, requested_time_seconds
         )
-        print(
+        self.logger.debug(
             f"Requested time {requested_time_seconds}, granted time {self.granted_time}"
         )
         return self.granted_time
@@ -106,7 +103,7 @@ class energyplus_federate:
                 self.subs[sub_key].value = h.helicsInputGetDouble(self.subs[sub_key].id)
             else:
                 self.subs[sub_key].value = 0
-                print(f"{sub_key} was not updated, set to zero.")
+                self.logger.warning(f"{sub_key} was not updated, set to zero.")
 
         return self.subs
 
