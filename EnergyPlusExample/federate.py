@@ -122,6 +122,6 @@ class energyplus_federate:
     def destroy_federate(self):
         import helics as h
 
-        h.helicsFederateFinalize(self.federate)
+        h.helicsFederateDisconnect(self.federate)
         h.helicsFederateFree(self.federate)
         h.helicsCloseLibrary()

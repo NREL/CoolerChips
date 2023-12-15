@@ -5,7 +5,7 @@ import logging
 
 logger = logging.getLogger(__name__)
 logger.addHandler(logging.StreamHandler())
-logger.setLevel(logging.INFO)
+logger.setLevel(logging.DEBUG)
 
 PUBS = [{"Name": "Schedule:Constant/Schedule Value/Supply Temperature Difference Schedule Mod",
          "Type": "double",
@@ -57,7 +57,6 @@ if __name__ == "__main__":
     
     pubid = {}
     for i in range(0, len(PUBS)):
-        print(f"Registering publication {PUBS[i]['Name']}, {PUBS[i]['Type']}, {PUBS[i]['Units']}""")
         pubid[i] = h.helicsFederateRegisterGlobalTypePublication(
             fed, PUBS[i]["Name"] , PUBS[i]["Type"], PUBS[i]["Units"]
         )
