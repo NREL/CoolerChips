@@ -6,7 +6,7 @@ import definitions
 import sys
 
 # We specify the path to the EnergyPlus installation directory
-ENERGYPLUS_INSTALL_PATH = "../EnergyPlus"
+ENERGYPLUS_INSTALL_PATH = definitions.ENERGYPLUS_INSTALL_PATH
 # Add the path to the pyenergyplus directory to sys.path
 sys.path.append(ENERGYPLUS_INSTALL_PATH)
 from pyenergyplus.api import EnergyPlusAPI

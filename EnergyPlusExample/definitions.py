@@ -1,7 +1,10 @@
+import os
 
 IDF_PATH = "1ZoneDataCenterCRAC_wApproachTemp_mod.idf"
 OUTPUT_DIR = "./Output"
-EPW_PATH = "./EnergyPlus/WeatherData/USA_IL_Chicago-OHare.Intl.AP.725300_TMY3.epw"
+ENERGYPLUS_INSTALL_PATH = "../EnergyPlus"
+EPW_PATH = os.path.join(ENERGYPLUS_INSTALL_PATH, "WeatherData/USA_IL_Chicago-OHare.Intl.AP.725300_TMY3.epw")
+
 
 ACTUATORS = [{"component_type": "Schedule:Constant",
               "control_type": "Schedule Value",
