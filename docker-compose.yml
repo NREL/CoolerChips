@@ -1,0 +1,8 @@
+version: '3'
+services:
+  main:
+    build: EnergyPlusExample
+    volumes:
+      - ./EnergyPlusExample:/app
+    env_file:
+      - .env

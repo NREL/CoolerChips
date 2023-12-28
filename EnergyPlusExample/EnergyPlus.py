@@ -1,4 +1,5 @@
 import os
+from pathlib import Path
 import sys
 import logging
 import matplotlib.pyplot as plt
@@ -7,7 +8,7 @@ import pandas as pd
 
 
 # We specify the path to the EnergyPlus installation directory
-ENERGYPLUS_INSTALL_PATH = "./EnergyPlus"
+ENERGYPLUS_INSTALL_PATH = "../EnergyPlus"
 # Add the path to the pyenergyplus directory to sys.path
 sys.path.append(ENERGYPLUS_INSTALL_PATH)
 from pyenergyplus.api import EnergyPlusAPI
@@ -29,6 +30,7 @@ state = api.state_manager.new_state()
 
 # Paths for EnergyPlus input and output
 output_dir = "./Output"
+Path(output_dir).mkdir(parents=True, exist_ok=True)
 idf_path = os.path.join("1ZoneDataCenterCRAC_wApproachTemp_mod.idf")
 epw_path = os.path.join(
     ENERGYPLUS_INSTALL_PATH,
@@ -168,8 +170,6 @@ def main():
             output_dir,
             "-w",
             epw_path,
-            "-i",
-            "Energy+.idd",
             idf_path,
         ],
     )
