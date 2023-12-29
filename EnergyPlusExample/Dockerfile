@@ -25,4 +25,4 @@ RUN ln -s /EnergyPlus/energyplus /usr/local/bin/energyplus
 
 WORKDIR /app
 
-CMD ["bash"]
+CMD ["helics", "run", "--path=runner.json"]
