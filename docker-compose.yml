@@ -4,5 +4,3 @@ services:
     build: EnergyPlusExample
     volumes:
       - ./EnergyPlusExample:/app
-    env_file:
-      - .env
