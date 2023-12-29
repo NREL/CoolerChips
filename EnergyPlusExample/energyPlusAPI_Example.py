@@ -143,4 +143,5 @@ import matplotlib.pyplot as plt
 plt.plot(ep_fed.results["Time"], ep_fed.results["Energy"])
 plt.xlabel("Time (s)")
 plt.ylabel("Energy (J)")
+plt.savefig("OutputImage.pdf", format="pdf", bbox_inches="tight")
 plt.show()
