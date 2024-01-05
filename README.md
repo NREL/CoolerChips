@@ -17,6 +17,5 @@ How to use this:
 6. You should see the output image as a file called `OutputImage.pdf`.
 
 
-	[OutputImage.pdf](https://github.com/NREL/CoolerChips/files/13845905/OutputImage.pdf)
-	
 
+![image](https://github.com/NREL/CoolerChips/assets/45446967/64d848ee-f84d-4308-b119-1d185232fcdd)
