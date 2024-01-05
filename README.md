@@ -15,5 +15,8 @@ How to use this:
 5. Run the container:
 	`docker compose up`
 6. You should see the output image as a file called `OutputImage.pdf`.
-		
+
+
+	[OutputImage.pdf](https://github.com/NREL/CoolerChips/files/13845905/OutputImage.pdf)
+	
 
