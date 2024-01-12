@@ -1,0 +1,6 @@
+Created federate Controller
+	Registered publication---> Schedule:Constant/Schedule Value/Supply Temperature Difference Schedule Mod
+	Registered publication---> Schedule:Constant/Schedule Value/Return Temperature Difference Schedule Mod
+	Registered subscription---> Whole Building/Facility Total Building Electricity Demand Rate
+	Number of subscriptions: 1
+	Number of publications: 2

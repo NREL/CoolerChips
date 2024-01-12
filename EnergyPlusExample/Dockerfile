@@ -3,11 +3,13 @@ FROM ubuntu:22.04
 ENV ENERGYPLUS_LINK=https://github.com/NREL/EnergyPlus/releases/download/v23.2.0/EnergyPlus-23.2.0-7636e6b3e9-Linux-Ubuntu20.04-x86_64.tar.gz
 
 # Install system dependencies
-RUN  apt-get update && apt-get install -y \ 
+RUN  apt-get update && apt-get install -y \
     wget=1.21.*\
     unzip=6.0-* \
+    cmake \
+    git \
     python3=3.10.* \
-    python3-pip=22.0.* \ 
+    python3-pip=22.0.* \
     python-is-python3
 
 # Download and install EnergyPlus    
