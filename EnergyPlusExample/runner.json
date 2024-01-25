@@ -13,6 +13,12 @@
         "exec": "python -u controller.py",
         "host": "localhost",
         "name": "Controller_federate"
+      },
+      {
+        "directory": ".",
+        "exec": "python -u thermal_federate.py",
+        "host": "localhost",
+        "name": "Thermal_federate"
       }
     ]
   }
