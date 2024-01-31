@@ -1,9 +1,11 @@
 # from typing import ItemsView
 # importing the required module
+import os
 import matplotlib.pyplot as plt
 # import math
 import numpy as np
 import pandas as pd
+import definitions
 # from google.colab import drive
 
 #import CSV file of E+ Data
@@ -11,7 +13,8 @@ import pandas as pd
 #When importing this file into your own google drive ensure that
 #your file is linked properly by creating the correct path.
 #If the E+ data has additional columns or changes the order in the csv file then column numbers will need to be changed.
-data=pd.read_csv('/app/Resources/2ZoneDataCenterCRAHandplant_fixCPU_varyLoadprofile_sample.csv', low_memory=False)
+data=pd.read_csv(os.path.join(definitions.RESOURCES_DIR, '2ZoneDataCenterCRAHandplant_fixCPU_varyLoadprofile_sample.csv'), 
+                 low_memory=False)
 
 data_array = data.to_numpy()
 
@@ -210,7 +213,8 @@ plt.xlabel('Year')
 # naming the y axis
 plt.ylabel('ROI')
 plt.title('ROI')
-plt.savefig("cost_model_output_ROI", bbox_inches="tight")
+plt.savefig(os.path.join(definitions.OUTPUT_DIR, "graphs", "cost_model_output_ROI"), 
+            bbox_inches="tight")
 plt.show()
 
 # plotting the points
@@ -222,7 +226,8 @@ plt.xlabel('Year')
 # naming the y axis
 plt.ylabel('IRR')
 plt.title('IRR')
-plt.savefig("cost_model_output_IRR", bbox_inches="tight")
+plt.savefig(os.path.join(definitions.OUTPUT_DIR, "graphs", "cost_model_output_IRR"), 
+            bbox_inches="tight")
 plt.show()
 
 #Finding the breakeven year
