@@ -2,11 +2,9 @@
 # importing the required module
 import os
 import matplotlib.pyplot as plt
-# import math
 import numpy as np
 import pandas as pd
 import definitions
-# from google.colab import drive
 
 #import CSV file of E+ Data
 #This code is setup to read the E+ data through a google drive.
@@ -215,7 +213,7 @@ plt.ylabel('ROI')
 plt.title('ROI')
 plt.savefig(os.path.join(definitions.OUTPUT_DIR, "graphs", "cost_model_output_ROI"), 
             bbox_inches="tight")
-plt.show()
+# plt.show()
 
 # plotting the points
 plt.scatter(N_Time, IRR)
@@ -228,7 +226,7 @@ plt.ylabel('IRR')
 plt.title('IRR')
 plt.savefig(os.path.join(definitions.OUTPUT_DIR, "graphs", "cost_model_output_IRR"), 
             bbox_inches="tight")
-plt.show()
+# plt.show()
 
 #Finding the breakeven year
 i = 1
