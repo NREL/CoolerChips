@@ -17,3 +17,4 @@ pytz==2023.3.post1
 six==1.16.0
 strip-hints==0.1.10
 tzdata==2023.3
+scipy==1.12.0
