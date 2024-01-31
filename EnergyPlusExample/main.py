@@ -7,10 +7,17 @@ commands = [
     # Add more as needed
 ]
 
-for command in commands:
-    try:
-        result = subprocess.run(command, check=True, text=True, capture_output=True)
-        print(f"Command {command} executed successfully. Output:\n{result.stdout}")
-    except subprocess.CalledProcessError as e:
-        print(f"Error executing {command}: {e.stderr}")
-        break  # or continue, depending on whether you want to stop on error or not
+def run_command(command):
+    process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
+
+    for line in iter(process.stdout.readline, ''):
+        print(line, end='')
+
+    process.wait()
+    print(f"Command '{' '.join(command)}' finished with exit code {process.returncode}")
+
+
+for cmd in commands:
+    print(f"Running command: {' '.join(cmd)}")
+    run_command(cmd)
+    print("-" * 50)  # Separator between command outputs
