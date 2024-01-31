@@ -18,7 +18,7 @@ class Sub:
 
 
 # Define a dictionary to store the results - unnecessary if you don't need it. 
-results = {"Energy": [], "Time": []}
+results = {"HVAC Energy": [], "Total Energy": [], "Time": [], "Liquid Cooling Load": [], "Supply Approach Temperature": [], "CPU load": []}
 
 
 class energyplus_federate:
@@ -57,9 +57,9 @@ class energyplus_federate:
         return fed                                          
 
     # Function to create and configure HELICS federate
-    def setup_helics_federate(self ):
+    def setup_helics_federate(self):
         import helics as h
-        self.federate = self.create_value_federate("", "EnergyPlus_federate_1", 600)
+        self.federate = self.create_value_federate("", "EnergyPlus_federate_1", definitions.TIMESTEP_PERIOD_SECONDS)
         self.logger.info("HELICS federate for EnergyPlus created.")
         self.register_pubs()
         self.register_subs()
@@ -122,6 +122,12 @@ class energyplus_federate:
             else:
                 self.subs[sub_key].value = 0
                 self.logger.warning(f"{sub_key} was not updated at {self.granted_time}, set to zero.")
+            if sub_key == "Schedule:Compact/Schedule Value/Load Profile 1 Load Schedule":
+                results["Liquid Cooling Load"].append(self.subs[sub_key].value*(-1))
+            elif sub_key == "Schedule:Constant/Schedule Value/Supply Temperature Difference Schedule Mod":
+                results["Supply Approach Temperature"].append(self.subs[sub_key].value)
+            elif sub_key == "Schedule:Compact/Schedule Value/Data Center CPU Loading Schedule":
+                results["CPU load"].append(self.subs[sub_key].value)
 
         return self.subs
 
@@ -132,9 +138,11 @@ class energyplus_federate:
             h.helicsPublicationPublishDouble(
                 self.pubs[pub_key].id, self.pubs[pub_key].value
             )
-        if pub_key == "Whole Building/Facility Total Building Electricity Demand Rate":
-            results["Energy"].append(self.pubs[pub_key].value)
-            results["Time"].append(self.granted_time)
+            if pub_key == "Whole Building/Facility Total HVAC Electricity Demand Rate":
+                results["HVAC Energy"].append(self.pubs[pub_key].value)
+            elif pub_key == "Whole Building/Facility Total Electricity Demand Rate":
+                results["Total Energy"].append(self.pubs[pub_key].value)
+        results["Time"].append(self.granted_time)
 
     # Function to clean up HELICS federate
     def destroy_federate(self):
