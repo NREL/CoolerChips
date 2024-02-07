@@ -1,5 +1,6 @@
 """An example for how to use the EnergyPlus Python API with HELICS."""
 from dataclasses import dataclass
+import os
 from pathlib import Path
 import federate as ep_fed
 import definitions
@@ -140,8 +141,11 @@ energyplus_runner.run()
 # plot ep_fed.results["Time"] vs ep_fed.results["Energy"]
 import matplotlib.pyplot as plt
 
-plt.plot(ep_fed.results["Time"], ep_fed.results["Energy"])
+scaled_energy = [x / 1000 for x in ep_fed.results["Energy"]]
+plt.plot(ep_fed.results["Time"], scaled_energy)
 plt.xlabel("Time (s)")
-plt.ylabel("Energy (J)")
-plt.savefig("OutputImage.pdf", format="pdf", bbox_inches="tight")
+plt.ylabel("Energy (kJ)")
+plt.title("Whole Building/Facility Total Building Electricity Demand Rate")
+plt.savefig((os.path.join(definitions.OUTPUT_DIR, "graphs", f"EnergyPlus Electricity Demand Rate")),
+            bbox_inches="tight")
 plt.show()

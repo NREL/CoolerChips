@@ -7,14 +7,16 @@ Original file is located at
     https://colab.research.google.com/drive/1ZffKiKbhoqkY6tu8URNTcDd5UtBgRYj3
 """
 # pip install numpy 
+import os
 import numpy as np
 import pandas as pd
+import definitions
 import pickle
 import matplotlib.pyplot as plt
 from scipy.interpolate import griddata
 
 
-def main():
+def main(period_number):
     # -------Initializing variables
     #Setting temp (u), vecocity (v) & pressure P node values to zero
     #2600 data points (or rows), 6 columns
@@ -123,22 +125,28 @@ def main():
         u_pred = griddata((x_cor, y_cor), u_pred, (X, Y), method='cubic')
         output_dict[num_modes] = u_pred
         ref = griddata((x_cor, y_cor), u_validation, (X, Y), method='cubic')
-    return pickle.dumps(output_dict)
-#     plt.subplot(3, 2, num_modes, aspect = 'equal')
-#     plt.subplots_adjust(left=0.4, right=1.4, bottom=0.4, top=1.4, wspace=0.1, hspace=0.4)
-#     plt.contourf(X, Y, u_pred, 100)
-#     plt.colorbar()
-#     plt.title(str(num_modes) + " modes")
+        print(u_pred[period_number+30][:5])
+        # return pickle.dumps(output_dict)
+        plt.subplot(3, 2, num_modes, aspect = 'equal')
+        plt.subplots_adjust(left=0.4, right=1.4, bottom=0.4, top=1.4, wspace=0.1, hspace=0.4)
+        plt.contourf(X, Y, u_pred, 100)
+        plt.colorbar()
+        plt.title(str(num_modes) + " modes")
+    plt.savefig((os.path.join(definitions.OUTPUT_DIR, "graphs", f"thermal_model_modes")), 
+            bbox_inches="tight")
+    plt.close()
 
 # export output_dict
 
-# plt.contourf(X, Y, ref, 100)
-# plt.title('Reference')
-# plt.colorbar()
+    # plt.figure()
+    # plt.contourf(X, Y, ref, 100)
+    # plt.title('Reference')
+    # plt.colorbar()
 
-# plt.plot(range(1, 7), error, linewidth=2)
-# plt.xlabel('Number of modes', fontsize=18)
-# plt.ylabel("Maximum absolute error", fontsize=18)
+    # plt.plot(range(1, 7), error, linewidth=2)
+    # plt.xlabel('Number of modes', fontsize=8)
+    # plt.ylabel("Maximum absolute error", fontsize=8)
 
-# plt.savefig("OutputImage2.pdf", format="pdf", bbox_inches="tight")
-# plt.show()
+    # plt.savefig((os.path.join(definitions.OUTPUT_DIR, "graphs", f"thermal_model_reference_{period_number}")), 
+    #             bbox_inches="tight")
+    # plt.show()

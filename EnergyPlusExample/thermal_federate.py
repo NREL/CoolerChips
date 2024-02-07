@@ -123,7 +123,8 @@ if __name__ == "__main__":
         # logger.debug(f"Requesting time {requested_time_seconds}")
         grantedtime = h.helicsFederateRequestTime(fed, requested_time_seconds)
         # logger.debug(f"Granted time {grantedtime} seconds while requested time {requested_time_seconds} seconds with time interval {time_interval_seconds} seconds")
-        liddrivencavity.main()
+        nth_period = int(grantedtime / time_interval_seconds)
+        liddrivencavity.main(nth_period)
         print(f'Running liddrivencavity at {grantedtime}.') #liddrivencavity.main())
 
         # T_delta_supply = 3 + grantedtime / 1000000000

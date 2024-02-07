@@ -213,7 +213,7 @@ plt.ylabel('ROI')
 plt.title('ROI')
 plt.savefig(os.path.join(definitions.OUTPUT_DIR, "graphs", "cost_model_output_ROI"), 
             bbox_inches="tight")
-# plt.show()
+plt.close()
 
 # plotting the points
 plt.scatter(N_Time, IRR)
