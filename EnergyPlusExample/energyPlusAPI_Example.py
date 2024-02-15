@@ -110,6 +110,11 @@ class energyplus_runner:
     def run(self):
         state = self.api.state_manager.new_state()
         # Register callbacks
+        # TODO: add line below to update idf setting to reflect data center design customization if any
+        # self.api.runtime.callback_after_component_get_input(state, self._before_sizing_callback)
+        # e.g., liquid cooling design flow rate (current peak design uses 1m3/s as placeholder, can update through
+        # actuator called "Plant Load Profile" with control type called "Mass Flow Rate" (in kg/s)
+
         self.api.runtime.callback_after_new_environment_warmup_complete(
         state, self._warmup_complete_callback
         )
@@ -140,8 +145,35 @@ energyplus_runner.run()
 # plot ep_fed.results["Time"] vs ep_fed.results["Energy"]
 import matplotlib.pyplot as plt
 
-plt.plot(ep_fed.results["Time"], ep_fed.results["Energy"])
-plt.xlabel("Time (s)")
-plt.ylabel("Energy (J)")
-plt.savefig("OutputImage.pdf", format="pdf", bbox_inches="tight")
+# time_slice = slice(31392, 32400)  # this is August 1-7 in annual simulation
+if definitions.CONTROL_OPTION == definitions.CHANGE_LIQUID_COOLING:
+    time_slice = slice(4464, 5472)  # this is August 1-7 in Jul-Aug runperiod
+    y2 = ep_fed.results["Liquid Cooling Load"][time_slice]
+    y2_label = "Liquid Cooling Load (W)"
+elif definitions.CONTROL_OPTION == definitions.CHANGE_SUPPLY_DELTA_T:
+    time_slice = slice(None)  # this is whole Jul to Aug
+    y2 = ep_fed.results["Supply Approach Temperature"][time_slice]
+    y2_label = "Supply Approach Temperature (C)"
+elif definitions.CONTROL_OPTION == definitions.CHANGE_IT_LOAD:
+    time_slice = slice(None)  # this is whole Jul to Aug
+    y2 = ep_fed.results["CPU load"][time_slice]
+    y2_label = "CPU load fraction"
+else:
+    print("CONTROL_OPTION not defined correctly in definitions.py")
+x = ep_fed.results["Time"][time_slice]
+y1 = ep_fed.results["HVAC Energy"][time_slice]
+
+fig, ax1 = plt.subplots()
+ax1.plot(x, y1, 'g-')
+ax1.set_xlabel('Time (s)')
+ax1.set_ylabel('HVAC Energy (W)', color='g')
+# Plot the second data set on the secondary axis
+ax2 = ax1.twinx()
+ax2.plot(x, y2, 'b--')  # Blue solid line
+ax2.set_ylabel(y2_label, color='b')
+if definitions.CONTROL_OPTION == definitions.CHANGE_LIQUID_COOLING:
+    ax2.set_ylim([0, 2000000])  # for CHANGE_LIQUID_COOLING only
+
+
 plt.show()
+plt.savefig("OutputImage.pdf", format="pdf", bbox_inches="tight")
