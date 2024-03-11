@@ -44,7 +44,7 @@ if __name__ == "__main__":
     ##############  Registering  federate  ##########################
     fedinitstring = " --federates=1"
     name = "Controller"
-    period = 10
+    period = definitions.TIMESTEP_PERIOD_SECONDS
     fed = create_value_federate(fedinitstring, name, period)
 
     federate_name = h.helicsFederateGetName(fed)
@@ -95,9 +95,11 @@ if __name__ == "__main__":
     h.helicsFederateEnterExecutingMode(fed)
     logger.info("Entered HELICS execution mode")
 
-    number_of_days = 365
+    # TODO: need to extract runperiod info from E+ model
+    number_of_days = 62   # Jul-Aug
     total_hours = 24 * number_of_days
     total_seconds = total_hours * 60 * 60
+    full_day_seconds = 24 * 3600
     # time_interval_seconds = 10  # get this from IDF timestep?
     time_interval_seconds = int(
         h.helicsFederateGetTimeProperty(fed, h.HELICS_PROPERTY_TIME_PERIOD)
@@ -109,7 +111,9 @@ if __name__ == "__main__":
         f"Current time is {h.helicsFederateGetCurrentTime(fed)}."
     )
     grantedtime = 0
+    liquid_load = 0
     logger.debug(f"Granted time {grantedtime}")
+
 
     ########## Main co-simulation loop ########################################
     # As long as granted time is in the time range to be simulated...
@@ -120,11 +124,48 @@ if __name__ == "__main__":
         # logger.debug(f"Requesting time {requested_time_seconds}")
         grantedtime = h.helicsFederateRequestTime(fed, requested_time_seconds)
         # logger.debug(f"Granted time {grantedtime} seconds while requested time {requested_time_seconds} seconds with time interval {time_interval_seconds} seconds")
+        num_of_hours_in_day = grantedtime % full_day_seconds / 3600.0
 
-        T_delta_supply = 3 + grantedtime / 1000000000
-        h.helicsPublicationPublishDouble(pubid[0], T_delta_supply)
-        T_delta_return = -1
-        h.helicsPublicationPublishDouble(pubid[1], T_delta_return)
+        # use one of the options below, comment out the other options
+        # Option1: change liquid cooling load
+        # create 24/7 schedule
+        if definitions.CONTROL_OPTION == definitions.CHANGE_LIQUID_COOLING:
+            if num_of_hours_in_day < 6.0:    # 0:00-6:00
+                liquid_load = -200000.0
+            elif num_of_hours_in_day < 12.0:
+                liquid_load = -400000.0
+            elif num_of_hours_in_day < 18.0:
+                liquid_load = -800000.0
+            elif num_of_hours_in_day < 24.0:
+                liquid_load = -1200000.0
+            h.helicsPublicationPublishDouble(pubid[0], liquid_load)
+            h.helicsPublicationPublishDouble(pubid[1], 2.0)  # supply approach always 2C
+            h.helicsPublicationPublishDouble(pubid[2], 1.0)  # CPU load schedule always 1, major load as liquid cooling
+            h.helicsPublicationPublishDouble(pubid[3], 1)  # Liquid load flow rate fraction. This can be updated realtime according to the dynamic load
+            # TODO: need to update the peak flow rate of E+ object "LoadProfile:Plant" according to the maximum liquid cooling load input.
+            # this is for design purposes, to correctly sizing the cooling system, including chiller, pumps, and cooling tower
+            # see energyPlusAPI_Example.py
+
+        # Option2: change supply approach temperature
+        if definitions.CONTROL_OPTION == definitions.CHANGE_SUPPLY_DELTA_T:
+            T_delta_supply = 2 + grantedtime / 500000
+            h.helicsPublicationPublishDouble(pubid[0], 0)  # liquid load as 0
+            h.helicsPublicationPublishDouble(pubid[1], T_delta_supply)
+            h.helicsPublicationPublishDouble(pubid[2], 1.0)  # CPU load schedule always 1
+            h.helicsPublicationPublishDouble(pubid[3], 0)  # Liquid load flow rate fraction = 0, i.e., no liquid cooling
+
+        # Option3: change IT server load
+        if definitions.CONTROL_OPTION == definitions.CHANGE_IT_LOAD:
+            it_load_frac = 1 - grantedtime / total_seconds
+            h.helicsPublicationPublishDouble(pubid[0], 0)  # liquid load as 0
+            h.helicsPublicationPublishDouble(pubid[1], 2)
+            h.helicsPublicationPublishDouble(pubid[2], it_load_frac)  # CPU load schedule fraction
+            h.helicsPublicationPublishDouble(pubid[3], 0)  # Liquid load flow rate fraction = 0, i.e., no liquid cooling
+
+        # T_delta_supply = 2 + grantedtime / 10000000
+        # h.helicsPublicationPublishDouble(pubid[0], T_delta_supply)
+        # T_delta_return = -1
+        # h.helicsPublicationPublishDouble(pubid[1], T_delta_return)
         # logger.debug(f"\tPublishing {h.helicsPublicationGetName(pubid[0])} value '{T_delta_supply}'.")
         # logger.debug(f"\tPublishing {h.helicsPublicationGetName(pubid[1])} value '{T_delta_return}'.")
 
