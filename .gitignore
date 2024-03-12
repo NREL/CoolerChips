@@ -6,3 +6,5 @@ EnergyPlusExample/EnergyPlus
 *.pyc
 .idea/*
 Output*
+EnergyPlusExample/ThermalModel_datacenter/Modes.csv
+EnergyPlusExample/ThermalModel_datacenter/solution_PythonPOD_Solid.cgns
