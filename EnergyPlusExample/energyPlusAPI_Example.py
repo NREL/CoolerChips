@@ -46,7 +46,7 @@ class energyplus_runner:
         self.api = EnergyPlusAPI()
         self.warmup_done = False
         self.warmup_count = 0
-        self.ep_federate = federate.mostcool_federate(federate_name="EnergyPlus")
+        self.ep_federate = federate.mostcool_federate(federate_name="EnergyPlus", subscriptions=definitions.ACTUATORS, publications=definitions.SENSORS)
         self.actuators = [
             Actuator(
                 component_type=actuator["component_type"],
