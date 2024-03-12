@@ -5,6 +5,8 @@ from pathlib import Path
 import federate as federate
 import definitions
 import sys
+import time
+
 
 # We specify the path to the EnergyPlus installation directory
 ENERGYPLUS_INSTALL_PATH = definitions.ENERGYPLUS_INSTALL_PATH
@@ -29,6 +31,10 @@ class Sensor:
     variable_unit: str = None
     pub_instance: federate.Pub = None  # The current value of the sensor is stored here
     sensor_handle: str = None
+
+
+# Define a dictionary to store the results - unnecessary if you don't need it. 
+results = {"HVAC Energy": [], "Total Energy": [], "Time": [], "Liquid Cooling Load": [], "Supply Approach Temperature": [], "CPU load": []}
 
 
 class energyplus_runner:
@@ -101,12 +107,31 @@ class energyplus_runner:
             self.ep_federate.request_time()
 
             # Get subbed actuator values and set them in EnergyPlus
-            self.ep_federate.update_subs()
+            subs = self.ep_federate.update_subs()
+            for sub_key in subs:
+                if sub_key == "Schedule:Compact/Schedule Value/Load Profile 1 Load Schedule":
+                    results["Liquid Cooling Load"].append(subs[sub_key].value*(-1))
+                elif sub_key == "Schedule:Constant/Schedule Value/Supply Temperature Difference Schedule Mod":
+                    results["Supply Approach Temperature"].append(subs[sub_key].value)
+                elif sub_key == "Schedule:Compact/Schedule Value/Data Center CPU Loading Schedule":
+                    results["CPU load"].append(subs[sub_key].value)
+            
             self.set_actuators(state)
 
             # Get sensor values from EnergyPlus and publish them
             self.get_sensors(state)
             self.ep_federate.update_pubs()
+            for sensor in self.sensors:
+                sensor_name = sensor.pub_instance.name
+                sensor_value = sensor.pub_instance.value
+                if sensor_name == "Whole Building/Facility Total HVAC Electricity Demand Rate":
+                    results["HVAC Energy"].append(sensor_value)
+                elif sensor_name == "Whole Building/Facility Total Electricity Demand Rate":
+                    results["Total Energy"].append(sensor_value)
+            results["Time"].append(self.ep_federate.granted_time)
+            # print(f"sensors: {self.sensors} at HELICS time {self.ep_federate.granted_time}.")
+            # print(f"results: {results} at HELICS time {self.ep_federate.granted_time}.")
+            # time.sleep(5)
 
     def run(self):
         state = self.api.state_manager.new_state()
@@ -149,20 +174,20 @@ import matplotlib.pyplot as plt
 # time_slice = slice(31392, 32400)  # this is August 1-7 in annual simulation
 if definitions.CONTROL_OPTION == definitions.CHANGE_LIQUID_COOLING:
     time_slice = slice(4464, 5472)  # this is August 1-7 in Jul-Aug runperiod
-    y2 = federate.results["Liquid Cooling Load"][time_slice]
+    y2 = results["Liquid Cooling Load"][time_slice]
     y2_label = "Liquid Cooling Load (W)"
 elif definitions.CONTROL_OPTION == definitions.CHANGE_SUPPLY_DELTA_T:
     time_slice = slice(None)  # this is whole Jul to Aug
-    y2 = federate.results["Supply Approach Temperature"][time_slice]
+    y2 = results["Supply Approach Temperature"][time_slice]
     y2_label = "Supply Approach Temperature (C)"
 elif definitions.CONTROL_OPTION == definitions.CHANGE_IT_LOAD:
     time_slice = slice(None)  # this is whole Jul to Aug
-    y2 = federate.results["CPU load"][time_slice]
+    y2 = results["CPU load"][time_slice]
     y2_label = "CPU load fraction"
 else:
     print("CONTROL_OPTION not defined correctly in definitions.py")
-x = federate.results["Time"][time_slice]
-y1 = federate.results["HVAC Energy"][time_slice]
+x = results["Time"][time_slice]
+y1 = results["HVAC Energy"][time_slice]
 
 fig, ax1 = plt.subplots()
 ax1.plot(x, y1, 'g-')
