@@ -90,5 +90,6 @@ LOG_LEVEL_MAP = { # Maps the log level string to helics Integer log level
     "helics_log_level_interfaces": 4,
     "helics_log_level_timing": 5,
     "helics_log_level_data": 6,
+    "helics_log_level_trace": 7,
 }
 
