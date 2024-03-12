@@ -9,9 +9,9 @@ CHANGE_IT_LOAD = 3
 CONTROL_OPTION = CHANGE_IT_LOAD
 
 if CONTROL_OPTION == CHANGE_LIQUID_COOLING:
-    IDF_PATH = "2ZoneDataCenterCRAHandplant.idf"
+    IDF_PATH = "Resources/energyplus_files/2ZoneDataCenterCRAHandplant.idf"
 else:
-    IDF_PATH = "2ZoneDataCenterCRAHandplant_aircoolingonly.idf"
+    IDF_PATH = "Resources/energyplus_files/2ZoneDataCenterCRAHandplant_aircoolingonly.idf"
 
 OUTPUT_DIR = "./Output"
 ENERGYPLUS_INSTALL_PATH = "../EnergyPlus"
