@@ -21,8 +21,8 @@ class Sub:
 results = {"HVAC Energy": [], "Total Energy": [], "Time": [], "Liquid Cooling Load": [], "Supply Approach Temperature": [], "CPU load": []}
 
 
-class energyplus_federate:
-    def __init__(self):
+class mostcool_federate:
+    def __init__(self, federate_name=None):
         import helics as h
 
         self.logger = logging.getLogger(__name__)
@@ -31,7 +31,7 @@ class energyplus_federate:
         self.pubs = {}
         self.granted_time = 0
         self.federate = None
-        self.setup_helics_federate()
+        self.setup_helics_federate(federate_name)
         self.time_interval_seconds = int(
             h.helicsFederateGetTimeProperty(
                 self.federate, h.HELICS_PROPERTY_TIME_PERIOD
@@ -52,15 +52,15 @@ class energyplus_federate:
         h.helicsFederateInfoSetFlagOption(fedinfo, h.HELICS_FLAG_TERMINATE_ON_ERROR, True)  # Stop the whole co-simulation if there is an error
         h.helicsFederateInfoSetFlagOption(
             fedinfo, h.HELICS_FLAG_WAIT_FOR_CURRENT_TIME_UPDATE, True
-        )  #This makes sure that this federate will be the last one granted a given time step. Thus it will have the most up-to-date values for all other federates.
+        )  # This makes sure that this federate will be the last one granted a given time step. Thus it will have the most up-to-date values for all other federates.
         fed = h.helicsCreateValueFederate(name, fedinfo)
         return fed                                          
 
     # Function to create and configure HELICS federate
-    def setup_helics_federate(self):
+    def setup_helics_federate(self, federate_name=None):
         import helics as h
-        self.federate = self.create_value_federate("", "EnergyPlus_federate_1", definitions.TIMESTEP_PERIOD_SECONDS)
-        self.logger.info("HELICS federate for EnergyPlus created.")
+        self.federate = self.create_value_federate("", federate_name, definitions.TIMESTEP_PERIOD_SECONDS)
+        self.logger.info(f"HELICS federate for {federate_name} created.")
         self.register_pubs()
         self.register_subs()
         h.helicsFederateEnterExecutingMode(self.federate)
@@ -113,7 +113,7 @@ class energyplus_federate:
         )
         return self.granted_time
 
-    def update_actuators(self):
+    def update_subs(self):
         import helics as h
 
         for sub_key in self.subs:
@@ -131,7 +131,7 @@ class energyplus_federate:
 
         return self.subs
 
-    def update_sensors(self):
+    def update_pubs(self):
         import helics as h
 
         for pub_key in self.pubs:

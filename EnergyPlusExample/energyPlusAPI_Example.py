@@ -2,7 +2,7 @@
 from dataclasses import dataclass
 import os
 from pathlib import Path
-import federate as ep_fed
+import federate as federate
 import definitions
 import sys
 
@@ -18,7 +18,7 @@ class Actuator:
     component_type: str
     control_type: str
     actuator_key: str
-    sub_instance: ep_fed.Sub = None  # The current value of the acuator is stored here
+    sub_instance: federate.Sub = None  # The current value of the acuator is stored here
     actuator_handle: str = None
 
 
@@ -27,7 +27,7 @@ class Sensor:
     variable_name: str
     variable_key: str
     variable_unit: str = None
-    pub_instance: ep_fed.Pub = None  # The current value of the sensor is stored here
+    pub_instance: federate.Pub = None  # The current value of the sensor is stored here
     sensor_handle: str = None
 
 
@@ -40,7 +40,7 @@ class energyplus_runner:
         self.api = EnergyPlusAPI()
         self.warmup_done = False
         self.warmup_count = 0
-        self.ep_federate = ep_fed.energyplus_federate()
+        self.ep_federate = federate.mostcool_federate(federate_name="EnergyPlus")
         self.actuators = [
             Actuator(
                 component_type=actuator["component_type"],
@@ -101,12 +101,12 @@ class energyplus_runner:
             self.ep_federate.request_time()
 
             # Get subbed actuator values and set them in EnergyPlus
-            self.ep_federate.update_actuators()
+            self.ep_federate.update_subs()
             self.set_actuators(state)
 
             # Get sensor values from EnergyPlus and publish them
             self.get_sensors(state)
-            self.ep_federate.update_sensors()
+            self.ep_federate.update_pubs()
 
     def run(self):
         state = self.api.state_manager.new_state()
@@ -149,20 +149,20 @@ import matplotlib.pyplot as plt
 # time_slice = slice(31392, 32400)  # this is August 1-7 in annual simulation
 if definitions.CONTROL_OPTION == definitions.CHANGE_LIQUID_COOLING:
     time_slice = slice(4464, 5472)  # this is August 1-7 in Jul-Aug runperiod
-    y2 = ep_fed.results["Liquid Cooling Load"][time_slice]
+    y2 = federate.results["Liquid Cooling Load"][time_slice]
     y2_label = "Liquid Cooling Load (W)"
 elif definitions.CONTROL_OPTION == definitions.CHANGE_SUPPLY_DELTA_T:
     time_slice = slice(None)  # this is whole Jul to Aug
-    y2 = ep_fed.results["Supply Approach Temperature"][time_slice]
+    y2 = federate.results["Supply Approach Temperature"][time_slice]
     y2_label = "Supply Approach Temperature (C)"
 elif definitions.CONTROL_OPTION == definitions.CHANGE_IT_LOAD:
     time_slice = slice(None)  # this is whole Jul to Aug
-    y2 = ep_fed.results["CPU load"][time_slice]
+    y2 = federate.results["CPU load"][time_slice]
     y2_label = "CPU load fraction"
 else:
     print("CONTROL_OPTION not defined correctly in definitions.py")
-x = ep_fed.results["Time"][time_slice]
-y1 = ep_fed.results["HVAC Energy"][time_slice]
+x = federate.results["Time"][time_slice]
+y1 = federate.results["HVAC Energy"][time_slice]
 
 fig, ax1 = plt.subplots()
 ax1.plot(x, y1, 'g-')
