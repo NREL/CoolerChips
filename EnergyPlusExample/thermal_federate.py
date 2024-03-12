@@ -1,7 +1,7 @@
 import definitions
 import helics as h
 import logging
-import ThermalModel.liddrivencavity as liddrivencavity
+import ThermalModel_chip.liddrivencavity as liddrivencavity
 
 
 logger = logging.getLogger(__name__)

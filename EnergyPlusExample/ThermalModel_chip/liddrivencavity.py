@@ -27,14 +27,14 @@ def main(period_number):
 
     # ----------Data importing
     #first row of the CSV file should be skipped, and the actual data should start from the third row.
-    d1 = pd.read_csv("ThermalModel/Simulation Results Files/v_0.01", skiprows=1)
-    d2 = pd.read_csv("ThermalModel/Simulation Results Files/v_0.06", skiprows=1)
-    d3 = pd.read_csv("ThermalModel/Simulation Results Files/v_0.11", skiprows=1)
-    d4 = pd.read_csv("ThermalModel/Simulation Results Files/v_0.16", skiprows=1)
-    d5 = pd.read_csv("ThermalModel/Simulation Results Files/v_0.21", skiprows=1)
-    d6 = pd.read_csv("ThermalModel/Simulation Results Files/v_0.26", skiprows=1)
-    d7 = pd.read_csv("ThermalModel/Simulation Results Files/v_0.31", skiprows=1)
-    d8 = pd.read_csv("ThermalModel/Simulation Results Files/validation_0.035", skiprows=1)
+    d1 = pd.read_csv("ThermalModel_chip/Simulation Results Files/v_0.01", skiprows=1)
+    d2 = pd.read_csv("ThermalModel_chip/Simulation Results Files/v_0.06", skiprows=1)
+    d3 = pd.read_csv("ThermalModel_chip/Simulation Results Files/v_0.11", skiprows=1)
+    d4 = pd.read_csv("ThermalModel_chip/Simulation Results Files/v_0.16", skiprows=1)
+    d5 = pd.read_csv("ThermalModel_chip/Simulation Results Files/v_0.21", skiprows=1)
+    d6 = pd.read_csv("ThermalModel_chip/Simulation Results Files/v_0.26", skiprows=1)
+    d7 = pd.read_csv("ThermalModel_chip/Simulation Results Files/v_0.31", skiprows=1)
+    d8 = pd.read_csv("ThermalModel_chip/Simulation Results Files/validation_0.035", skiprows=1)
 
     # num_rows, num_columns = d1.shape
     # print(f"The number of rows in the CSV file is: {num_rows}")
