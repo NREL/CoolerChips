@@ -1,14 +1,16 @@
 import os
 from pathlib import Path
+from enum import Enum
 
 # Available control options
-CHANGE_LIQUID_COOLING = 1
-CHANGE_SUPPLY_DELTA_T = 2
-CHANGE_IT_LOAD = 3
+class CONTROL_OPTIONS(Enum):
+    CHANGE_LIQUID_COOLING = 1
+    CHANGE_SUPPLY_DELTA_T = 2
+    CHANGE_IT_LOAD = 3
 # TODO: select a control option
-CONTROL_OPTION = CHANGE_IT_LOAD
+CONTROL_OPTION = CONTROL_OPTIONS.CHANGE_IT_LOAD
 
-if CONTROL_OPTION == CHANGE_LIQUID_COOLING:
+if CONTROL_OPTION == CONTROL_OPTIONS.CHANGE_LIQUID_COOLING:
     IDF_PATH = "Resources/energyplus_files/2ZoneDataCenterCRAHandplant.idf"
 else:
     IDF_PATH = "Resources/energyplus_files/2ZoneDataCenterCRAHandplant_aircoolingonly.idf"

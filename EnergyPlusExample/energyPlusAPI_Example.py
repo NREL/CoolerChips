@@ -129,9 +129,6 @@ class energyplus_runner:
                 elif sensor_name == "Whole Building/Facility Total Electricity Demand Rate":
                     results["Total Energy"].append(sensor_value)
             results["Time"].append(self.ep_federate.granted_time)
-            # print(f"sensors: {self.sensors} at HELICS time {self.ep_federate.granted_time}.")
-            # print(f"results: {results} at HELICS time {self.ep_federate.granted_time}.")
-            # time.sleep(5)
 
     def run(self):
         state = self.api.state_manager.new_state()
@@ -172,15 +169,15 @@ energyplus_runner.run()
 import matplotlib.pyplot as plt
 
 # time_slice = slice(31392, 32400)  # this is August 1-7 in annual simulation
-if definitions.CONTROL_OPTION == definitions.CHANGE_LIQUID_COOLING:
+if definitions.CONTROL_OPTION == definitions.CONTROL_OPTIONS.CHANGE_LIQUID_COOLING:
     time_slice = slice(4464, 5472)  # this is August 1-7 in Jul-Aug runperiod
     y2 = results["Liquid Cooling Load"][time_slice]
     y2_label = "Liquid Cooling Load (W)"
-elif definitions.CONTROL_OPTION == definitions.CHANGE_SUPPLY_DELTA_T:
+elif definitions.CONTROL_OPTION == definitions.CONTROL_OPTIONS.CHANGE_SUPPLY_DELTA_T:
     time_slice = slice(None)  # this is whole Jul to Aug
     y2 = results["Supply Approach Temperature"][time_slice]
     y2_label = "Supply Approach Temperature (C)"
-elif definitions.CONTROL_OPTION == definitions.CHANGE_IT_LOAD:
+elif definitions.CONTROL_OPTION == definitions.CONTROL_OPTIONS.CHANGE_IT_LOAD:
     time_slice = slice(None)  # this is whole Jul to Aug
     y2 = results["CPU load"][time_slice]
     y2_label = "CPU load fraction"
@@ -197,7 +194,7 @@ ax1.set_ylabel('HVAC Energy (W)', color='g')
 ax2 = ax1.twinx()
 ax2.plot(x, y2, 'b--')  # Blue solid line
 ax2.set_ylabel(y2_label, color='b')
-if definitions.CONTROL_OPTION == definitions.CHANGE_LIQUID_COOLING:
+if definitions.CONTROL_OPTION == definitions.CONTROL_OPTIONS.CHANGE_LIQUID_COOLING:
     ax2.set_ylim([0, 2000000])  # for CHANGE_LIQUID_COOLING only
 
 
