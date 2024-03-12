@@ -18,7 +18,10 @@ class Sub:
 
 
 class mostcool_federate:
-    def __init__(self, federate_name=None):
+    def __init__(self, 
+                 federate_name: str =None,
+                 subscriptions: dict =None,
+                 publications: dict =None):
         import helics as h
 
         self.logger = logging.getLogger(__name__)
@@ -27,7 +30,7 @@ class mostcool_federate:
         self.pubs = {}
         self.granted_time = 0
         self.federate = None
-        self.setup_helics_federate(federate_name)
+        self.setup_helics_federate(federate_name, subscriptions, publications)
         self.time_interval_seconds = int(
             h.helicsFederateGetTimeProperty(
                 self.federate, h.HELICS_PROPERTY_TIME_PERIOD
@@ -53,44 +56,46 @@ class mostcool_federate:
         return fed                                          
 
     # Function to create and configure HELICS federate
-    def setup_helics_federate(self, federate_name=None):
+    def setup_helics_federate(self, federate_name=None,
+                              subscriptions=None,
+                              publications=None):
         import helics as h
         self.federate = self.create_value_federate("", federate_name, definitions.TIMESTEP_PERIOD_SECONDS)
         self.logger.info(f"HELICS federate for {federate_name} created.")
-        self.register_pubs()
-        self.register_subs()
+        self.register_pubs(publications)
+        self.register_subs(subscriptions)
         h.helicsFederateEnterExecutingMode(self.federate)
         self.logger.info("Entered HELICS execution mode")
 
-    def register_pubs(self):  # Sensors
+    def register_pubs(self, publications: dict = None):  # Sensors
         import helics as h
 
-        for i in range(0, len(definitions.SENSORS)):
+        for i in range(0, len(publications)):
             self.logger.info(
-                f'Registering publication: {definitions.SENSORS[i]["variable_key"]}/{definitions.SENSORS[i]["variable_name"]}'
+                f'Registering publication: {publications[i]["variable_key"]}/{publications[i]["variable_name"]}'
             )
             pubid = h.helicsFederateRegisterGlobalTypePublication(
                 self.federate,
-                f'{definitions.SENSORS[i]["variable_key"]}/{definitions.SENSORS[i]["variable_name"]}',
+                f'{publications[i]["variable_key"]}/{publications[i]["variable_name"]}',
                 "double",
-                definitions.SENSORS[i]["variable_unit"],
+                publications[i]["variable_unit"],
             )
             pub_name = h.helicsPublicationGetName(pubid)
             if pub_name not in self.pubs:
                 self.pubs[pub_name] = Pub(name=pub_name, id=pubid)
             self.logger.debug(f"\tRegistered publication---> {pubid} as {pub_name}")
 
-    def register_subs(self):  # Actuators
+    def register_subs(self, subsciptions: dict = None):  # Actuators
         import helics as h
 
-        for i in range(0, len(definitions.ACTUATORS)):
+        for i in range(0, len(subsciptions)):
             self.logger.info(
-                f'Registering subscription: {definitions.ACTUATORS[i]["component_type"]}/{definitions.ACTUATORS[i]["control_type"]}/{definitions.ACTUATORS[i]["actuator_key"]}'
+                f'Registering subscription: {subsciptions[i]["component_type"]}/{subsciptions[i]["control_type"]}/{subsciptions[i]["actuator_key"]}'
             )
             subid = h.helicsFederateRegisterSubscription(
                 self.federate,
-                f'{definitions.ACTUATORS[i]["component_type"]}/{definitions.ACTUATORS[i]["control_type"]}/{definitions.ACTUATORS[i]["actuator_key"]}',
-                definitions.ACTUATORS[i]["actuator_unit"],
+                f'{subsciptions[i]["component_type"]}/{subsciptions[i]["control_type"]}/{subsciptions[i]["actuator_key"]}',
+                subsciptions[i]["actuator_unit"],
             )
             sub_name = h.helicsInputGetTarget(subid)
             if sub_name not in self.subs:
