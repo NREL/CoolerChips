@@ -50,7 +50,7 @@ if __name__ == "__main__":
     total_hours = 24 * number_of_days
     total_seconds = total_hours * 60 * 60
     
-    period = total_seconds/10 # 1000
+    period = total_seconds/2 # 1000
     fed = create_value_federate(fedinitstring, federateName, period)
 
     federate_name = h.helicsFederateGetName(fed)
