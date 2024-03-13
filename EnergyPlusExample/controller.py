@@ -129,7 +129,7 @@ if __name__ == "__main__":
         # use one of the options below, comment out the other options
         # Option1: change liquid cooling load
         # create 24/7 schedule
-        if definitions.CONTROL_OPTION == definitions.CHANGE_LIQUID_COOLING:
+        if definitions.CONTROL_OPTION == definitions.CONTROL_OPTIONS.CHANGE_LIQUID_COOLING:
             if num_of_hours_in_day < 6.0:    # 0:00-6:00
                 liquid_load = -200000.0
             elif num_of_hours_in_day < 12.0:
@@ -147,7 +147,7 @@ if __name__ == "__main__":
             # see energyPlusAPI_Example.py
 
         # Option2: change supply approach temperature
-        if definitions.CONTROL_OPTION == definitions.CHANGE_SUPPLY_DELTA_T:
+        if definitions.CONTROL_OPTION == definitions.CONTROL_OPTIONS.CHANGE_SUPPLY_DELTA_T:
             T_delta_supply = 2 + grantedtime / 500000
             h.helicsPublicationPublishDouble(pubid[0], 0)  # liquid load as 0
             h.helicsPublicationPublishDouble(pubid[1], T_delta_supply)
@@ -155,7 +155,7 @@ if __name__ == "__main__":
             h.helicsPublicationPublishDouble(pubid[3], 0)  # Liquid load flow rate fraction = 0, i.e., no liquid cooling
 
         # Option3: change IT server load
-        if definitions.CONTROL_OPTION == definitions.CHANGE_IT_LOAD:
+        if definitions.CONTROL_OPTION == definitions.CONTROL_OPTIONS.CHANGE_IT_LOAD:
             it_load_frac = 1 - grantedtime / total_seconds
             h.helicsPublicationPublishDouble(pubid[0], 0)  # liquid load as 0
             h.helicsPublicationPublishDouble(pubid[1], 2)
