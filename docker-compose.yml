@@ -2,5 +2,8 @@ version: '3'
 services:
   main:
     build: EnergyPlusExample
+    environment:
+      - DISPLAY
     volumes:
+      - /tmp/.X11-unix:/tmp/.X11-unix
       - ./EnergyPlusExample:/app
