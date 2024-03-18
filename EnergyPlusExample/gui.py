@@ -14,12 +14,13 @@ import webbrowser
 from matplotlib import pyplot as plt
 from matplotlib.backend_bases import NavigationToolbar2
 from matplotlib.figure import Figure
+import matplotlib.dates as mdates
+import pandas as pd
 from plan_tools.runtime import fixup_taskbar_icon_on_windows
 from pubsub import pub
 from typing import Union
 import definitions
 import simulator
-import plotter
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 
 plt.rcParams.update({'font.size': 24})  # Adjust font size as needed
@@ -72,17 +73,18 @@ class MyApp(Frame):
         # members related to the background thread and operator instance
         self.long_thread = None
         self.background_operator: Union[None, simulator.Simulator] = None
-        self.background_operator_plotter: Union[None, plotter.Plotter] = None
-        
 
         # tk variables we can access later
         self.idf_path = StringVar()
         self.epw_path = StringVar()
         self.server_model_path = StringVar()
-        self.time_step = StringVar()
+        self.floor_area = StringVar()
+        self.wpzfa = StringVar()
         self.control_option = StringVar()
         self.datacenter_location = StringVar()
         self.label_status = StringVar()
+        
+        
 
         # widgets that we might want to access later
         self.idf_path_button = None
@@ -92,7 +94,7 @@ class MyApp(Frame):
         self.run_button = None
         self.progress = None
         self.time_step_spinner = None
-        self.time_step_option_menu = None
+        self.wpzfa_option_menu = None
         self.results=None
         self.results_previous = None
 
@@ -151,8 +153,8 @@ class MyApp(Frame):
 
         # run configuration
         pane_run = Frame(self.main_notebook)
-        group_file_selection = LabelFrame(pane_run, text="File Selection")
-        group_file_selection.pack(fill=X, padx=5)
+        group_run_options = LabelFrame(pane_run) #, text="File Selection")
+        group_run_options.pack(fill=X, padx=5)
         # self.idf_path_button = ttk.Button(group_file_selection, text="Select IDF...", command=self.select_idf,
         #                                   style="C.TButton")
         # self.idf_path_button.grid(row=1, column=1, sticky=W)
@@ -164,56 +166,75 @@ class MyApp(Frame):
         # self.epw_path_label = Label(group_file_selection, textvariable=self.epw_path)
         # self.epw_path_label.grid(row=1, column=2, sticky=W)
         
-        Label(group_file_selection, text="Datacenter Location: ").grid(row=1, column=1, sticky=W)
+        Label(group_run_options, text="Datacenter Location: ").grid(row=1, column=1, sticky=W)
         self.datacenter_location.set(list(definitions.LOCATION_MAP.keys())[0])
-        self.datacenter_location_menu = OptionMenu(group_file_selection, self.datacenter_location,
+        self.datacenter_location_menu = OptionMenu(group_run_options, self.datacenter_location,
                                                 *list(definitions.LOCATION_MAP.keys()))
         self.datacenter_location_menu.grid(row=1, column=2, sticky=W)
         
-        Label(group_file_selection, text="Control Options: ").grid(row=2, column=1, sticky=W)
-        self.control_option.set([control_option.name for control_option in definitions.CONTROL_OPTIONS][0])
-        self.control_option_menu = OptionMenu(group_file_selection, self.control_option,
-                                                *[control_option.name for control_option in definitions.CONTROL_OPTIONS])
-        self.control_option_menu.grid(row=2, column=2, sticky=W)
+        # Label(group_run_options, text="Control Options: ").grid(row=2, column=1, sticky=W)
+        # self.control_option.set([control_option.name for control_option in definitions.CONTROL_OPTIONS][0])
+        # self.control_option_menu = OptionMenu(group_run_options, self.control_option,
+        #                                         *[control_option.name for control_option in definitions.CONTROL_OPTIONS])
+        # self.control_option_menu.grid(row=2, column=2, sticky=W)
         
-        group_run_options = LabelFrame(pane_run, text="Run Options")
-        group_run_options.pack(fill=X, padx=5)
-        Label(group_run_options, text="Timestep in Minutes: ").grid(row=1, column=1, sticky=E)
-        self.time_step.set('10')
-        self.time_step_option_menu = OptionMenu(group_run_options, self.time_step,
-                                                *['1', '2', '3', '4', '5', '6', '10', '20', '30', '60'])
-        self.time_step_option_menu.grid(row=1, column=2, sticky=W)
+        # group_run_options = LabelFrame(pane_run, text="Run Options")
+        # group_run_options.pack(fill=X, padx=5)
+        
+        Label(group_run_options, text="Datacenter floor area [m2]: ").grid(row=2, column=1, sticky=W)
+        self.floor_area.set('250')
+        self.fa_option_menu = OptionMenu(group_run_options, self.floor_area,
+                                                *['250', '500', '750'])
+        self.fa_option_menu.grid(row=2, column=2, sticky=W)
+        
+        Label(group_run_options, text="Watts per zone floor area [W]: ").grid(row=3, column=1, sticky=E)
+        self.wpzfa.set('100')
+        self.wpzfa_option_menu = OptionMenu(group_run_options, self.wpzfa,
+                                                *['100', '200', '400'])
+        self.wpzfa_option_menu.grid(row=3, column=2, sticky=W)
 
-        self.main_notebook.add(pane_run, text='EnergyPlus Configuration')
+        self.main_notebook.add(pane_run, text='Run Configuration')
 
-        # now let's set up a list of checkboxes for selecting IDFs to run
-        pane_thermal_model = Frame(self.main_notebook)
-        self.main_notebook.add(pane_thermal_model, text="Thermal Model")
-        group_file_selection = LabelFrame(pane_thermal_model, text="File Selection")
-        group_file_selection.pack(fill=X, padx=5)
-        self.server_model_path_button = ttk.Button(group_file_selection, text="Select server model file...", command=self.select_server_model,
-                                          style="C.TButton")
-        self.server_model_path_button.grid(row=1, column=1, sticky=W)
-        self.server_model_path_label = Label(group_file_selection, textvariable=self.server_model_path)
-        self.server_model_path_label.grid(row=1, column=2, sticky=E)
+        # # now let's set up a list of checkboxes for selecting IDFs to run
+        # pane_thermal_model = Frame(self.main_notebook)
+        # self.main_notebook.add(pane_thermal_model, text="Thermal Model")
+        # group_file_selection = LabelFrame(pane_thermal_model, text="File Selection")
+        # group_file_selection.pack(fill=X, padx=5)
+        # self.server_model_path_button = ttk.Button(group_file_selection, text="Select server model file...", command=self.select_server_model,
+        #                                   style="C.TButton")
+        # self.server_model_path_button.grid(row=1, column=1, sticky=W)
+        # self.server_model_path_label = Label(group_file_selection, textvariable=self.server_model_path)
+        # self.server_model_path_label.grid(row=1, column=2, sticky=E)
 
 
         # set up a tree-view for the results
-        pane_results = Frame(self.main_notebook)
+        pane_results = ttk.Notebook(self.main_notebook)
         self.main_notebook.add(pane_results, text="Results (initialized)")
+        ep_results = Frame(pane_results)
+        pane_results.add(ep_results, text="Building Energy")
+        # ep_results.pack()
+        # ep_results_label = Label(ep_results, text="EnergyPlus Results")
+        # ep_results_label.pack()
         # Dropdown menu for selecting the y-axis variable
         self.y_axis_variable = StringVar()
         self.y_axis_variable.set("Select variable")  # default value
         self.y_axis_variable.trace_add("write", lambda name, index, mode: self.update_plot())
-        self.y_axis_drop_down_menu = OptionMenu(pane_results, self.y_axis_variable, "Select variable", command=self.update_plot)
+        self.y_axis_drop_down_menu = OptionMenu(ep_results, self.y_axis_variable, "Select variable", command=self.update_plot)
         self.y_axis_drop_down_menu.pack()
         
         # Placeholder for the Matplotlib figure
         self.figure = Figure(figsize=(5, 4), dpi=100)
-        self.plot = self.figure.add_subplot(1, 1, 1)
-        self.canvas = FigureCanvasTkAgg(self.figure, pane_results)  # A tk.DrawingArea.
+        self.plot= self.figure.add_subplot(1, 1, 1)
+        self.canvas = FigureCanvasTkAgg(self.figure, ep_results)  # A tk.DrawingArea.
         self.canvas.get_tk_widget().pack(side=TOP, fill=BOTH, expand=1)
         
+        # Create the second inner frame within pane_results
+        inner_frame2 = Frame(pane_results)
+        pane_results.add(inner_frame2, text="Thermal Model")
+        
+        inner_frame3 = Frame(pane_results)
+        pane_results.add(inner_frame3, text="Cost Model")
+                
         # pack the main notebook on the window
         self.main_notebook.pack(fill=BOTH, expand=1)
 
@@ -328,17 +349,23 @@ class MyApp(Frame):
         for option in new_options:
             menu['menu'].add_command(label=option, command=lambda value=option: self.y_axis_variable.set(value))
         self.y_axis_variable.set(new_options[0])
+
         
     def update_plot(self):
-        y_data = self.results[self.y_axis_variable.get()]
-        
+        """Update the plot with the selected y-axis variable."""        
+        y_data = self.results[self.y_axis_variable.get()]        
         self.plot.clear()
-        self.plot.plot(y_data)
-        self.plot.set_ylabel(self.y_axis_variable.get())
+        self.plot.plot(self.results.index, y_data)
+        # Plot the previous run if it exists
         if self.results_previous is not None:
-            self.plot.plot(self.results_previous[self.y_axis_variable.get()])
+            self.plot.plot(self.results_previous.index, self.results_previous[self.y_axis_variable.get()])
             self.plot.legend(['Current Run', 'Previous Run'])
-        self.plot.set_xlabel("Hours")
+        # Set the labels
+        self.plot.set_ylabel(self.y_axis_variable.get())
+        # Customize the datetime format on the x-axis, and rotate the labels
+        self.plot.xaxis.set_major_formatter(mdates.DateFormatter('%m/%d'))
+        self.figure.autofmt_xdate()
+        self.plot.set_xlabel("Date/Time")
         self.canvas.draw()
 
     def set_gui_status_for_run(self, is_running: bool):
@@ -352,7 +379,7 @@ class MyApp(Frame):
             # self.update_option_menu()
             results_tab_title = 'Results (Up to date)'
         self.run_button.configure(state=run_button_state)
-        self.main_notebook.tab(2, text=results_tab_title)
+        self.main_notebook.tab(1, text=results_tab_title)
 
     def select_idf(self):
         selected_path = filedialog.askopenfilename()
@@ -378,7 +405,7 @@ class MyApp(Frame):
             return
         # TODO: Gather data in preparation to start main run
         self.background_operator = simulator.Simulator(idf_path=self.idf_path.get(), epw_path=self.epw_path.get(),
-                                             time_step=self.time_step.get(), control_option=self.control_option.get(),
+                                             time_step=self.wpzfa.get(), control_option=self.control_option.get(),
                                              datacenter_location=self.datacenter_location.get())
         self.background_operator.add_callbacks(print_callback=MyApp.print_listener,
                                                sim_starting_callback=MyApp.starting_listener,

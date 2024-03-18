@@ -23,6 +23,30 @@ def run_command(command):
     process.wait()
     print(f"Command '{' '.join(command)}' finished with exit code {process.returncode}")
 
+# Function to fix the datetime string and convert it to the correct format
+def fix_datetime(dt_str):
+    date_part, time_part = dt_str.split()
+    # Split the date and time
+    # Only adjust if time is '24:00:00', else return the original datetime string
+    if time_part == '24:00:00':
+        # Convert to datetime object to easily add a day
+        dt = pd.to_datetime(date_part, format='%m/%d') + pd.Timedelta(days=1)
+        
+        # Replace '24:00:00' with '00:00:00' and format the datetime back to string
+        # Adjust the format if your date includes the year or other components
+        return dt.strftime(' %m/%d') + '  00:00:00'
+    else:
+        return dt_str
+
+# Prep data: 
+# Get X-axis to date time and set it as index
+# results = self.results.copy()
+def fix_results(results):
+    results['Date/Time']= results['Date/Time'].apply(fix_datetime)
+    results['Date/Time'] = pd.to_datetime(results['Date/Time'], format='  %m/%d  %H:%M:%S')
+    results.set_index('Date/Time', inplace=True)
+    return results
+
 
 class Simulator:
     def __init__(self, idf_path, epw_path, time_step, control_option, datacenter_location):
@@ -69,5 +93,5 @@ class Simulator:
             print("-" * 50)  # Separator between command outputs
             self.increment_callback(f"Finished with iteration {commands.index(cmd)}")
         df = pd.read_csv("Output/eplusout.csv")
-        self.all_done_callback(df)
+        self.all_done_callback(fix_results(df))
         

@@ -1,20 +1,25 @@
 import os
 from pathlib import Path
-from enum import Enum
+from enum import IntEnum
 import json
 
 # Available control options
-class CONTROL_OPTIONS(Enum):
+class CONTROL_OPTIONS(IntEnum):
     CHANGE_LIQUID_COOLING = 1
     CHANGE_SUPPLY_DELTA_T = 2
     CHANGE_IT_LOAD = 3
+    
 # TODO: select a control option
 
 if os.path.exists('Output/run_config/config.json'):
     with open('Output/run_config/config.json', 'r') as f:
         data = json.load(f)
         control_option_name = data["control_option"]
-        CONTROL_OPTION = CONTROL_OPTIONS[control_option_name]
+        try:
+            CONTROL_OPTION = CONTROL_OPTIONS[control_option_name]
+        except KeyError:
+            print(f"Invalid control option: '{control_option_name}'. Using default CONTROL_OPTION value as CHANGE_IT_LOAD")
+            CONTROL_OPTION = CONTROL_OPTIONS.CHANGE_IT_LOAD
 else:   
     print("No config file found. Using default CONTROL_OPTION value as CHANGE_IT_LOAD")
     CONTROL_OPTION = CONTROL_OPTIONS.CHANGE_IT_LOAD
