@@ -198,5 +198,5 @@ if definitions.CONTROL_OPTION == definitions.CONTROL_OPTIONS.CHANGE_LIQUID_COOLI
     ax2.set_ylim([0, 2000000])  # for CHANGE_LIQUID_COOLING only
 
 
-plt.show()
-plt.savefig((os.path.join(definitions.OUTPUT_DIR, "graphs", "OutputImage.pdf")), format="pdf", bbox_inches="tight")
+# plt.show()
+plt.savefig((os.path.join(definitions.OUTPUT_DIR, "graphs", f"OutputImage_{definitions.CONTROL_OPTION}.pdf")), format="pdf", bbox_inches="tight")

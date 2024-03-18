@@ -1,6 +1,7 @@
 import os
 from pathlib import Path
 from enum import Enum
+import json
 
 # Available control options
 class CONTROL_OPTIONS(Enum):
@@ -8,8 +9,16 @@ class CONTROL_OPTIONS(Enum):
     CHANGE_SUPPLY_DELTA_T = 2
     CHANGE_IT_LOAD = 3
 # TODO: select a control option
-CONTROL_OPTION = CONTROL_OPTIONS.CHANGE_IT_LOAD
 
+if os.path.exists('Output/run_config/config.json'):
+    with open('Output/run_config/config.json', 'r') as f:
+        data = json.load(f)
+        control_option_name = data["control_option"]
+        CONTROL_OPTION = CONTROL_OPTIONS[control_option_name]
+else:   
+    print("No config file found. Using default CONTROL_OPTION value as CHANGE_IT_LOAD")
+    CONTROL_OPTION = CONTROL_OPTIONS.CHANGE_IT_LOAD
+    
 if CONTROL_OPTION == CONTROL_OPTIONS.CHANGE_LIQUID_COOLING:
     IDF_PATH = "Resources/energyplus_files/2ZoneDataCenterCRAHandplant.idf"
 else:
@@ -17,7 +26,24 @@ else:
 
 OUTPUT_DIR = "./Output"
 ENERGYPLUS_INSTALL_PATH = "../EnergyPlus"
-EPW_PATH = os.path.join(ENERGYPLUS_INSTALL_PATH, "WeatherData/USA_IL_Chicago-OHare.Intl.AP.725300_TMY3.epw")
+LOCATION_MAP = {
+    "Chicago, IL" : "USA_IL_Chicago-OHare.Intl.AP.725300_TMY3.epw",
+    "San Francisco, CA" : "USA_CA_San.Francisco.Intl.AP.724940_TMY3.epw",
+    "Dulles Airport, VA" : "USA_VA_Sterling-Washington.Dulles.Intl.AP.724030_TMY3.epw",
+    "Tampa, FL": "USA_FL_Tampa.Intl.AP.722110_TMY3.epw"
+}
+
+if os.path.exists('Output/run_config/config.json'):
+    with open('Output/run_config/config.json', 'r') as f:
+        data = json.load(f)
+        datacenter_location_name = data["datacenter_location"]
+        EPW_FILE = LOCATION_MAP[datacenter_location_name]
+        EPW_PATH = os.path.join(ENERGYPLUS_INSTALL_PATH, "WeatherData", EPW_FILE)
+else:   
+    print("No config file found. Using default EPW_PATH value as USA_IL_Chicago-OHare.Intl.AP.725300_TMY3.epw")
+    EPW_PATH = os.path.join(ENERGYPLUS_INSTALL_PATH, "WeatherData/USA_IL_Chicago-OHare.Intl.AP.725300_TMY3.epw")
+
+
 RESOURCES_DIR = "./Resources"
 GRAPHS_DIR = os.path.join(OUTPUT_DIR, "graphs")
 Path(GRAPHS_DIR).mkdir(parents=True, exist_ok=True)

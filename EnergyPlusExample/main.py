@@ -1,23 +1,26 @@
-import subprocess
+#!/usr/bin/env python3
 
-# Add commands that should be run to this list
-commands = [
-    ["helics", "run", "--path=runner.json"],
-    ["python", "cost_model.py"],
-    # Add more as needed
-]
+# main entry point into my_app, for either command line operation or gui operation
+# if no command line args are given, it is gui operation
+# but don't try to import any Tk/Gui stuff unless we are doing GUI operation
 
-def run_command(command):
-    process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
+# TODO: Add unit test coverage once we start adding more entry points, remove from omission block in .coveragerc
 
-    for line in iter(process.stdout.readline, ''):
-        print(line, end='')
-
-    process.wait()
-    print(f"Command '{' '.join(command)}' finished with exit code {process.returncode}")
+from multiprocessing import set_start_method
+from platform import system
+from sys import argv
 
 
-for cmd in commands:
-    print(f"Running command: {' '.join(cmd)}")
-    run_command(cmd)
-    print("-" * 50)  # Separator between command outputs
+def main_gui():
+    from gui import MyApp
+    app = MyApp()
+    app.run()
+
+
+if __name__ == "__main__":
+    if system() == 'Darwin':
+        set_start_method('forkserver')
+    if len(argv) == 1:  # GUI
+        main_gui()
+    else:  # Non-GUI operation, execute some command
+        ...
