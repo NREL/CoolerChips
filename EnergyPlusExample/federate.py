@@ -6,15 +6,17 @@ import logging
 @dataclass
 class Pub:
     name: str
-    id: int
+    id: int = None
     value: float = None
+    unit: str = None
 
 
 @dataclass
 class Sub:
     name: str
-    id: int
+    id: int = None
     value: float = None
+    unit: str = None
 
 
 class mostcool_federate:
@@ -26,11 +28,11 @@ class mostcool_federate:
 
         self.logger = logging.getLogger(__name__)
         self.logger.setLevel(logging.DEBUG)
-        self.subs = {}
-        self.pubs = {}
+        self.subs = subscriptions
+        self.pubs = publications
         self.granted_time = 0
         self.federate = None
-        self.setup_helics_federate(federate_name, subscriptions, publications)
+        self.setup_helics_federate(federate_name)
         self.time_interval_seconds = int(
             h.helicsFederateGetTimeProperty(
                 self.federate, h.HELICS_PROPERTY_TIME_PERIOD
@@ -56,53 +58,53 @@ class mostcool_federate:
         return fed                                          
 
     # Function to create and configure HELICS federate
-    def setup_helics_federate(self, federate_name=None,
-                              subscriptions=None,
-                              publications=None):
+    def setup_helics_federate(self, federate_name=None):
         import helics as h
         self.federate = self.create_value_federate("", federate_name, definitions.TIMESTEP_PERIOD_SECONDS)
         self.logger.info(f"HELICS federate for {federate_name} created.")
-        self.register_pubs(publications)
-        self.register_subs(subscriptions)
+        self.register_pubs()
+        self.register_subs()
         h.helicsFederateEnterExecutingMode(self.federate)
         self.logger.info("Entered HELICS execution mode")
 
-    def register_pubs(self, publications: dict = None):  # Sensors
+    def register_pubs(self):  # Sensors
         import helics as h
 
-        if publications is not None:
-            for i in range(0, len(publications)):
+        if self.pubs is not None:
+            for pub in self.pubs:
                 self.logger.info(
-                    f'Registering publication: {publications[i]["variable_key"]}/{publications[i]["variable_name"]}'
+                    f'Registering publication: {pub.name}'
                 )
-                pubid = h.helicsFederateRegisterGlobalTypePublication(
+                pub.id = h.helicsFederateRegisterGlobalTypePublication(
                     self.federate,
-                    f'{publications[i]["variable_key"]}/{publications[i]["variable_name"]}',
+                    f"{pub.name}",
                     "double",
-                    publications[i]["variable_unit"],
+                    f"{pub.unit}",
                 )
-                pub_name = h.helicsPublicationGetName(pubid)
-                if pub_name not in self.pubs:
-                    self.pubs[pub_name] = Pub(name=pub_name, id=pubid)
-                self.logger.debug(f"\tRegistered publication---> {pubid} as {pub_name}")
+                pub_name = h.helicsPublicationGetName(pub.id)
+                if pub.name != pub_name:
+                    raise error
+                # if pub_name not in self.pubs:
+                #     self.pubs.append(Pub(name=pub_name, id=pubid))
+                self.logger.debug(f"\tRegistered publication---> {pub.id} as {pub_name}")
 
-    def register_subs(self, subsciptions: dict = None):  # Actuators
+    def register_subs(self):  # Actuators
         import helics as h
 
-        if subsciptions is not None:
-            for i in range(0, len(subsciptions)):
+        if self.subs is not None:
+            for sub in self.subs:
                 self.logger.info(
-                    f'Registering subscription: {subsciptions[i]["component_type"]}/{subsciptions[i]["control_type"]}/{subsciptions[i]["actuator_key"]}'
+                    f'Registering subscription: {sub.name}'
                 )
-                subid = h.helicsFederateRegisterSubscription(
+                sub.id = h.helicsFederateRegisterSubscription(
                     self.federate,
-                    f'{subsciptions[i]["component_type"]}/{subsciptions[i]["control_type"]}/{subsciptions[i]["actuator_key"]}',
-                    subsciptions[i]["actuator_unit"],
+                    f'{sub.name}',
+                    sub.unit,
                 )
-                sub_name = h.helicsInputGetTarget(subid)
-                if sub_name not in self.subs:
-                    self.subs[sub_name] = Sub(name=sub_name, id=subid)
-                self.logger.debug(f"\tRegistered subscription---> {sub_name}")
+                sub_name = h.helicsInputGetTarget(sub.id)
+                if sub.name != sub_name:
+                    raise error
+                self.logger.debug(f"\tRegistered subscription---> {sub.id} as {sub_name}")
 
     def request_time(self):
         import helics as h
@@ -119,21 +121,21 @@ class mostcool_federate:
     def update_subs(self):
         import helics as h
 
-        for sub_key in self.subs:
-            if h.helicsInputIsUpdated(self.subs[sub_key].id):
-                self.subs[sub_key].value = h.helicsInputGetDouble(self.subs[sub_key].id)
+        for sub in self.subs:
+            if h.helicsInputIsUpdated(sub.id):
+                sub.value = h.helicsInputGetDouble(sub.id)
             else:
-                self.subs[sub_key].value = 0
-                self.logger.warning(f"{sub_key} was not updated at {self.granted_time}, set to zero.")
+                sub.value = 0
+                self.logger.warning(f"{sub} was not updated at {self.granted_time}, set to zero.")
 
         return self.subs
 
     def update_pubs(self):
         import helics as h
-
-        for pub_key in self.pubs:
+        
+        for pub in self.pubs:
             h.helicsPublicationPublishDouble(
-                self.pubs[pub_key].id, self.pubs[pub_key].value
+                pub.id, pub.value
             )
 
     # Function to clean up HELICS federate

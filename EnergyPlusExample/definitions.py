@@ -109,6 +109,12 @@ SENSORS = [
         "variable_name": "Facility Total Electricity Demand Rate",
         "variable_key": "Whole Building",
         "variable_unit": "W"
+    },
+    # EASTDATACENTER_EQUIP:ITE Standard Density Air Volume Flow Rate [m3/s](TimeStep)
+    {
+        "variable_name": "ITE Standard Density Air Volume Flow Rate",
+        "variable_key": "EASTDATACENTER_EQUIP",
+        "variable_unit": "m3/s"
     }
 ]
 

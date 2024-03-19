@@ -46,15 +46,12 @@ class energyplus_runner:
         self.api = EnergyPlusAPI()
         self.warmup_done = False
         self.warmup_count = 0
-        self.ep_federate = federate.mostcool_federate(federate_name="EnergyPlus", subscriptions=definitions.ACTUATORS, publications=definitions.SENSORS)
         self.actuators = [
             Actuator(
                 component_type=actuator["component_type"],
                 control_type=actuator["control_type"],
                 actuator_key=actuator["actuator_key"],
-                sub_instance=self.ep_federate.subs[
-                    f'{actuator["component_type"]}/{actuator["control_type"]}/{actuator["actuator_key"]}'
-                ],
+                sub_instance=federate.Sub(name=f'{actuator["component_type"]}/{actuator["control_type"]}/{actuator["actuator_key"]}', unit=actuator["actuator_unit"])
             )
             for actuator in definitions.ACTUATORS
         ]
@@ -63,12 +60,15 @@ class energyplus_runner:
                 variable_name=sensor["variable_name"],
                 variable_key=sensor["variable_key"],
                 variable_unit=sensor["variable_unit"],
-                pub_instance=self.ep_federate.pubs[
-                    f'{sensor["variable_key"]}/{sensor["variable_name"]}'
-                ],
+                pub_instance=federate.Pub(name=f'{sensor["variable_key"]}/{sensor["variable_name"]}', unit=sensor["variable_unit"])
             )
             for sensor in definitions.SENSORS
         ]
+        
+        self.ep_federate = federate.mostcool_federate(federate_name="EnergyPlus", 
+                                                      subscriptions=[Actuator.sub_instance for Actuator in self.actuators], 
+                                                      publications=[Sensor.pub_instance for Sensor in self.sensors])
+        
 
     def set_actuators(self, state):
         for actuator in self.actuators:
@@ -108,22 +108,22 @@ class energyplus_runner:
 
             # Get subbed actuator values and set them in EnergyPlus
             subs = self.ep_federate.update_subs()
-            for sub_key in subs:
-                if sub_key == "Schedule:Compact/Schedule Value/Load Profile 1 Load Schedule":
-                    results["Liquid Cooling Load"].append(subs[sub_key].value*(-1))
-                elif sub_key == "Schedule:Constant/Schedule Value/Supply Temperature Difference Schedule Mod":
-                    results["Supply Approach Temperature"].append(subs[sub_key].value)
-                elif sub_key == "Schedule:Compact/Schedule Value/Data Center CPU Loading Schedule":
-                    results["CPU load"].append(subs[sub_key].value)
+            for sub in subs:
+                if sub.name == "Schedule:Compact/Schedule Value/Load Profile 1 Load Schedule":
+                    results["Liquid Cooling Load"].append(sub.value*(-1))
+                elif sub.name == "Schedule:Constant/Schedule Value/Supply Temperature Difference Schedule Mod":
+                    results["Supply Approach Temperature"].append(sub.value)
+                elif sub.name == "Schedule:Compact/Schedule Value/Data Center CPU Loading Schedule":
+                    results["CPU load"].append(sub.value)
             
             self.set_actuators(state)
 
             # Get sensor values from EnergyPlus and publish them
             self.get_sensors(state)
             self.ep_federate.update_pubs()
-            for sensor in self.sensors:
-                sensor_name = sensor.pub_instance.name
-                sensor_value = sensor.pub_instance.value
+            for pub in self.ep_federate.pubs:
+                sensor_name = pub.name
+                sensor_value = pub.value
                 if sensor_name == "Whole Building/Facility Total HVAC Electricity Demand Rate":
                     results["HVAC Energy"].append(sensor_value)
                 elif sensor_name == "Whole Building/Facility Total Electricity Demand Rate":
