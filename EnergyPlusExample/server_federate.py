@@ -46,7 +46,7 @@ SUBS = [
 
 class Server_thermal_federate:
     def __init__(self) -> None:
-        self.total_time = 62 * 24 * 60 * 60  # get this from IDF
+        self.total_time = definitions.TOTAL_SECONDS  # get this from IDF
         self.subs = [federate.Sub(name=f'{sensor["variable_key"]}/{sensor["variable_name"]}', unit=sensor["variable_unit"]) for sensor in definitions.SENSORS]
         self.pubs = [federate.Pub(name=f'{pub["Name"]}', unit=pub["Units"]) for pub in PUBS]
         self.server_federate = federate.mostcool_federate(federate_name="Server_1", subscriptions=self.subs, publications=self.pubs)

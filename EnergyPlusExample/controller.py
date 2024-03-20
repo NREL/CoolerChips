@@ -96,9 +96,6 @@ if __name__ == "__main__":
     logger.info("Entered HELICS execution mode")
 
     # TODO: need to extract runperiod info from E+ model
-    number_of_days = 62   # Jul-Aug
-    total_hours = 24 * number_of_days
-    total_seconds = total_hours * 60 * 60
     full_day_seconds = 24 * 3600
     # time_interval_seconds = 10  # get this from IDF timestep?
     time_interval_seconds = int(
@@ -117,7 +114,7 @@ if __name__ == "__main__":
 
     ########## Main co-simulation loop ########################################
     # As long as granted time is in the time range to be simulated...
-    while grantedtime < total_seconds:
+    while grantedtime < definitions.TOTAL_SECONDS:
 
         # Time request for the next physical interval to be simulated
         requested_time_seconds = grantedtime + time_interval_seconds
@@ -156,7 +153,7 @@ if __name__ == "__main__":
 
         # Option3: change IT server load
         if definitions.CONTROL_OPTION == definitions.CONTROL_OPTIONS.CHANGE_IT_LOAD:
-            it_load_frac = 1 - grantedtime / total_seconds
+            it_load_frac = 1 - grantedtime / definitions.TOTAL_SECONDS
             h.helicsPublicationPublishDouble(pubid[0], 0)  # liquid load as 0
             # h.helicsPublicationPublishDouble(pubid[1], 2)
             h.helicsPublicationPublishDouble(pubid[2], it_load_frac)  # CPU load schedule fraction
