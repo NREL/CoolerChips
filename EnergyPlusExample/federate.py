@@ -22,12 +22,12 @@ class Sub:
 class mostcool_federate:
     def __init__(self, 
                  federate_name: str =None,
-                 subscriptions: dict =None,
-                 publications: dict =None):
+                 subscriptions: list =None,
+                 publications: list =None):
         import helics as h
 
         self.logger = logging.getLogger(__name__)
-        self.logger.setLevel(logging.INFO)
+        self.logger.setLevel(logging.DEBUG)
         self.subs = subscriptions
         self.pubs = publications
         self.granted_time = 0
@@ -51,8 +51,9 @@ class mostcool_federate:
         h.helicsFederateInfoSetTimeProperty(fedinfo, h.HELICS_PROPERTY_TIME_PERIOD, period)
         h.helicsFederateInfoSetFlagOption(fedinfo, h.HELICS_FLAG_UNINTERRUPTIBLE, True)  # Forces the granted time to be the requested time (i.e., EnergyPlus timestep)
         h.helicsFederateInfoSetFlagOption(fedinfo, h.HELICS_FLAG_TERMINATE_ON_ERROR, True)  # Stop the whole co-simulation if there is an error
+        time_controller_federate = True if name == "EnergyPlus_federate" else False
         h.helicsFederateInfoSetFlagOption(
-            fedinfo, h.HELICS_FLAG_WAIT_FOR_CURRENT_TIME_UPDATE, True
+            fedinfo, h.HELICS_FLAG_WAIT_FOR_CURRENT_TIME_UPDATE, time_controller_federate
         )  # This makes sure that this federate will be the last one granted a given time step. Thus it will have the most up-to-date values for all other federates.
         fed = h.helicsCreateValueFederate(name, fedinfo)
         return fed                                          
@@ -83,7 +84,7 @@ class mostcool_federate:
                 )
                 pub_name = h.helicsPublicationGetName(pub.id)
                 if pub.name != pub_name:
-                    raise error
+                    raise Exception(f"Name mismatch: {pub.name} != {pub_name}")
                 # if pub_name not in self.pubs:
                 #     self.pubs.append(Pub(name=pub_name, id=pubid))
                 self.logger.debug(f"\tRegistered publication---> {pub.id} as {pub_name}")
@@ -103,7 +104,7 @@ class mostcool_federate:
                 )
                 sub_name = h.helicsInputGetTarget(sub.id)
                 if sub.name != sub_name:
-                    raise error
+                    raise Exception(f"Name mismatch: {sub.name} != {sub_name}")
                 self.logger.debug(f"\tRegistered subscription---> {sub.id} as {sub_name}")
 
     def request_time(self):
