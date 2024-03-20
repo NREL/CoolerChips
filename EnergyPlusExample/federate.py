@@ -27,7 +27,7 @@ class mostcool_federate:
         import helics as h
 
         self.logger = logging.getLogger(__name__)
-        self.logger.setLevel(logging.DEBUG)
+        self.logger.setLevel(logging.INFO)
         self.subs = subscriptions
         self.pubs = publications
         self.granted_time = 0
