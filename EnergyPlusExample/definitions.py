@@ -65,7 +65,13 @@ ACTUATORS = [
     {
         "component_type": "Schedule:Constant",
         "control_type": "Schedule Value",
-        "actuator_key": "Supply Temperature Difference Schedule Mod",
+        "actuator_key": "Supply Temperature Difference Schedule Mod",   # delta T at supply side
+        "actuator_unit": "C"
+    },
+    {
+        "component_type": "Schedule:Constant",
+        "control_type": "Schedule Value",
+        "actuator_key": "Return Temperature Difference Schedule Mod",   # delta T at return side
         "actuator_unit": "C"
     },
     {
@@ -112,9 +118,14 @@ SENSORS = [
     },
     # EASTDATACENTER_EQUIP:ITE Standard Density Air Volume Flow Rate [m3/s](TimeStep)
     {
-        "variable_name": "ITE Standard Density Air Volume Flow Rate",
-        "variable_key": "EASTDATACENTER_EQUIP",
+        "variable_name": "Fan Air Mass Flow Rate",
+        "variable_key": "East Zone Supply Fan",
         "variable_unit": "m3/s"
+    },
+    {
+        "variable_name": "System Node Temperature",
+        "variable_key": "East Air Loop Outlet Node",
+        "variable_unit": "C"
     }
 ]
 

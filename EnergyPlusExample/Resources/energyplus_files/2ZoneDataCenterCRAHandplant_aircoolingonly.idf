@@ -4649,6 +4649,8 @@ Output:Variable,
     Timestep;                  !- Reporting Frequency
 
 
+Output:Variable,*,Fan Air Mass Flow Rate,hourly; !- HVAC Average [kg/s]
+
 !-   ===========  ALL OBJECTS IN CLASS: OUTPUT:METER ===========
 
 Output:Meter,
