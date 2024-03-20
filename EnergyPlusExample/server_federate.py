@@ -32,16 +32,7 @@ PUBS = [[
         "Global": True,
     }
     for actuator in definitions.ACTUATORS
-][1]]
-
-# PUBS = [
-#     {
-#         "Name": "Server Output Temperature",
-#         "Type": "double",
-#         "Units": "K",
-#         "Global": True,
-#     }
-# ]
+][1]] # only the second actuator is used - delta T
 
 SUBS = [
     {
@@ -106,7 +97,6 @@ class Server_thermal_federate:
             
         # Calculate the average temperature
         average_temperature = df_mapped['Temperature'].mean()
-        # print(f"The average temperature at {self.server_federate.granted_time} is: {average_temperature}")
         return average_temperature
     
     def run(self):
