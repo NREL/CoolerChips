@@ -71,7 +71,7 @@ if __name__ == "__main__":
     ]
 
     pubid = {}
-    for i in range(0, len(PUBS)):
+    for i in [0, 2, 3]: #range(0, len(PUBS)):
         pubid[i] = h.helicsFederateRegisterGlobalTypePublication(
             fed, PUBS[i]["Name"], PUBS[i]["Type"], PUBS[i]["Units"]
         )
@@ -139,7 +139,7 @@ if __name__ == "__main__":
             elif num_of_hours_in_day < 24.0:
                 liquid_load = -1200000.0
             h.helicsPublicationPublishDouble(pubid[0], liquid_load)
-            h.helicsPublicationPublishDouble(pubid[1], 2.0)  # supply approach always 2C
+            # h.helicsPublicationPublishDouble(pubid[1], 2.0)  # supply approach always 2C
             h.helicsPublicationPublishDouble(pubid[2], 1.0)  # CPU load schedule always 1, major load as liquid cooling
             h.helicsPublicationPublishDouble(pubid[3], 1)  # Liquid load flow rate fraction. This can be updated realtime according to the dynamic load
             # TODO: need to update the peak flow rate of E+ object "LoadProfile:Plant" according to the maximum liquid cooling load input.
@@ -150,7 +150,7 @@ if __name__ == "__main__":
         if definitions.CONTROL_OPTION == definitions.CONTROL_OPTIONS.CHANGE_SUPPLY_DELTA_T:
             T_delta_supply = 2 + grantedtime / 500000
             h.helicsPublicationPublishDouble(pubid[0], 0)  # liquid load as 0
-            h.helicsPublicationPublishDouble(pubid[1], T_delta_supply)
+            # h.helicsPublicationPublishDouble(pubid[1], T_delta_supply)
             h.helicsPublicationPublishDouble(pubid[2], 1.0)  # CPU load schedule always 1
             h.helicsPublicationPublishDouble(pubid[3], 0)  # Liquid load flow rate fraction = 0, i.e., no liquid cooling
 
@@ -158,7 +158,7 @@ if __name__ == "__main__":
         if definitions.CONTROL_OPTION == definitions.CONTROL_OPTIONS.CHANGE_IT_LOAD:
             it_load_frac = 1 - grantedtime / total_seconds
             h.helicsPublicationPublishDouble(pubid[0], 0)  # liquid load as 0
-            h.helicsPublicationPublishDouble(pubid[1], 2)
+            # h.helicsPublicationPublishDouble(pubid[1], 2)
             h.helicsPublicationPublishDouble(pubid[2], it_load_frac)  # CPU load schedule fraction
             h.helicsPublicationPublishDouble(pubid[3], 0)  # Liquid load flow rate fraction = 0, i.e., no liquid cooling
 

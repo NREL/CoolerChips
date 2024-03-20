@@ -24,24 +24,24 @@ coeff = Coeff.to_numpy()
 vel = np.arange(6, 16)
 solution_path = "ThermalModel_datacenter/solution_PythonPOD_Solid.cgns"
 
-# PUBS = [
-#     {
-#         "Name": f'{actuator["component_type"]}/{actuator["control_type"]}/{actuator["actuator_key"]}',
-#         "Type": "double",
-#         "Units": actuator["actuator_unit"],
-#         "Global": True,
-#     }
-#     for actuator in definitions.ACTUATORS
-# ]
-
-PUBS = [
+PUBS = [[
     {
-        "Name": "Server Output Temperature",
+        "Name": f'{actuator["component_type"]}/{actuator["control_type"]}/{actuator["actuator_key"]}',
         "Type": "double",
-        "Units": "K",
+        "Units": actuator["actuator_unit"],
         "Global": True,
     }
-]
+    for actuator in definitions.ACTUATORS
+][1]]
+
+# PUBS = [
+#     {
+#         "Name": "Server Output Temperature",
+#         "Type": "double",
+#         "Units": "K",
+#         "Global": True,
+#     }
+# ]
 
 SUBS = [
     {
@@ -64,12 +64,12 @@ class Server_thermal_federate:
         
         
     
-    def _get_temperature(self, new_velocity):
+    def _get_temperature(self, velocity):
         # Interpolate coefficients for each POD mode
         interp_funcs = [interp1d(vel, coeff[i, :], kind='linear') for i in range(coeff.shape[0])]
         
         # Predict coefficients for the new velocity
-        new_coeff = np.array([f(new_velocity) for f in interp_funcs])
+        new_coeff = np.array([f(velocity) for f in interp_funcs])
         
         # Calculate the predicted temperature field
         T_pred = sum(new_coeff[i] * modes[:, i] for i in range(coeff.shape[0]))
@@ -111,14 +111,21 @@ class Server_thermal_federate:
     
     def run(self):
         while self.server_federate.granted_time < self.total_time:
-            sub_values = self.server_federate.update_subs()
-            # logger.debug(f"Received values: {sub_values}")
+            self.server_federate.update_subs()
+            logger.debug(f"Received subs: {self.subs}")
             # new_velocity = self.server_federate.get_new_velocity()
-            average_temperature = self._get_temperature(new_velocity=10)
+            for sub in self.subs:
+                if sub.name == "EASTDATACENTER_EQUIP/ITE Standard Density Air Volume Flow Rate":
+                    updated_velocity = sub.value
+                    # Dirty hack to avoid out of range values
+                    if updated_velocity < 6:
+                        updated_velocity = 6
+                    elif updated_velocity > 15:
+                        updated_velocity = 15
+                    average_temperature = self._get_temperature(velocity=updated_velocity)
             if average_temperature is not None:
-                self.pubs[0].value = average_temperature
+                self.pubs[0].value = average_temperature / 100
                 self.server_federate.update_pubs()
-            # self.server_federate.publish_average_temperature(average_temperature)
             self.server_federate.request_time()
         self.server_federate.destroy_federate()
     
