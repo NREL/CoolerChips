@@ -105,7 +105,7 @@ class Server_thermal_federate:
             logger.debug(f"Received subs: {self.subs}")
             # new_velocity = self.server_federate.get_new_velocity()
             for sub in self.subs:
-                if sub.name == "EASTDATACENTER_EQUIP/ITE Standard Density Air Volume Flow Rate":
+                if sub.name == "East Zone Supply Fan/Fan Air Mass Flow Rate":
                     updated_velocity = sub.value
                     # Dirty hack to avoid out of range values
                     if updated_velocity < 6:
