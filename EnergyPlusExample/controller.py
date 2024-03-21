@@ -71,7 +71,9 @@ if __name__ == "__main__":
     ]
 
     pubid = {}
-    for i in [0, 2, 3]: #range(0, len(PUBS)):
+    pubs_without_1 = list(range(0, len(PUBS)))
+    pubs_without_1.remove(1)  # 1 is with server federate now. 
+    for i in pubs_without_1:
         pubid[i] = h.helicsFederateRegisterGlobalTypePublication(
             fed, PUBS[i]["Name"], PUBS[i]["Type"], PUBS[i]["Units"]
         )
