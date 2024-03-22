@@ -141,6 +141,7 @@ if __name__ == "__main__":
             # h.helicsPublicationPublishDouble(pubid[1], 2.0)  # supply approach always 2C
             h.helicsPublicationPublishDouble(pubid[2], 1.0)  # CPU load schedule always 1, major load as liquid cooling
             h.helicsPublicationPublishDouble(pubid[3], 1)  # Liquid load flow rate fraction. This can be updated realtime according to the dynamic load
+            h.helicsPublicationPublishDouble(pubid[4], 0)  # Load Profile 1 Flow Frac = 0
             # TODO: need to update the peak flow rate of E+ object "LoadProfile:Plant" according to the maximum liquid cooling load input.
             # this is for design purposes, to correctly sizing the cooling system, including chiller, pumps, and cooling tower
             # see energyPlusAPI_Example.py
@@ -152,6 +153,7 @@ if __name__ == "__main__":
             # h.helicsPublicationPublishDouble(pubid[1], T_delta_supply)
             h.helicsPublicationPublishDouble(pubid[2], 1.0)  # CPU load schedule always 1
             h.helicsPublicationPublishDouble(pubid[3], 0)  # Liquid load flow rate fraction = 0, i.e., no liquid cooling
+            h.helicsPublicationPublishDouble(pubid[4], 0)  # Load Profile 1 Flow Frac = 0
 
         # Option3: change IT server load
         if definitions.CONTROL_OPTION == definitions.CONTROL_OPTIONS.CHANGE_IT_LOAD:
@@ -160,6 +162,7 @@ if __name__ == "__main__":
             # h.helicsPublicationPublishDouble(pubid[1], 2)
             h.helicsPublicationPublishDouble(pubid[2], it_load_frac)  # CPU load schedule fraction
             h.helicsPublicationPublishDouble(pubid[3], 0)  # Liquid load flow rate fraction = 0, i.e., no liquid cooling
+            h.helicsPublicationPublishDouble(pubid[4], 0)  # Load Profile 1 Flow Frac = 0
 
         # T_delta_supply = 2 + grantedtime / 10000000
         # h.helicsPublicationPublishDouble(pubid[0], T_delta_supply)

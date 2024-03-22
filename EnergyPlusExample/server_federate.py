@@ -102,8 +102,6 @@ class Server_thermal_federate:
     def run(self):
         while self.server_federate.granted_time < self.total_time:
             self.server_federate.update_subs()
-            logger.debug(f"Received subs: {self.subs}")
-            # new_velocity = self.server_federate.get_new_velocity()
             for sub in self.subs:
                 if sub.name == "East Zone Supply Fan/Fan Air Mass Flow Rate":
                     updated_velocity = sub.value
