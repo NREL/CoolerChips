@@ -581,11 +581,11 @@ Schedule:Compact,
     Through: 12/31,          !- Field 1
     For: AllDays,            !- Field 2
     Until:  7:00,            !- Field 3
-    20.0,                    !- Field 4
+    5.0,                    !- Field 4
     Until: 17:00,            !- Field 5
-    20.0,                    !- Field 6
+    5.0,                    !- Field 6
     Until: 24:00,            !- Field 7
-    20.0;                    !- Field 8
+    5.0;                    !- Field 8
 
 Schedule:Compact,
     Cooling Setpoints,       !- Name
@@ -1661,13 +1661,13 @@ ElectricEquipment:ITE:AirCooled,
     Watts/Unit,              !- Design Power Input Calculation Method
     1000,                        !- Watts per Unit {W}
     42,                        !- Number of Units
-    ,                     !- Watts per Zone Floor Area {W/m2}
+    200,                     !- Watts per Zone Floor Area {W/m2}
     Data Center Operation Schedule,  !- Design Power Input Schedule Name
     Data Center CPU Loading Schedule,  !- CPU Loading  Schedule Name
     Data Center Servers Power fLoadTemp,  !- CPU Power Input Function of Loading and Air Temperature Curve Name
     0.183,                     !- Design Fan Power Input Fraction
     0.0001,                  !- Design Fan Air Flow Rate per Power Input {m3/s-W}
-    Data Center Servers Airflow fLoadTemp-demo,  !- Air Flow Function of Loading and Air Temperature Curve Name
+    Data Center Servers Airflow fLoadTemp,  !- Air Flow Function of Loading and Air Temperature Curve Name
     ECM FanPower fFlow-demo,      !- Fan Power Input Function of Flow Curve Name
     15,                      !- Design Entering Air Temperature {C}
     A3,                      !- Environmental Class
@@ -2142,6 +2142,7 @@ Branch,
     East Zone CW Cooling Coil,  !- Component 3 Name
     East Zone Supply Fan Outlet Node,  !- Component 3 Inlet Node Name
     East Air Loop Outlet Node;  !- Component 3 Outlet Node Name
+
 
 Branch,
     CW Supply Pump Branch,   !- Name
@@ -3906,7 +3907,7 @@ Output:Variable,
 
 
 
-Output:Variable,*,Fan Air Mass Flow Rate,hourly; !- HVAC Average [kg/s]
+Output:Variable,*,Fan Air Mass Flow Rate,Timestep; !- HVAC Average [kg/s]
 
 !-   ===========  ALL OBJECTS IN CLASS: OUTPUT:METER ===========
 
@@ -3941,5 +3942,11 @@ Output:Diagnostics,
 
 
 
-Output:Variable,Supply Temperature Difference Schedule Mod,Schedule Value,hourly; !- Zone Average []
-Output:Variable,Return Temperature Difference Schedule Mod,Schedule Value,hourly; !- Zone Average []
+Output:Variable,Supply Temperature Difference Schedule Mod,Schedule Value,Timestep; !- Zone Average []
+Output:Variable,Return Temperature Difference Schedule Mod,Schedule Value,Timestep; !- Zone Average []
+
+
+
+Output:Variable,East Zone Return Air Node,System Node Temperature,Timestep; !- HVAC Average [C]
+Output:Variable,East Air Loop Outlet Node,System Node Temperature,Timestep; !- HVAC Average [C]
+Output:Variable,East Zone Mixed Air Node,System Node Temperature,Timestep; !- HVAC Average [C]
