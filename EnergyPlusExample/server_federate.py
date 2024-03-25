@@ -52,7 +52,8 @@ class Server_thermal_federate:
         self.server_federate = federate.mostcool_federate(federate_name="Server_1", subscriptions=self.subs, publications=self.pubs)
         self.server_federate.time_interval_seconds = definitions.TIMESTEP_PERIOD_SECONDS
            
-    def thermal_model(self, Ts, mass_flowrate, power_level=1, num_servers=1):
+    def thermal_model(self, Ts, mass_flowrate, power_level=1, num_servers=42):
+        #TODO: Feed in Data Center CPU Loading Schedule to get power level
         # Define constants
         dens = 1.225 #kg/m^3
         cp = 1006.43 #J/kgK
