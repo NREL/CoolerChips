@@ -161,8 +161,8 @@ if __name__ == "__main__":
             it_load_frac = 1 - grantedtime / definitions.TOTAL_SECONDS
             h.helicsPublicationPublishDouble(pubid[0], 0)  # liquid load as 0
             # h.helicsPublicationPublishDouble(pubid[1], 2)
-            # h.helicsPublicationPublishDouble(pubid[2], it_load_frac)  # return temp difference
-            h.helicsPublicationPublishDouble(pubid[3], it_load_frac)  # CPU load schedule
+            # h.helicsPublicationPublishDouble(pubid[2], 0)  # return temp difference
+            # h.helicsPublicationPublishDouble(pubid[3], it_load_frac)  # CPU load schedule
             h.helicsPublicationPublishDouble(pubid[4], 0)  # Load Profile 1 Flow Frac = 0
 
         # T_delta_supply = 2 + grantedtime / 10000000
