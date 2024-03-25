@@ -9,7 +9,7 @@ from subprocess import Popen
 import sys
 from threading import Thread
 from time import sleep
-from tkinter import BOTH, E, LEFT, TOP, W, X, Frame, Label, LabelFrame, Menu, OptionMenu, PhotoImage, StringVar, Tk, filedialog, messagebox, ttk
+from tkinter import BOTH, E, LEFT, TOP, W, X, Frame, Label, LabelFrame, Menu, OptionMenu, PhotoImage, StringVar, Tk, filedialog, messagebox, ttk, font
 import webbrowser
 from matplotlib import pyplot as plt
 from matplotlib.backend_bases import NavigationToolbar2
@@ -40,6 +40,8 @@ class MyApp(Frame):
 
     def __init__(self):
         self.root = Tk(className='mostcool')
+        default_font = font.nametofont("TkDefaultFont")
+        default_font.configure(size=14)
         Frame.__init__(self, self.root)
 
         # add the taskbar icon, but its having issues reading the png on Mac, not sure.
@@ -181,13 +183,13 @@ class MyApp(Frame):
         # group_run_options = LabelFrame(pane_run, text="Run Options")
         # group_run_options.pack(fill=X, padx=5)
         
-        Label(group_run_options, text="Datacenter floor area [m2]: ").grid(row=2, column=1, sticky=W)
+        Label(group_run_options, text="[Placeholder] Datacenter floor area [m2]: ").grid(row=2, column=1, sticky=W)
         self.floor_area.set('250')
         self.fa_option_menu = OptionMenu(group_run_options, self.floor_area,
                                                 *['250', '500', '750'])
         self.fa_option_menu.grid(row=2, column=2, sticky=W)
         
-        Label(group_run_options, text="Watts per zone floor area [W]: ").grid(row=3, column=1, sticky=E)
+        Label(group_run_options, text="[Placeholder]Watts per zone floor area [W]: ").grid(row=3, column=1, sticky=E)
         self.wpzfa.set('100')
         self.wpzfa_option_menu = OptionMenu(group_run_options, self.wpzfa,
                                                 *['100', '200', '400'])
