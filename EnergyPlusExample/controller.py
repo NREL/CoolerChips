@@ -71,7 +71,10 @@ if __name__ == "__main__":
     ]
 
     pubid = {}
-    for i in [0, 2, 3]: #range(0, len(PUBS)):
+    actuators_to_remove = [1, 2]  # remove the actuators that are not used in this federate
+    controller_pubs = list(set(range(0, len(PUBS))) - set(actuators_to_remove))
+    print(controller_pubs)
+    for i in controller_pubs:
         pubid[i] = h.helicsFederateRegisterGlobalTypePublication(
             fed, PUBS[i]["Name"], PUBS[i]["Type"], PUBS[i]["Units"]
         )
@@ -96,9 +99,6 @@ if __name__ == "__main__":
     logger.info("Entered HELICS execution mode")
 
     # TODO: need to extract runperiod info from E+ model
-    number_of_days = 62   # Jul-Aug
-    total_hours = 24 * number_of_days
-    total_seconds = total_hours * 60 * 60
     full_day_seconds = 24 * 3600
     # time_interval_seconds = 10  # get this from IDF timestep?
     time_interval_seconds = int(
@@ -117,7 +117,7 @@ if __name__ == "__main__":
 
     ########## Main co-simulation loop ########################################
     # As long as granted time is in the time range to be simulated...
-    while grantedtime < total_seconds:
+    while grantedtime < definitions.TOTAL_SECONDS:
 
         # Time request for the next physical interval to be simulated
         requested_time_seconds = grantedtime + time_interval_seconds
@@ -140,8 +140,9 @@ if __name__ == "__main__":
                 liquid_load = -1200000.0
             h.helicsPublicationPublishDouble(pubid[0], liquid_load)
             # h.helicsPublicationPublishDouble(pubid[1], 2.0)  # supply approach always 2C
-            h.helicsPublicationPublishDouble(pubid[2], 1.0)  # CPU load schedule always 1, major load as liquid cooling
-            h.helicsPublicationPublishDouble(pubid[3], 1)  # Liquid load flow rate fraction. This can be updated realtime according to the dynamic load
+            # h.helicsPublicationPublishDouble(pubid[2], 1.0)  # return temp difference
+            h.helicsPublicationPublishDouble(pubid[3], 1)  # CPU load schedule
+            h.helicsPublicationPublishDouble(pubid[4], 0)  # Load Profile 1 Flow Frac = 0
             # TODO: need to update the peak flow rate of E+ object "LoadProfile:Plant" according to the maximum liquid cooling load input.
             # this is for design purposes, to correctly sizing the cooling system, including chiller, pumps, and cooling tower
             # see energyPlusAPI_Example.py
@@ -151,16 +152,18 @@ if __name__ == "__main__":
             T_delta_supply = 2 + grantedtime / 500000
             h.helicsPublicationPublishDouble(pubid[0], 0)  # liquid load as 0
             # h.helicsPublicationPublishDouble(pubid[1], T_delta_supply)
-            h.helicsPublicationPublishDouble(pubid[2], 1.0)  # CPU load schedule always 1
-            h.helicsPublicationPublishDouble(pubid[3], 0)  # Liquid load flow rate fraction = 0, i.e., no liquid cooling
+            # h.helicsPublicationPublishDouble(pubid[2], 1.0)  # return temp difference
+            h.helicsPublicationPublishDouble(pubid[3], 0)  # CPU load schedule
+            h.helicsPublicationPublishDouble(pubid[4], 0)  # Load Profile 1 Flow Frac = 0
 
         # Option3: change IT server load
         if definitions.CONTROL_OPTION == definitions.CONTROL_OPTIONS.CHANGE_IT_LOAD:
-            it_load_frac = 1 - grantedtime / total_seconds
+            it_load_frac = 1 - grantedtime / definitions.TOTAL_SECONDS
             h.helicsPublicationPublishDouble(pubid[0], 0)  # liquid load as 0
             # h.helicsPublicationPublishDouble(pubid[1], 2)
-            h.helicsPublicationPublishDouble(pubid[2], it_load_frac)  # CPU load schedule fraction
-            h.helicsPublicationPublishDouble(pubid[3], 0)  # Liquid load flow rate fraction = 0, i.e., no liquid cooling
+            # h.helicsPublicationPublishDouble(pubid[2], it_load_frac)  # return temp difference
+            h.helicsPublicationPublishDouble(pubid[3], it_load_frac)  # CPU load schedule
+            h.helicsPublicationPublishDouble(pubid[4], 0)  # Load Profile 1 Flow Frac = 0
 
         # T_delta_supply = 2 + grantedtime / 10000000
         # h.helicsPublicationPublishDouble(pubid[0], T_delta_supply)

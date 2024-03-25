@@ -9,7 +9,7 @@ from subprocess import Popen
 import sys
 from threading import Thread
 from time import sleep
-from tkinter import BOTH, E, LEFT, TOP, W, X, Frame, Label, LabelFrame, Menu, OptionMenu, PhotoImage, StringVar, Tk, filedialog, messagebox, ttk
+from tkinter import BOTH, E, LEFT, TOP, W, X, Frame, Label, LabelFrame, Menu, OptionMenu, PhotoImage, StringVar, Tk, filedialog, messagebox, ttk, font
 import webbrowser
 from matplotlib import pyplot as plt
 from matplotlib.backend_bases import NavigationToolbar2
@@ -23,7 +23,7 @@ import definitions
 import simulator
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 
-plt.rcParams.update({'font.size': 24})  # Adjust font size as needed
+plt.rcParams.update({'font.size': 16})  # Adjust font size as needed
 
 
 
@@ -40,6 +40,8 @@ class MyApp(Frame):
 
     def __init__(self):
         self.root = Tk(className='mostcool')
+        default_font = font.nametofont("TkDefaultFont")
+        default_font.configure(size=14)
         Frame.__init__(self, self.root)
 
         # add the taskbar icon, but its having issues reading the png on Mac, not sure.
@@ -181,13 +183,13 @@ class MyApp(Frame):
         # group_run_options = LabelFrame(pane_run, text="Run Options")
         # group_run_options.pack(fill=X, padx=5)
         
-        Label(group_run_options, text="Datacenter floor area [m2]: ").grid(row=2, column=1, sticky=W)
+        Label(group_run_options, text="[Placeholder] Datacenter floor area [m2]: ").grid(row=2, column=1, sticky=W)
         self.floor_area.set('250')
         self.fa_option_menu = OptionMenu(group_run_options, self.floor_area,
                                                 *['250', '500', '750'])
         self.fa_option_menu.grid(row=2, column=2, sticky=W)
         
-        Label(group_run_options, text="Watts per zone floor area [W]: ").grid(row=3, column=1, sticky=E)
+        Label(group_run_options, text="[Placeholder] Watts per zone floor area [W]: ").grid(row=3, column=1, sticky=E)
         self.wpzfa.set('100')
         self.wpzfa_option_menu = OptionMenu(group_run_options, self.wpzfa,
                                                 *['100', '200', '400'])
@@ -215,11 +217,15 @@ class MyApp(Frame):
         # ep_results.pack()
         # ep_results_label = Label(ep_results, text="EnergyPlus Results")
         # ep_results_label.pack()
+        # Create a frame to hold the label and dropdown menu
+        row_frame = Frame(ep_results)
+        row_frame.pack(side='top', fill='x')
+        Label(row_frame, text="Data to display: ").pack(side='left')
         # Dropdown menu for selecting the y-axis variable
         self.y_axis_variable = StringVar()
         self.y_axis_variable.set("Select variable")  # default value
         self.y_axis_variable.trace_add("write", lambda name, index, mode: self.update_plot())
-        self.y_axis_drop_down_menu = OptionMenu(ep_results, self.y_axis_variable, "Select variable", command=self.update_plot)
+        self.y_axis_drop_down_menu = OptionMenu(row_frame, self.y_axis_variable, "Select variable") #, command=self.update_plot)
         self.y_axis_drop_down_menu.pack()
         
         # Placeholder for the Matplotlib figure
@@ -232,8 +238,8 @@ class MyApp(Frame):
         inner_frame2 = Frame(pane_results)
         pane_results.add(inner_frame2, text="Thermal Model")
         
-        inner_frame3 = Frame(pane_results)
-        pane_results.add(inner_frame3, text="Cost Model")
+        # inner_frame3 = Frame(pane_results)
+        # pane_results.add(inner_frame3, text="Cost Model")
                 
         # pack the main notebook on the window
         self.main_notebook.pack(fill=BOTH, expand=1)
@@ -241,12 +247,12 @@ class MyApp(Frame):
         # status bar at the bottom
         frame_status = Frame(self.root)
         self.run_button = ttk.Button(frame_status, text="Run", command=self.client_run, style="C.TButton")
-        self.run_button.pack(side=LEFT, expand=0)
+        self.run_button.pack(side=LEFT, expand=0, padx=5)
         self.progress = ttk.Progressbar(frame_status, length=250)
-        self.progress.pack(side=LEFT, expand=0)
+        self.progress.pack(side=LEFT, expand=0, padx=5)
         label = Label(frame_status, textvariable=self.label_status)
         self.label_status.set("Initialized")
-        label.pack(side=LEFT, anchor=W)
+        label.pack(side=LEFT, anchor=W, padx=5)
         frame_status.pack(fill=X)
 
     def run(self):

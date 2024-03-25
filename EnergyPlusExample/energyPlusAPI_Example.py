@@ -5,7 +5,6 @@ from pathlib import Path
 import federate as federate
 import definitions
 import sys
-import time
 
 
 # We specify the path to the EnergyPlus installation directory
