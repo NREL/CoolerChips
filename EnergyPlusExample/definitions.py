@@ -19,7 +19,7 @@ if os.path.exists('Output/run_config/config.json'):
             CONTROL_OPTION = CONTROL_OPTIONS[control_option_name]
         except KeyError:
             print(f"Invalid control option: '{control_option_name}'. Using default CONTROL_OPTION value as CHANGE_IT_LOAD")
-            CONTROL_OPTION = CONTROL_OPTIONS.CHANGE_IT_LOAD
+            CONTROL_OPTION = CONTROL_OPTIONS.CHANGE_SUPPLY_DELTA_T
 else:   
     print("No config file found. Using default CONTROL_OPTION value as CHANGE_IT_LOAD")
     CONTROL_OPTION = CONTROL_OPTIONS.CHANGE_IT_LOAD
@@ -118,7 +118,6 @@ SENSORS = [
         "variable_key": "Whole Building",
         "variable_unit": "W"
     },
-    # EASTDATACENTER_EQUIP:ITE Standard Density Air Volume Flow Rate [m3/s](TimeStep)
     {
         "variable_name": "Fan Air Mass Flow Rate",
         "variable_key": "East Zone Supply Fan",
