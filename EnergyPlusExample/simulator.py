@@ -45,6 +45,8 @@ def fix_results(results):
     results['Date/Time']= results['Date/Time'].apply(fix_datetime)
     results['Date/Time'] = pd.to_datetime(results['Date/Time'], format='  %m/%d  %H:%M:%S')
     results.set_index('Date/Time', inplace=True)
+    # Replace '(TimeStep)' with an empty string in each column name
+    results.columns = results.columns.str.replace(r'\(TimeStep\)', '', regex=True)
     return results
 
 
