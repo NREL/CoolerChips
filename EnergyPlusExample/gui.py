@@ -21,6 +21,7 @@ from pubsub import pub
 from typing import Union
 import definitions
 import simulator
+import paraview
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 
 plt.rcParams.update({'font.size': 16})  # Adjust font size as needed
@@ -82,6 +83,7 @@ class MyApp(Frame):
         self.server_model_path = StringVar()
         self.floor_area = StringVar()
         self.wpzfa = StringVar()
+        self.paraview_velocity = StringVar()
         self.control_option = StringVar()
         self.datacenter_location = StringVar()
         self.label_status = StringVar()
@@ -89,10 +91,6 @@ class MyApp(Frame):
         
 
         # widgets that we might want to access later
-        self.idf_path_button = None
-        self.idf_path_label = None
-        self.epw_path_button = None
-        self.epw_path_label = None
         self.run_button = None
         self.progress = None
         self.time_step_spinner = None
@@ -212,6 +210,8 @@ class MyApp(Frame):
         # set up a tree-view for the results
         pane_results = ttk.Notebook(self.main_notebook)
         self.main_notebook.add(pane_results, text="Results (initialized)")
+        
+        self.main_notebook.tab(pane_results, state='disabled')
         ep_results = Frame(pane_results)
         pane_results.add(ep_results, text="Building Energy")
         # ep_results.pack()
@@ -235,8 +235,19 @@ class MyApp(Frame):
         self.canvas.get_tk_widget().pack(side=TOP, fill=BOTH, expand=1)
         
         # Create the second inner frame within pane_results
-        inner_frame2 = Frame(pane_results)
-        pane_results.add(inner_frame2, text="Thermal Model")
+        thermal_results = Frame(pane_results)
+        pane_results.add(thermal_results, text="Thermal model results")
+        
+        Label(thermal_results, text="Choose velocity to view results in Paraview: [m/s]").grid(row=1, column=1, sticky=W, padx=5, pady=5)
+        self.paraview_velocity.set(paraview.upper_vel_limit)
+        self.paraview_velocity_option_menu = OptionMenu(thermal_results, self.paraview_velocity,
+                                                *[str(number) for number in range(paraview.lower_vel_limit, paraview.upper_vel_limit + 1)])
+        self.paraview_velocity_option_menu.grid(row=1, column=2, sticky=W, padx=5, pady=5)
+        
+        self.open_paraview_button = ttk.Button(thermal_results, text="Open Paraview", command=self.open_paraview,
+                                          style="C.TButton")
+        self.open_paraview_button.grid(row=2, column=1, sticky=W, padx=5, pady=5)
+        
         
         # inner_frame3 = Frame(pane_results)
         # pane_results.add(inner_frame3, text="Cost Model")
@@ -277,7 +288,7 @@ class MyApp(Frame):
         json_object = {}
         if auto_save:
             self.auto_saving = True
-            save_file = os.path.join(os.path.expanduser("~"), ".regression-auto-save.ept")  # TODO: New save file name
+            save_file = os.path.join(os.path.expanduser("~"), ".auto-save.ept")  # TODO: New save file name
             open_save_file = open(save_file, 'w')
         else:
             self.manually_saving = True
@@ -317,7 +328,7 @@ class MyApp(Frame):
 
     @staticmethod
     def open_documentation():
-        url = 'https://energyplusregressiontool.readthedocs.io/en/latest/'  # TODO: Change URL
+        url = ''  # TODO: Change URL
         # noinspection PyBroadException
         try:
             webbrowser.open_new_tab(url)
@@ -387,6 +398,13 @@ class MyApp(Frame):
         self.run_button.configure(state=run_button_state)
         self.main_notebook.tab(1, text=results_tab_title)
 
+    def open_paraview(self):
+        try:
+            paraview.predict_temperature(int(self.paraview_velocity.get()))
+        except Exception as e:
+            messagebox.showerror("Error", f"An error occurred: {e}")
+        
+    
     def select_idf(self):
         selected_path = filedialog.askopenfilename()
         if not selected_path:
@@ -462,6 +480,7 @@ class MyApp(Frame):
             pass
         self.add_to_log("All done, finished")
         self.label_status.set("Hey, all done!")
+        self.main_notebook.tab(1, state="normal") # TODO: 1 corresponds to the index of the thermal model results tab, change if needed
         if self.results is not None:
             self.results_previous = self.results
         self.results = results

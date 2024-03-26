@@ -92,6 +92,6 @@ class Simulator:
             run_command(cmd)
             print("-" * 50)  # Separator between command outputs
             self.increment_callback(f"Finished with iteration {commands.index(cmd)}")
-        df = pd.read_csv("Output/eplusout.csv")
+        df = pd.read_csv("Output/eplusout.csv").drop(index=0) # initial values look strange
         self.all_done_callback(fix_results(df))
         
