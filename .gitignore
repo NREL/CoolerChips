@@ -6,10 +6,10 @@ EnergyPlusExample/EnergyPlus
 *.pyc
 .idea/*
 Output*
-EnergyPlusExample/ThermalModel_datacenter/Modes.csv
-EnergyPlusExample/ThermalModel_datacenter/solution_PythonPOD_Solid.cgns
+Modes.csv
+*.cgns
 .venv/
 build/
-MOSTcool.egg-info/
+*.egg-info/
 MOSTcool/ThermalModel_datacenter/solution_PythonPOD_Solid.cgns
 MOSTcool/ThermalModel_datacenter/Modes.csv

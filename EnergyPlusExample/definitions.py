@@ -54,7 +54,7 @@ GRAPHS_DIR = os.path.join(OUTPUT_DIR, "graphs")
 Path(GRAPHS_DIR).mkdir(parents=True, exist_ok=True)
 
 TIMESTEP_PERIOD_SECONDS = 600  # 10 mins
-NUMBER_OF_DAYS = 14   # Two weeks
+NUMBER_OF_DAYS = 62   # Two weeks
 TOTAL_SECONDS = 60 * 60 * 24 * NUMBER_OF_DAYS
 
 ACTUATORS = [

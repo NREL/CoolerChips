@@ -101,7 +101,6 @@ class Server_thermal_federate:
                     mass_flow_rate = sub.value
                 elif sub.name == "East Air Loop Outlet Node/System Node Temperature":
                     Ts = sub.value
-            print(f"Mass flow rate: {mass_flow_rate}, Supply temperature: {Ts} at time {self.server_federate.granted_time}")
             supply_approach_temp, return_approach_temperature, energy_fan = self.thermal_model(Ts=Ts, mass_flowrate=mass_flow_rate)
             if supply_approach_temp is not None:
                 self.pubs[0].value = supply_approach_temp

@@ -16,12 +16,6 @@
       },
       {
         "directory": ".",
-        "exec": "python -u thermal_federate.py",
-        "host": "localhost",
-        "name": "Thermal_federate"
-      },
-      {
-        "directory": ".",
         "exec": "python -u server_federate.py",
         "host": "localhost",
         "name": "Server_federate"
