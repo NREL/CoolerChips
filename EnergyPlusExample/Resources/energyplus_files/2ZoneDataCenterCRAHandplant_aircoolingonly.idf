@@ -250,8 +250,8 @@ RunPeriod,
     7,                       !- Begin Month
     1,                       !- Begin Day of Month
     ,                        !- Begin Year
-    8,                      !- End Month
-    31,                      !- End Day of Month
+    7,                      !- End Month
+    14,                      !- End Day of Month
     ,                        !- End Year
     Tuesday,                 !- Day of Week for Start Day
     Yes,                     !- Use Weather File Holidays and Special Days
@@ -3950,3 +3950,6 @@ Output:Variable,Return Temperature Difference Schedule Mod,Schedule Value,Timest
 Output:Variable,East Zone Return Air Node,System Node Temperature,Timestep; !- HVAC Average [C]
 Output:Variable,East Air Loop Outlet Node,System Node Temperature,Timestep; !- HVAC Average [C]
 Output:Variable,East Zone Mixed Air Node,System Node Temperature,Timestep; !- HVAC Average [C]
+Output:Variable,*,ITE Air Inlet Dry-Bulb Temperature,Timestep; !- Zone Average [C]
+Output:Variable,*,ITE Air Outlet Dry-Bulb Temperature,Timestep; !- Zone Average [C]
+Output:Variable,Data Center CPU Loading Schedule,Schedule Value,Timestep; !- Zone Average []

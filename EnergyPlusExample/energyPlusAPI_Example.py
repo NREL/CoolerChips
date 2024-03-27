@@ -127,6 +127,8 @@ class energyplus_runner:
                     results["HVAC Energy"].append(sensor_value)
                 elif sensor_name == "Whole Building/Facility Total Electricity Demand Rate":
                     results["Total Energy"].append(sensor_value)
+                elif sensor_name == "Data Center CPU Loading Schedule/Schedule Value":
+                    results["CPU load"].append(sensor_value)
             results["Time"].append(self.ep_federate.granted_time)
 
     def run(self):

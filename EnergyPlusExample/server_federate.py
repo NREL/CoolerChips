@@ -82,7 +82,7 @@ class Server_thermal_federate:
         
         # Calculate server temperatures
         T_in_server = Ts + del_T1
-        T_out_server = T_in_server + power_level * 1000 / (mass_flowrate * cp)
+        # T_out_server = T_in_server + power_level * 1000 / (mass_flowrate * cp)
         
         # Calculate energy consumption by fans
         energy_consumption_per_fan = pressure_drop * mass_flowrate / dens
@@ -100,8 +100,14 @@ class Server_thermal_federate:
                 if sub.name == "East Zone Supply Fan/Fan Air Mass Flow Rate":
                     mass_flow_rate = sub.value
                 elif sub.name == "East Air Loop Outlet Node/System Node Temperature":
-                    Ts = sub.value
-            supply_approach_temp, return_approach_temperature, energy_fan = self.thermal_model(Ts=Ts, mass_flowrate=mass_flow_rate)
+                    Ts = sub.value 
+                elif sub.name == "Data Center CPU Loading Schedule/Schedule Value":
+                    cpu_loading = sub.value
+            print(f"Ts: {Ts}, mass_flow_rate: {mass_flow_rate}, cpu_loading: {cpu_loading}  at time {self.server_federate.granted_time}")
+            supply_approach_temp, return_approach_temperature, energy_fan = self.thermal_model(Ts=Ts, 
+                                                                                               mass_flowrate=mass_flow_rate, 
+                                                                                               power_level=cpu_loading, 
+                                                                                               num_servers=42)
             if supply_approach_temp is not None:
                 self.pubs[0].value = supply_approach_temp
             if return_approach_temperature is not None:

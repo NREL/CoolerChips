@@ -54,7 +54,7 @@ GRAPHS_DIR = os.path.join(OUTPUT_DIR, "graphs")
 Path(GRAPHS_DIR).mkdir(parents=True, exist_ok=True)
 
 TIMESTEP_PERIOD_SECONDS = 600  # 10 mins
-NUMBER_OF_DAYS = 62   # Two weeks
+NUMBER_OF_DAYS = 14   # Two weeks
 TOTAL_SECONDS = 60 * 60 * 24 * NUMBER_OF_DAYS
 
 ACTUATORS = [
@@ -76,12 +76,12 @@ ACTUATORS = [
         "actuator_key": "Return Temperature Difference Schedule Mod",   # delta T at return side
         "actuator_unit": "C"
     },
-    {
-        "component_type": "Schedule:Compact",
-        "control_type": "Schedule Value",
-        "actuator_key": "Data Center CPU Loading Schedule",
-        "actuator_unit": "1"
-    },
+    # {
+    #     "component_type": "Schedule:Compact",
+    #     "control_type": "Schedule Value",
+    #     "actuator_key": "Data Center CPU Loading Schedule",
+    #     "actuator_unit": "1"
+    # },
     {
         "component_type": "Schedule:Compact",
         "control_type": "Schedule Value",
@@ -127,6 +127,11 @@ SENSORS = [
         "variable_name": "System Node Temperature",
         "variable_key": "East Air Loop Outlet Node",
         "variable_unit": "C"
+    },
+    {
+        "variable_name": "Schedule Value",
+        "variable_key": "Data Center CPU Loading Schedule",
+        "variable_unit": "1"
     }
 ]
 
