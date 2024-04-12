@@ -4,23 +4,23 @@ import h5py
 from scipy.interpolate import interp1d
 import subprocess
 
-# Read modes and coefficients from CSV files outside the function
-Modes = pd.read_csv('/app/ThermalModel_datacenter/Modes.csv')
-modes = Modes.to_numpy()
-
-Coeff = pd.read_csv('/app/ThermalModel_datacenter/coeff.csv')
-coeff = Coeff.to_numpy()
-
 # Define the velocity range for which the coefficients are known
 lower_vel_limit = 6
 upper_vel_limit = 15
 vel = np.arange(lower_vel_limit, upper_vel_limit+1)
 
-# Example usage (ensure paths are correctly specified):
-solution_path = "/app/ThermalModel_datacenter/solution_PythonPOD_Solid_new.cgns"  # Update with the actual path to your solution file
-paraview_path = "/Paraview/bin/paraview"  # Ensure this matches your ParaView installation path
-
 def predict_temperature(new_velocity):
+    # Read modes and coefficients from CSV files outside the function
+    Modes = pd.read_csv('/app/ThermalModel_datacenter/Modes.csv')
+    modes = Modes.to_numpy()
+
+    Coeff = pd.read_csv('/app/ThermalModel_datacenter/coeff.csv')
+    coeff = Coeff.to_numpy()
+
+    # Example usage (ensure paths are correctly specified):
+    solution_path = "/app/ThermalModel_datacenter/solution_PythonPOD_Solid_new.cgns"  # Update with the actual path to your solution file
+    paraview_path = "/Paraview/bin/paraview"  # Ensure this matches your ParaView installation path
+    
     # Interpolate coefficients for each POD mode.
     interp_funcs = [interp1d(vel, coeff[i, :], kind='linear') for i in range(coeff.shape[0])]
     
