@@ -1,32 +1,43 @@
 
 
-## This is an EnergyPlus HELICS federate example. 
 
-How to use this:
+
+# MOSTCOOL
+
+## Requirements/Tested on:
+1. Ubuntu 22.04 (Also works on Virtual Machines)
+2. At least Quad Core CPU
+3. At least 16 GB RAM
+4. At least 4 GB hard disk space
+
+
+## How to run:
 
 1. Install docker in your computer:
 	https://docs.docker.com/engine/install/
 
 2. Clone this repo:
     `git clone https://github.com/NREL/CoolerChips.git`
-3. cd into the cloned directory. 
-4. Build the container:
+
+  
+3. cd into the cloned directory.
+4. Download required dependencies and place them in these paths:
+
+| File Name            | Link | Place in this path in local directory                          |
+|----------------------|------|----------------------------------------------------------------|
+| Modes.csv            | link | EnergyPlusExample/ThermalModel_datacenter/Modes.csv            |
+| PythonPOD_Solid.cgns | link | EnergyPlusExample/ThermalModel_datacenter/PythonPOD_Solid.cgns |
+
+5. Build the container:
 `docker compose build`
-5. Run the container:
+6. Run the container:
 	`docker compose up`
-6. You should see the output image as a file called `Output/graphs/OutputImage.pdf`.
+7. Give docker permission to display it's GUI app on host: `xhost +local:docker`
+
+8. You should see the app pop up:
+![image](https://github.com/NREL/CoolerChips/assets/45446967/39e9495c-0458-42ae-86ea-47ae77e3990c)
 
 
-
-Depending on the control option in definitions.py:
-if Control option == change liquid cooling:
-![image](https://github.com/NREL/CoolerChips/assets/45446967/51cb4741-77c7-4b44-ba46-238114e23ba6)
-
-else if CONTROL_OPTION == CHANGE_SUPPLY_DELTA_T:
-![image](https://github.com/NREL/CoolerChips/assets/45446967/6a2a26ef-902d-44ef-9cec-1e6e5dbd17b7)
-
-else if CONTROL_OPTION == CHANGE_IT_LOAD:
-![image](https://github.com/NREL/CoolerChips/assets/45446967/78848b59-fd57-4fd7-88f7-f7bf41a166fe)
 
 
 
