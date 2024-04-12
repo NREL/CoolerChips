@@ -195,32 +195,17 @@ class MyApp(Frame):
 
         self.main_notebook.add(pane_run, text='Run Configuration')
 
-        # # now let's set up a list of checkboxes for selecting IDFs to run
-        # pane_thermal_model = Frame(self.main_notebook)
-        # self.main_notebook.add(pane_thermal_model, text="Thermal Model")
-        # group_file_selection = LabelFrame(pane_thermal_model, text="File Selection")
-        # group_file_selection.pack(fill=X, padx=5)
-        # self.server_model_path_button = ttk.Button(group_file_selection, text="Select server model file...", command=self.select_server_model,
-        #                                   style="C.TButton")
-        # self.server_model_path_button.grid(row=1, column=1, sticky=W)
-        # self.server_model_path_label = Label(group_file_selection, textvariable=self.server_model_path)
-        # self.server_model_path_label.grid(row=1, column=2, sticky=E)
-
-
         # set up a tree-view for the results
         pane_results = ttk.Notebook(self.main_notebook)
         self.main_notebook.add(pane_results, text="Results (initialized)")
         
         self.main_notebook.tab(pane_results, state='disabled')
-        ep_results = Frame(pane_results)
-        pane_results.add(ep_results, text="Building Energy")
-        # ep_results.pack()
-        # ep_results_label = Label(ep_results, text="EnergyPlus Results")
-        # ep_results_label.pack()
+        plots = Frame(pane_results)
+        pane_results.add(plots, text="Plots")
         # Create a frame to hold the label and dropdown menu
-        row_frame = Frame(ep_results)
+        row_frame = Frame(plots)
         row_frame.pack(side='top', fill='x')
-        Label(row_frame, text="Data to display: ").pack(side='left')
+        Label(row_frame, text="Building energy output to display: ").pack(side='left')
         # Dropdown menu for selecting the y-axis variable
         self.y_axis_variable = StringVar()
         self.y_axis_variable.set("Select variable")  # default value
@@ -229,12 +214,12 @@ class MyApp(Frame):
         self.y_axis_drop_down_menu.pack()
         
         # Placeholder for the Matplotlib figure
-        self.figure = Figure(figsize=(5, 4), dpi=100)
-        self.plot= self.figure.add_subplot(1, 1, 1)
-        self.canvas = FigureCanvasTkAgg(self.figure, ep_results)  # A tk.DrawingArea.
+        self.fig_ep_plot = Figure(figsize=(5, 4), dpi=100)
+        self.plot= self.fig_ep_plot.add_subplot(1, 1, 1)
+        self.canvas = FigureCanvasTkAgg(self.fig_ep_plot, plots)  # A tk.DrawingArea.
         self.canvas.get_tk_widget().pack(side=TOP, fill=BOTH, expand=1)
         
-        # Create the second inner frame within pane_results
+        # Create the second inner frame within pane_results for thermal model results
         thermal_results = Frame(pane_results)
         pane_results.add(thermal_results, text="Thermal model results")
         
@@ -372,17 +357,34 @@ class MyApp(Frame):
         """Update the plot with the selected y-axis variable."""        
         y_data = self.results[self.y_axis_variable.get()]        
         self.plot.clear()
-        self.plot.plot(self.results.index, y_data)
-        # Plot the previous run if it exists
-        if self.results_previous is not None:
-            self.plot.plot(self.results_previous.index, self.results_previous[self.y_axis_variable.get()])
-            self.plot.legend(['Current Run', 'Previous Run'])
+        self.plot.plot(self.results.index, y_data, color='blueviolet', alpha=0.8, label=self.y_axis_variable.get())
+        # # Plot the previous run if it exists
+        # if self.results_previous is not None:
+        #     self.plot.plot(self.results_previous.index, self.results_previous[self.y_axis_variable.get()])
+        #     self.plot.legend(['Current Run', 'Previous Run'])
+            
+        # Create a secondary y-axis
+        ax2 = self.plot.twinx()
+        ax2.clear()
+        ax2.yaxis.set_label_position("right")
+        ax2.yaxis.tick_right()
+        ax2.plot(self.results.index, self.results["Maximum CPU Temperature [C]"], label="Maximum CPU Temperature [C]",
+                 color='coral', alpha=0.8)
+        ax2.set_ylabel("Temperature [C]")
+        ax2.tick_params(axis='y')    
+        
         # Set the labels
         self.plot.set_ylabel(self.y_axis_variable.get())
         # Customize the datetime format on the x-axis, and rotate the labels
         self.plot.xaxis.set_major_formatter(mdates.DateFormatter('%m/%d'))
-        self.figure.autofmt_xdate()
+        self.fig_ep_plot.autofmt_xdate()
         self.plot.set_xlabel("Date/Time")
+        
+        # Set legend for both axes in one location
+        lines, labels = self.plot.get_legend_handles_labels()
+        lines2, labels2 = ax2.get_legend_handles_labels()
+        self.plot.legend(lines + lines2, labels + labels2, loc='best')
+        
         self.canvas.draw()
 
     def set_gui_status_for_run(self, is_running: bool):
@@ -485,8 +487,6 @@ class MyApp(Frame):
             self.results_previous = self.results
         self.results = results
         self.update_option_menu(self.y_axis_drop_down_menu, results.columns[1:], results.columns[1])
-        # TODO: Present results on the GUI, do Plotting here. 
-        # plot the first col as default
         self.client_done()
 
     @staticmethod

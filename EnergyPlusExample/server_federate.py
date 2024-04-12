@@ -35,6 +35,10 @@ SUBS = [
     for sensor in definitions.SENSORS
 ]
 
+num_servers= 84
+server_inlet_velocity=5#in m/s
+
+
 class Server_thermal_federate:
     def __init__(self) -> None:
         self.total_time = definitions.TOTAL_SECONDS  # get this from IDF
@@ -196,6 +200,10 @@ class Server_thermal_federate:
         return avg_supply_delta_T,avg_return_delta_T, inlet_server_temperature,CPU_Load_fraction
 
     def run(self):
+        CPU_temp_max_log =  pd.DataFrame({
+            'Time': [],
+            'Value': []
+        }).set_index('Time')
         while self.server_federate.granted_time < self.total_time:
             self.server_federate.update_subs()
             Ts = 0
@@ -208,12 +216,6 @@ class Server_thermal_federate:
                 elif sub.name == "Data Center CPU Loading Schedule/Schedule Value":
                     cpu_loading = sub.value
             print(f"Ts: {Ts}, mass_flow_rate: {mass_flow_rate}, cpu_loading: {cpu_loading}  at time {self.server_federate.granted_time}")
-            # supply_approach_temp, return_approach_temperature, energy_fan = self.thermal_model(Ts=Ts, 
-            #                                                                                    mass_flowrate=mass_flow_rate, 
-            #                                                                                    power_level=cpu_loading, 
-            #                                                                                    num_servers=42)
-            num_servers= 84
-            server_inlet_velocity=5#in m/s
             supply_approach_temp, return_approach_temperature, inlet_server_temperature, CPU_Load_fraction = self.data_center_temperature_deltas(supply_temperature=Ts, 
                                                                                                                                             server_inlet_velocity=server_inlet_velocity, 
                                                                                                                                             total_ite_load_percentage=cpu_loading, 
@@ -226,7 +228,8 @@ class Server_thermal_federate:
                                                            self.param_scaler, 
                                                            self.coeff_scaler, 
                                                            self.modes)
-            
+            new_data = pd.DataFrame({'Time': [self.server_federate.granted_time], 'Value': [CPU_temp_max]}).set_index('Time')
+            CPU_temp_max_log = pd.concat([CPU_temp_max_log, new_data])
             
             if supply_approach_temp is not None:
                 self.pubs[0].value = supply_approach_temp
@@ -234,6 +237,8 @@ class Server_thermal_federate:
                 self.pubs[1].value = return_approach_temperature
             self.server_federate.update_pubs()
             self.server_federate.request_time()
+        # Export the DataFrame to a CSV file
+        CPU_temp_max_log.to_csv('Output/time_series_data.csv')
         self.server_federate.destroy_federate()
     
     

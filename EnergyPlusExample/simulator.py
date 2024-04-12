@@ -47,6 +47,13 @@ def fix_results(results):
     results.set_index('Date/Time', inplace=True)
     # Replace '(TimeStep)' with an empty string in each column name
     results.columns = results.columns.str.replace(r'\(TimeStep\)', '', regex=True)
+    if Path("Output/time_series_data.csv").exists():
+        time_series = pd.read_csv("Output/time_series_data.csv")#.drop(index=0)
+        time_series = time_series.drop(time_series.index[:1])
+
+        results["Maximum CPU Temperature [C]"] = time_series["Value"].values #(.values) to ignore index
+    else:
+        print(f"Thermal model CSV output not found at Output/time_series_data.csv")
     return results
 
 
@@ -94,6 +101,7 @@ class Simulator:
             run_command(cmd)
             print("-" * 50)  # Separator between command outputs
             self.increment_callback(f"Finished with iteration {commands.index(cmd)}")
-        df = pd.read_csv("Output/eplusout.csv").drop(index=0) # initial values look strange
-        self.all_done_callback(fix_results(df))
+        ep_results = pd.read_csv("Output/eplusout.csv")
+        ep_results = ep_results.drop(ep_results.index[:1]) # initial values look strange
+        self.all_done_callback(fix_results(ep_results))
         
