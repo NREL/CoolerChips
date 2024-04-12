@@ -18,10 +18,8 @@ if os.path.exists('Output/run_config/config.json'):
         try:
             CONTROL_OPTION = CONTROL_OPTIONS[control_option_name]
         except KeyError:
-            print(f"Invalid control option: '{control_option_name}'. Using default CONTROL_OPTION value as CHANGE_IT_LOAD")
             CONTROL_OPTION = CONTROL_OPTIONS.CHANGE_SUPPLY_DELTA_T
 else:   
-    print("No config file found. Using default CONTROL_OPTION value as CHANGE_IT_LOAD")
     CONTROL_OPTION = CONTROL_OPTIONS.CHANGE_IT_LOAD
     
 if CONTROL_OPTION == CONTROL_OPTIONS.CHANGE_LIQUID_COOLING:
