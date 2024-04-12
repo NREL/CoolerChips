@@ -5,7 +5,7 @@
 # MOSTCOOL
 
 ## Requirements/Tested on:
-1. Ubuntu 22.04 (Also works on Virtual Machines)
+1. Ubuntu 22.04 with administrator access (Also works on Virtual Machines).
 2. At least Quad Core CPU
 3. At least 16 GB RAM
 4. At least 4 GB hard disk space
@@ -37,6 +37,16 @@
 8. You should see the app pop up:
 ![image](https://github.com/NREL/CoolerChips/assets/45446967/39e9495c-0458-42ae-86ea-47ae77e3990c)
 
+## Sample results:
+
+Simulation outputs:
+![image](https://github.com/NREL/CoolerChips/assets/45446967/9dc5e93b-0303-4de4-87fd-588b7e70efc9)
+
+
+
+
+Results from Paraview:
+![image](https://github.com/NREL/CoolerChips/assets/45446967/f607abac-d3b3-4069-8778-86b1e5648a14)
 
 
 
