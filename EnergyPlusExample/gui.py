@@ -152,7 +152,7 @@ class MyApp(Frame):
                   background=[('pressed', '!disabled', 'black'),
                               ('active', 'white')]
                   )
-        option_menu_width = 4
+        spinbox_width = 4
 
         # run configuration
         pane_run = Frame(self.main_notebook)
@@ -224,35 +224,38 @@ class MyApp(Frame):
         
         # Create the second inner frame within pane_results for thermal model results
         thermal_results = Frame(pane_results)
-        pane_results.add(thermal_results, text="Thermal model results")
+        pane_results.add(thermal_results, text="External Application Results")
         
-        Label(thermal_results, text="Choose velocity to view results in Paraview: [m/s]").grid(row=1, column=1, sticky=W, padx=5, pady=5)
+        Label(thermal_results, text="Choose variables to view results in Paraview:").grid(row=1, column=1, sticky=W, padx=5, pady=5)
+        
+        Label(thermal_results, text="Velocity: [m/s]").grid(row=2, column=1, sticky=W, padx=5, pady=5)
         self.paraview_velocity.set(paraview.upper_vel_limit)
-        self.paraview_velocity_option_menu = OptionMenu(thermal_results, self.paraview_velocity,
-                                                *[str(number) for number in range(paraview.lower_vel_limit, paraview.upper_vel_limit + 1)])
-        self.paraview_velocity_option_menu.grid(row=1, column=2, sticky=W, padx=5, pady=5)
-        self.paraview_velocity_option_menu.config(width=option_menu_width)
+        # self.paraview_velocity_option_menu = OptionMenu(thermal_results, self.paraview_velocity,
+        #                                         *[str(number) for number in range(paraview.lower_vel_limit, paraview.upper_vel_limit + 1)])
+        self.paraview_velocity_spinbox = ttk.Spinbox(thermal_results, from_=paraview.lower_vel_limit, to=paraview.upper_vel_limit, textvariable=self.paraview_velocity)
+        self.paraview_velocity_spinbox.grid(row=2, column=2, sticky=W, padx=5, pady=5)
+        self.paraview_velocity_spinbox.config(width=spinbox_width)
         
-        Label(thermal_results, text="Choose inlet server temperature to view results in Paraview: [C]").grid(row=2, column=1, sticky=W, padx=5, pady=5)
+        Label(thermal_results, text="Server Inlet Temperature: [C]").grid(row=3, column=1, sticky=W, padx=5, pady=5)
         self.paraview_server_temp_in.set(30)
         # self.paraview_server_temp_in_option_menu = OptionMenu(thermal_results, self.paraview_server_temp_in,
         #                                         *[str(number) for number in range(10, 50)])
         self.paraview_server_temp_in_spinbox = ttk.Spinbox(thermal_results, from_=0, to=100, textvariable=self.paraview_server_temp_in) 
-        self.paraview_server_temp_in_spinbox.grid(row=2, column=2, sticky=W, padx=5, pady=5)
-        self.paraview_server_temp_in_spinbox.config(width=option_menu_width)
+        self.paraview_server_temp_in_spinbox.grid(row=3, column=2, sticky=W, padx=5, pady=5)
+        self.paraview_server_temp_in_spinbox.config(width=spinbox_width)
         
-        Label(thermal_results, text="Choose CPU load fraction to view results in Paraview: [-]").grid(row=3, column=1, sticky=W, padx=5, pady=5)
+        Label(thermal_results, text="CPU Load Fraction: [-]").grid(row=4, column=1, sticky=W, padx=5, pady=5)
         self.paraview_CPU_load_fraction.set(0.73)
         # self.paraview_CPU_load_fraction_option_menu = OptionMenu(thermal_results, self.paraview_CPU_load_fraction,
         #                                         *[str(number) for number in range(50, 101)])
         self.paraview_CPU_load_fraction_spinbox = ttk.Spinbox(thermal_results, from_=0.5, to=1, increment=0.01, textvariable=self.paraview_CPU_load_fraction)
-        self.paraview_CPU_load_fraction_spinbox.grid(row=3, column=2, sticky=W, padx=5, pady=5)
-        self.paraview_CPU_load_fraction_spinbox.config(width=option_menu_width)
+        self.paraview_CPU_load_fraction_spinbox.grid(row=4, column=2, sticky=W, padx=5, pady=5)
+        self.paraview_CPU_load_fraction_spinbox.config(width=spinbox_width)
         
         
         self.open_paraview_button = ttk.Button(thermal_results, text="Open Paraview", command=self.open_paraview,
                                           style="C.TButton")
-        self.open_paraview_button.grid(row=4, column=1, sticky=W, padx=5, pady=5)
+        self.open_paraview_button.grid(row=5, column=1, sticky=W, padx=5, pady=5)
         
         
         # inner_frame3 = Frame(pane_results)
