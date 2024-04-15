@@ -84,6 +84,8 @@ class MyApp(Frame):
         self.floor_area = StringVar()
         self.wpzfa = StringVar()
         self.paraview_velocity = StringVar()
+        self.paraview_server_temp_in = StringVar()
+        self.paraview_CPU_load_fraction = StringVar()
         self.control_option = StringVar()
         self.datacenter_location = StringVar()
         self.label_status = StringVar()
@@ -150,6 +152,7 @@ class MyApp(Frame):
                   background=[('pressed', '!disabled', 'black'),
                               ('active', 'white')]
                   )
+        option_menu_width = 4
 
         # run configuration
         pane_run = Frame(self.main_notebook)
@@ -199,7 +202,7 @@ class MyApp(Frame):
         pane_results = ttk.Notebook(self.main_notebook)
         self.main_notebook.add(pane_results, text="Results (initialized)")
         
-        self.main_notebook.tab(pane_results, state='disabled')
+        self.main_notebook.tab(pane_results, state='normal')
         plots = Frame(pane_results)
         pane_results.add(plots, text="Plots")
         # Create a frame to hold the label and dropdown menu
@@ -228,10 +231,28 @@ class MyApp(Frame):
         self.paraview_velocity_option_menu = OptionMenu(thermal_results, self.paraview_velocity,
                                                 *[str(number) for number in range(paraview.lower_vel_limit, paraview.upper_vel_limit + 1)])
         self.paraview_velocity_option_menu.grid(row=1, column=2, sticky=W, padx=5, pady=5)
+        self.paraview_velocity_option_menu.config(width=option_menu_width)
+        
+        Label(thermal_results, text="Choose inlet server temperature to view results in Paraview: [C]").grid(row=2, column=1, sticky=W, padx=5, pady=5)
+        self.paraview_server_temp_in.set(30)
+        # self.paraview_server_temp_in_option_menu = OptionMenu(thermal_results, self.paraview_server_temp_in,
+        #                                         *[str(number) for number in range(10, 50)])
+        self.paraview_server_temp_in_spinbox = ttk.Spinbox(thermal_results, from_=0, to=100, textvariable=self.paraview_server_temp_in) 
+        self.paraview_server_temp_in_spinbox.grid(row=2, column=2, sticky=W, padx=5, pady=5)
+        self.paraview_server_temp_in_spinbox.config(width=option_menu_width)
+        
+        Label(thermal_results, text="Choose CPU load fraction to view results in Paraview: [-]").grid(row=3, column=1, sticky=W, padx=5, pady=5)
+        self.paraview_CPU_load_fraction.set(0.73)
+        # self.paraview_CPU_load_fraction_option_menu = OptionMenu(thermal_results, self.paraview_CPU_load_fraction,
+        #                                         *[str(number) for number in range(50, 101)])
+        self.paraview_CPU_load_fraction_spinbox = ttk.Spinbox(thermal_results, from_=0.5, to=1, increment=0.01, textvariable=self.paraview_CPU_load_fraction)
+        self.paraview_CPU_load_fraction_spinbox.grid(row=3, column=2, sticky=W, padx=5, pady=5)
+        self.paraview_CPU_load_fraction_spinbox.config(width=option_menu_width)
+        
         
         self.open_paraview_button = ttk.Button(thermal_results, text="Open Paraview", command=self.open_paraview,
                                           style="C.TButton")
-        self.open_paraview_button.grid(row=2, column=1, sticky=W, padx=5, pady=5)
+        self.open_paraview_button.grid(row=4, column=1, sticky=W, padx=5, pady=5)
         
         
         # inner_frame3 = Frame(pane_results)
@@ -402,7 +423,9 @@ class MyApp(Frame):
 
     def open_paraview(self):
         try:
-            paraview.predict_temperature(int(self.paraview_velocity.get()))
+            paraview.predict_temperature(velocity= int(self.paraview_velocity.get()),
+                                        CPU_load_fraction= float(self.paraview_CPU_load_fraction.get()),
+                                        inlet_server_temperature= int(self.paraview_server_temp_in.get()))
         except Exception as e:
             messagebox.showerror("Error", f"An error occurred: {e}")
         

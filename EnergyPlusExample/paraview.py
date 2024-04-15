@@ -12,6 +12,9 @@ lower_vel_limit = 6
 upper_vel_limit = 15
 vel = np.arange(lower_vel_limit, upper_vel_limit+1)
 
+lower_CPU_frac = 0.5
+upper_CPU_frac = 1
+
 
 
 #Prediction and opening paraview block
@@ -21,8 +24,8 @@ vel = np.arange(lower_vel_limit, upper_vel_limit+1)
 solution_path = "/app/ThermalModel_datacenter/PythonPOD_Solid.cgns"  # Update with the actual path to your solution file
 paraview_path = "/Paraview/bin/paraview"  # Ensure this matches your ParaView installation path
 # inlet_velocity=10.39 #m/s
-CPU_load_fraction=0.73 # 300 W per CPU and 2 CPU's are present amounting to a total CPU load of 600 W and CPU_load fration is % of this 600W.
-inlet_server_temperature=30 #in °C
+# CPU_load_fraction=0.73 # 300 W per CPU and 2 CPU's are present amounting to a total CPU load of 600 W and CPU_load fration is % of this 600W.
+# inlet_server_temperature=30 #in °C
 
 # This fucntion "build_and_scale_rbf_models" has to be run once to run the online_prediction function multiple time inside Helics
 def build_and_scale_rbf_models(kernel_function='multiquadric'):
@@ -102,7 +105,7 @@ def predict_temperature_old(new_velocity):
 
 
 # Main function to be passed to Helics
-def predict_temperature(velocity):
+def predict_temperature(velocity, CPU_load_fraction=0.73, inlet_server_temperature=30):
     
     ##### velocity range: 5 to 15 m/s
     # Assumption for hardcoded velcoity is all the servers are the same in the data center and all pull air into the server at the same inlet velocity   
@@ -175,4 +178,4 @@ if __name__ == '__main__':
  
 
     # Call the function with an example new velocity
-    predict_temperature(new_velocity=10)
+    predict_temperature(velocity=10)
