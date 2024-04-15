@@ -23,6 +23,7 @@ import definitions
 import simulator
 import paraview
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+from PIL import ImageTk, Image
 
 plt.rcParams.update({'font.size': 16})  # Adjust font size as needed
 
@@ -158,16 +159,15 @@ class MyApp(Frame):
         pane_run = Frame(self.main_notebook)
         group_run_options = LabelFrame(pane_run) #, text="File Selection")
         group_run_options.pack(fill=X, padx=5)
-        # self.idf_path_button = ttk.Button(group_file_selection, text="Select IDF...", command=self.select_idf,
-        #                                   style="C.TButton")
-        # self.idf_path_button.grid(row=1, column=1, sticky=W)
-        # self.idf_path_label = Label(group_file_selection, textvariable=self.idf_path)
-        # self.idf_path_label.grid(row=1, column=2, sticky=E)
-        # self.epw_path_button = ttk.Button(group_file_selection, text="Select Datacenter location...", command=self.select_epw,
-        #                                   style="C.TButton")
-        # self.epw_path_button.grid(row=1, column=1, sticky=W)
-        # self.epw_path_label = Label(group_file_selection, textvariable=self.epw_path)
-        # self.epw_path_label.grid(row=1, column=2, sticky=W)
+        
+                
+        map_image_frame = LabelFrame(pane_run) #, text="Map Image")
+        map_image_frame.pack(fill='x', padx=5, pady=5)
+        img = Image.open("/app/Resources/map.png")
+        self.img = ImageTk.PhotoImage(img)
+        panel = Label(map_image_frame, image=self.img)
+        panel.pack(side="top", fill="both", expand="yes")
+
         
         Label(group_run_options, text="Datacenter Location: ").grid(row=1, column=1, sticky=W)
         self.datacenter_location.set(list(definitions.LOCATION_MAP.keys())[0])
@@ -175,28 +175,22 @@ class MyApp(Frame):
                                                 *list(definitions.LOCATION_MAP.keys()))
         self.datacenter_location_menu.grid(row=1, column=2, sticky=W)
         
-        # Label(group_run_options, text="Control Options: ").grid(row=2, column=1, sticky=W)
-        # self.control_option.set([control_option.name for control_option in definitions.CONTROL_OPTIONS][0])
-        # self.control_option_menu = OptionMenu(group_run_options, self.control_option,
-        #                                         *[control_option.name for control_option in definitions.CONTROL_OPTIONS])
-        # self.control_option_menu.grid(row=2, column=2, sticky=W)
         
-        # group_run_options = LabelFrame(pane_run, text="Run Options")
-        # group_run_options.pack(fill=X, padx=5)
+        # Label(group_run_options, text="[Placeholder] Datacenter floor area [m2]: ").grid(row=2, column=1, sticky=W)
+        # self.floor_area.set('250')
+        # self.fa_option_menu = OptionMenu(group_run_options, self.floor_area,
+        #                                         *['250', '500', '750'])
+        # self.fa_option_menu.grid(row=2, column=2, sticky=W)
         
-        Label(group_run_options, text="[Placeholder] Datacenter floor area [m2]: ").grid(row=2, column=1, sticky=W)
-        self.floor_area.set('250')
-        self.fa_option_menu = OptionMenu(group_run_options, self.floor_area,
-                                                *['250', '500', '750'])
-        self.fa_option_menu.grid(row=2, column=2, sticky=W)
-        
-        Label(group_run_options, text="[Placeholder] Watts per zone floor area [W]: ").grid(row=3, column=1, sticky=E)
-        self.wpzfa.set('100')
-        self.wpzfa_option_menu = OptionMenu(group_run_options, self.wpzfa,
-                                                *['100', '200', '400'])
-        self.wpzfa_option_menu.grid(row=3, column=2, sticky=W)
+        # Label(group_run_options, text="[Placeholder] Watts per zone floor area [W]: ").grid(row=3, column=1, sticky=E)
+        # self.wpzfa.set('100')
+        # self.wpzfa_option_menu = OptionMenu(group_run_options, self.wpzfa,
+        #                                         *['100', '200', '400'])
+        # self.wpzfa_option_menu.grid(row=3, column=2, sticky=W)
 
         self.main_notebook.add(pane_run, text='Run Configuration')
+        
+        
 
         # set up a tree-view for the results
         pane_results = ttk.Notebook(self.main_notebook)
