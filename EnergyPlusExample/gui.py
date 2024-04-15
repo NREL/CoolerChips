@@ -369,7 +369,7 @@ class MyApp(Frame):
         ax2.yaxis.set_label_position("right")
         ax2.yaxis.tick_right()
         ax2.plot(self.results.index, self.results["Maximum CPU Temperature [C]"], label="Maximum CPU Temperature [C]",
-                 color='coral', alpha=0.8)
+                 color='coral', alpha=0.8, linestyle='--')
         ax2.set_ylabel("Temperature [C]")
         ax2.tick_params(axis='y')    
         
