@@ -12,10 +12,9 @@ lower_vel_limit = 6
 upper_vel_limit = 15
 vel = np.arange(lower_vel_limit, upper_vel_limit+1)
 
+# Define the CPU load fraction ranges 
 lower_CPU_frac = 0.5
 upper_CPU_frac = 1
-
-
 
 #Prediction and opening paraview block
 # Example usage:
@@ -23,9 +22,7 @@ upper_CPU_frac = 1
 # Example usage:
 solution_path = "/app/ThermalModel_datacenter/PythonPOD_Solid.cgns"  # Update with the actual path to your solution file
 paraview_path = "/Paraview/bin/paraview"  # Ensure this matches your ParaView installation path
-# inlet_velocity=10.39 #m/s
-# CPU_load_fraction=0.73 # 300 W per CPU and 2 CPU's are present amounting to a total CPU load of 600 W and CPU_load fration is % of this 600W.
-# inlet_server_temperature=30 #in °C
+
 
 # This fucntion "build_and_scale_rbf_models" has to be run once to run the online_prediction function multiple time inside Helics
 def build_and_scale_rbf_models(kernel_function='multiquadric'):

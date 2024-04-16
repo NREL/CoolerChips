@@ -1,16 +1,14 @@
 from time import sleep
 from typing import Optional, Callable
 import subprocess
-import definitions
 from pathlib import Path
 import pandas as pd
-from datetime import datetime
 
 
 # Add commands that should be run to this list
 commands = [
     ["helics", "run", "--path=runner.json"],
-    # ["python", "cost_model.py"],
+    # ["python", "cost_model.py"], # Future work: The postprocessing stuff can be here
     # Add more as needed
 ]
 
@@ -83,7 +81,6 @@ class Simulator:
     def write_options_to_file(self):
         config_dir = "Output/run_config/"
         Path(config_dir).mkdir(parents=True, exist_ok=True)
-        # with open(f"{datetime.now().strftime("%Y/%m/%d %H:%M:%S")}_config.json", "w") as f:
         with open(f"{config_dir}/config.json", "w") as f:
             f.write(f'{{"idf_path": "{self.idf}", "epw_path": "{self.epw}", "control_option": "{self.control_option}", "datacenter_location": "{self.datacenter_location}"}}')
 
@@ -91,9 +88,6 @@ class Simulator:
         self.print_callback("Hey I am starting")
         sleep(0.5)
         self.sim_starting_callback(len(commands))
-        # for i in range(5):
-        #     sleep(1)
-        #     self.increment_callback(f"Finished with iteration {i}")
         self.write_options_to_file()
         for cmd in commands:
             print(f"Running command: {' '.join(cmd)}")
