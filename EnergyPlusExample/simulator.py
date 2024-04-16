@@ -10,7 +10,7 @@ from datetime import datetime
 # Add commands that should be run to this list
 commands = [
     ["helics", "run", "--path=runner.json"],
-    ["python", "cost_model.py"],
+    # ["python", "cost_model.py"],
     # Add more as needed
 ]
 
