@@ -83,7 +83,6 @@ class MyApp(Frame):
         self.epw_path = StringVar()
         self.server_model_path = StringVar()
         self.floor_area = StringVar()
-        self.wpzfa = StringVar()
         self.paraview_velocity = StringVar()
         self.paraview_server_temp_in = StringVar()
         self.paraview_CPU_load_fraction = StringVar()
@@ -450,8 +449,7 @@ class MyApp(Frame):
             messagebox.showerror("Cannot run another thread, wait for the current to finish -- how'd you get here?!?")
             return
         # TODO: Gather data in preparation to start main run
-        self.background_operator = simulator.Simulator(idf_path=self.idf_path.get(), epw_path=self.epw_path.get(),
-                                             time_step=self.wpzfa.get(), control_option=self.control_option.get(),
+        self.background_operator = simulator.Simulator(idf_path=self.idf_path.get(), epw_path=self.epw_path.get(), control_option=self.control_option.get(),
                                              datacenter_location=self.datacenter_location.get())
         self.background_operator.add_callbacks(print_callback=MyApp.print_listener,
                                                sim_starting_callback=MyApp.starting_listener,

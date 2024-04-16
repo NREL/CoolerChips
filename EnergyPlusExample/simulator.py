@@ -58,10 +58,9 @@ def fix_results(results):
 
 
 class Simulator:
-    def __init__(self, idf_path, epw_path, time_step, control_option, datacenter_location):
+    def __init__(self, idf_path, epw_path, control_option, datacenter_location):
         self.idf = idf_path
         self.epw = epw_path
-        self.ts = time_step
         self.control_option = control_option
         self.datacenter_location = datacenter_location
         self.print_callback: Optional[Callable] = None
@@ -86,7 +85,7 @@ class Simulator:
         Path(config_dir).mkdir(parents=True, exist_ok=True)
         # with open(f"{datetime.now().strftime("%Y/%m/%d %H:%M:%S")}_config.json", "w") as f:
         with open(f"{config_dir}/config.json", "w") as f:
-            f.write(f'{{"idf_path": "{self.idf}", "epw_path": "{self.epw}", "time_step": {self.ts}, "control_option": "{self.control_option}", "datacenter_location": "{self.datacenter_location}"}}')
+            f.write(f'{{"idf_path": "{self.idf}", "epw_path": "{self.epw}", "control_option": "{self.control_option}", "datacenter_location": "{self.datacenter_location}"}}')
 
     def run(self) -> None:
         self.print_callback("Hey I am starting")
