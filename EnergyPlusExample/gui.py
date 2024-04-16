@@ -70,7 +70,7 @@ class MyApp(Frame):
         # fixup_taskbar_icon_on_windows(mostcool.NAME)
 
         # high level GUI configuration
-        self.root.geometry('1000x630')
+        self.root.geometry('750x800')
         self.root.resizable(width=True, height=True)
         self.root.option_add('*tearOff', False)  # keeps file menus from looking weird
 
@@ -132,6 +132,7 @@ class MyApp(Frame):
         # changing the title of our master widget
         self.root.title("MOST Cool")
         self.root.protocol("WM_DELETE_WINDOW", self.client_exit)
+        self.root.pack_propagate(False)
 
         # create the menu
         menu = Menu(self.root)
@@ -145,6 +146,8 @@ class MyApp(Frame):
 
         # main notebook holding everything
         self.main_notebook = ttk.Notebook(self.root)
+        self.main_notebook.pack(fill='both', expand=True)  # Ensure notebook fills root
+
 
         style = ttk.Style()
         style.map("C.TButton",
@@ -155,6 +158,8 @@ class MyApp(Frame):
         spinbox_width = 4
         # run configuration
         pane_run = Frame(self.main_notebook)
+        pane_run.pack(fill='both', expand=True)  # Ensure pane_run fills notebook
+
 
         # Map Image
         map_image_frame = LabelFrame(pane_run)  # Adjust text as needed with text="Map Image"
@@ -169,7 +174,7 @@ class MyApp(Frame):
         group_run_options.pack(fill=X, padx=5)
 
         
-        Label(group_run_options, text="Datacenter Location: ").grid(row=1, column=1, sticky=W)
+        Label(group_run_options, text="Select datacenter location: ").grid(row=1, column=1, sticky=W)
         self.datacenter_location.set(list(definitions.LOCATION_MAP.keys())[0])
         self.datacenter_location_menu = OptionMenu(group_run_options, self.datacenter_location,
                                                 *list(definitions.LOCATION_MAP.keys()))
