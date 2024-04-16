@@ -63,46 +63,6 @@ def build_and_scale_rbf_models(kernel_function='multiquadric'):
 # calling this function once to load everything that is needed to excute the rest of the code
 rbf_models, param_scaler, coeff_scaler = build_and_scale_rbf_models(kernel_function='multiquadric')
 
-def predict_temperature_old(new_velocity):
-    # Read modes and coefficients from CSV files outside the function
-    Modes = pd.read_csv('/app/ThermalModel_datacenter/Modes.csv')
-    modes = Modes.to_numpy()
-
-    Coeff = pd.read_csv('/app/ThermalModel_datacenter/coeff.csv')
-    coeff = Coeff.to_numpy()
-
-    # Example usage (ensure paths are correctly specified):
-    solution_path = "/app/ThermalModel_datacenter/PythonPOD_Solid.cgns"  # Update with the actual path to your solution file
-    paraview_path = "/Paraview/bin/paraview"  # Ensure this matches your ParaView installation path
-    
-    # Interpolate coefficients for each POD mode.
-    interp_funcs = [interp1d(vel, coeff[i, :], kind='linear') for i in range(coeff.shape[0])]
-    
-    # Predict coefficients for the new velocity.
-    new_coeff = np.array([f(new_velocity) for f in interp_funcs])
-    
-    # Calculate the predicted temperature field.
-    T_pred = sum(new_coeff[i] * modes[:, i] for i in range(coeff.shape[0]))
-    
-    # Update the temperature data in the solution file.
-    try:
-        with h5py.File(solution_path, 'r+') as f:
-            temperature_path = 'Base/Zone/FlowSolution.N:1/Temperature/ data'  # Corrected the path format
-            if temperature_path in f:
-                f[temperature_path][:] = T_pred
-            else:
-                raise KeyError(f"Path {temperature_path} not found in the file.")
-    except Exception as e:
-        print(f"Failed to update temperature data: {e}")
-        return
-    
-    # Launch ParaView to view the updated file.
-    try:
-        command = [paraview_path, solution_path]
-        subprocess.Popen(command)
-    except Exception as e:
-        raise RuntimeError(f"Failed to launch ParaView: {e}")
-
 
 # Main function to be passed to Helics
 def predict_temperature(velocity, CPU_load_fraction=0.73, inlet_server_temperature=30):
