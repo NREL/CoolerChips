@@ -153,19 +153,20 @@ class MyApp(Frame):
                               ('active', 'white')]
                   )
         spinbox_width = 4
-
         # run configuration
         pane_run = Frame(self.main_notebook)
-        group_run_options = LabelFrame(pane_run) #, text="File Selection")
-        group_run_options.pack(fill=X, padx=5)
-        
-                
-        map_image_frame = LabelFrame(pane_run) #, text="Map Image")
+
+        # Map Image
+        map_image_frame = LabelFrame(pane_run)  # Adjust text as needed with text="Map Image"
         map_image_frame.pack(fill='x', padx=5, pady=5)
         img = Image.open("/app/Resources/map.png")
         self.img = ImageTk.PhotoImage(img)
         panel = Label(map_image_frame, image=self.img)
         panel.pack(side="top", fill="both", expand="yes")
+
+        # File Selection Menu
+        group_run_options = LabelFrame(pane_run)  # Adjust text as needed with text="File Selection"
+        group_run_options.pack(fill=X, padx=5)
 
         
         Label(group_run_options, text="Datacenter Location: ").grid(row=1, column=1, sticky=W)
@@ -195,7 +196,7 @@ class MyApp(Frame):
         pane_results = ttk.Notebook(self.main_notebook)
         self.main_notebook.add(pane_results, text="Results (initialized)")
         
-        self.main_notebook.tab(pane_results, state='normal')
+        self.main_notebook.tab(pane_results, state='disabled')
         plots = Frame(pane_results)
         pane_results.add(plots, text="Plots")
         # Create a frame to hold the label and dropdown menu
