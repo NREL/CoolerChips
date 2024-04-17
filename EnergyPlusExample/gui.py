@@ -169,6 +169,7 @@ class MyApp(Frame):
         # widgets that we might want to access later
         self.run_button = None
         self.progress = None
+        self.progress_update_id = 0
         self.time_step_spinner = None
         self.wpzfa_option_menu = None
         self.results=None
@@ -503,7 +504,7 @@ class MyApp(Frame):
             # self.update_option_menu()
             results_tab_title = 'Results (Up to date)'
         self.run_button.configure(state=run_button_state)
-        self.main_notebook.tab(1, text=results_tab_title)
+        self.main_notebook.tab(2, text=results_tab_title)
 
     def open_paraview(self):
         try:
@@ -568,8 +569,21 @@ class MyApp(Frame):
 
     def starting_handler(self, num_progress_steps):
         self.label_status.set("Running")
+        num_progress_steps = 10
         self.progress['maximum'] = num_progress_steps
         self.progress['value'] = 0
+
+        def update_progress(value):
+            """Increment progress bar value and schedule next increment or reset."""
+            progress_bar_steps = 10  # Setting the number of steps directly in the handler
+            if value < progress_bar_steps:
+                self.progress['value'] = value + 1
+                self.progress_update_id = self.root.after(1000, update_progress, value + 1)  # Schedule next increment
+            else:
+                self.progress['value'] = 0  # Reset the progress bar
+                self.progress_update_id = self.root.after(1000, update_progress, 0)  # Restart the progress update
+
+        update_progress(0)  # Start the progress update
 
     @staticmethod
     def increment_listener(some_string):
@@ -585,14 +599,22 @@ class MyApp(Frame):
 
     def done_handler(self, results=None):
         if results is None:
+            # Cancel the scheduled progress bar update
+            if hasattr(self, 'progress_update_id'):
+                self.root.after_cancel(self.progress_update_id)
+                self.progress['value'] = 0  # Reset the progress bar
             pass
         self.add_to_log("All done, finished")
         self.label_status.set("Hey, all done!")
-        self.main_notebook.tab(1, state="normal") # TODO: 1 corresponds to the index of the thermal model results tab, change if needed
+        self.main_notebook.tab(2, state="normal") # TODO: 1 corresponds to the index of the thermal model results tab, change if needed
         if self.results is not None:
             self.results_previous = self.results
         self.results = results
         self.update_option_menu(self.y_axis_drop_down_menu, results.columns[1:], results.columns[1])
+        # Cancel the scheduled progress bar update
+        if hasattr(self, 'progress_update_id'):
+            self.root.after_cancel(self.progress_update_id)
+            self.progress['value'] = 10  
         self.client_done()
 
     @staticmethod
