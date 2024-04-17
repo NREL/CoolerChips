@@ -67,12 +67,10 @@ https://docs.docker.com/engine/install/
   
   
 
-| File Name | Link | Place in this path in local directory |
 
+| File Name            | Link                                                                                          | Place in this path in local directory                          |
 |----------------------|-----------------------------------------------------------------------------------------------|----------------------------------------------------------------|
-
-| Modes.csv | [link](https://drive.google.com/file/d/19H1HXCjzYx6ymz6PY_3xEAhDZdyza7D0/view?usp=sharing) | EnergyPlusExample/ThermalModel_datacenter/Modes.csv |
-
+| Modes.csv            | [link](https://drive.google.com/file/d/19H1HXCjzYx6ymz6PY_3xEAhDZdyza7D0/view?usp=sharing)    | EnergyPlusExample/ThermalModel_datacenter/Modes.csv            |
 | PythonPOD_Solid.cgns | [link](https://drive.google.com/file/d/19Ed_tRQhcz2zkdxL1GT-yD_eb6NXPUdn/view?usp=drive_link) | EnergyPlusExample/ThermalModel_datacenter/PythonPOD_Solid.cgns |
 
   
