@@ -1,4 +1,5 @@
 
+
   
 
   
@@ -136,4 +137,4 @@ Results from Paraview:
 
 
 ## Individual Model Documentation:
-1. Thermal model documentation can be found in the the repo root as NEITcool DOCUMENTATION.pdf. 
+1. Thermal model documentation can be found in the repo root as [NEITcool DOCUMENTATION.pdf](https://github.com/NREL/CoolerChips/blob/gui/NEITcool%20DOCUMENTATION.pdf). 
