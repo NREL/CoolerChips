@@ -89,7 +89,16 @@ class ImageViewer:
             self.photo = ImageTk.PhotoImage(image)
 
             self.canvas.delete('all')
-            self.canvas.create_image(0, 0, image=self.photo, anchor='nw')
+
+            # Calculate coordinates to center the image
+            canvas_width = self.canvas.winfo_width()
+            canvas_height = self.canvas.winfo_height()
+            x = (canvas_width - self.photo.width()) // 2
+            y = (canvas_height - self.photo.height()) // 2
+            x = max(x, 0)  # Ensure x is not negative
+            y = max(y, 0)  # Ensure y is not negative
+
+            self.canvas.create_image(x, y, image=self.photo, anchor='nw')
             self.canvas.config(scrollregion=self.canvas.bbox('all'))
 
     def show_next_image(self):
