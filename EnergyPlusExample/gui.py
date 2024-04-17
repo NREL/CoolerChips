@@ -9,10 +9,9 @@ from subprocess import Popen
 import sys
 from threading import Thread
 from time import sleep
-from tkinter import BOTH, E, LEFT, TOP, W, X, Frame, Label, LabelFrame, Menu, OptionMenu, PhotoImage, StringVar, Tk, filedialog, messagebox, ttk, font
+from tkinter import BOTH, HORIZONTAL, LEFT, TOP, VERTICAL, W, X, Button, Canvas, Frame, Label, LabelFrame, Menu, OptionMenu, PhotoImage, Scrollbar, StringVar, Tk, filedialog, messagebox, ttk, font
 import webbrowser
 from matplotlib import pyplot as plt
-from matplotlib.backend_bases import NavigationToolbar2
 from matplotlib.figure import Figure
 import matplotlib.dates as mdates
 import pandas as pd
@@ -37,6 +36,72 @@ class PubSubMessageTypes:
     DIFF_COMPLETE = '50'
     ALL_DONE = '60'
     CANCELLED = '70'
+    
+class ImageViewer:
+    def __init__(self, main, image_folder):
+        self.main = main
+        self.image_folder = image_folder
+        self.image_files = sorted(
+            (os.path.join(image_folder, f) for f in os.listdir(image_folder) if f.endswith('jpg')),
+            key=lambda x: os.path.basename(x)
+        )
+        self.current_image = 0
+
+        self.canvas = Canvas(main, bg='white')
+        self.canvas.grid(row=0, column=0, sticky='nsew')
+
+        self.vbar = Scrollbar(main, orient=VERTICAL, command=self.canvas.yview)
+        self.vbar.grid(row=0, column=1, sticky='ns')
+        self.canvas.config(yscrollcommand=self.vbar.set)
+
+        # Configure row and column weights (make the canvas expandable)
+        main.grid_rowconfigure(0, weight=1)
+        main.grid_columnconfigure(0, weight=1)
+
+        # Button frame for navigation buttons
+        self.button_frame = Frame(main)
+        self.button_frame.grid(row=1, column=0, columnspan=2, sticky='ew')
+        main.grid_rowconfigure(1, weight=0)
+
+        self.prev_button = Button(self.button_frame, text='Previous', command=self.show_prev_image)
+        self.prev_button.grid(row=0, column=0, sticky='ew')
+
+        self.next_button = Button(self.button_frame, text='Next', command=self.show_next_image)
+        self.next_button.grid(row=0, column=1, sticky='ew')
+        self.button_frame.grid_columnconfigure(0, weight=1)
+        self.button_frame.grid_columnconfigure(1, weight=1)
+
+        # Frame for the horizontal scrollbar
+        self.scrollbar_frame = Frame(main)
+        self.scrollbar_frame.grid(row=2, column=0, columnspan=2, sticky='ew')
+        main.grid_rowconfigure(2, weight=0)
+
+        self.hbar = Scrollbar(self.scrollbar_frame, orient=HORIZONTAL, command=self.canvas.xview)
+        self.hbar.pack(fill=X)
+        self.canvas.config(xscrollcommand=self.hbar.set)
+
+        self.load_image()
+
+    def load_image(self):
+        if self.image_files:
+            image_path = self.image_files[self.current_image]
+            image = Image.open(image_path)
+            self.photo = ImageTk.PhotoImage(image)
+
+            self.canvas.delete('all')
+            self.canvas.create_image(0, 0, image=self.photo, anchor='nw')
+            self.canvas.config(scrollregion=self.canvas.bbox('all'))
+
+    def show_next_image(self):
+        if self.current_image < len(self.image_files) - 1:
+            self.current_image += 1
+            self.load_image()
+
+    def show_prev_image(self):
+        if self.current_image > 0:
+            self.current_image -= 1
+            self.load_image()
+    
 
 class MyApp(Frame):
 
@@ -129,8 +194,8 @@ class MyApp(Frame):
 
 
     def init_window(self):
-        # changing the title of our master widget
-        self.root.title("MOST Cool")
+        # changing the title of our main widget
+        self.root.title("MOSTCOOL")
         self.root.protocol("WM_DELETE_WINDOW", self.client_exit)
         self.root.pack_propagate(False)
 
@@ -156,6 +221,15 @@ class MyApp(Frame):
                               ('active', 'white')]
                   )
         spinbox_width = 4
+        
+        # Intro Pane
+        pane_intro = Frame(self.main_notebook)
+        pane_intro.pack(fill='both', expand=True)  # Ensure pane_intro fills notebook
+        self.main_notebook.add(pane_intro, text='Introduction')
+        
+        app = ImageViewer(pane_intro, '/app/v1_slide_images/')  # Update this path
+
+        
         # run configuration
         pane_run = Frame(self.main_notebook)
         pane_run.pack(fill='both', expand=True)  # Ensure pane_run fills notebook
@@ -196,7 +270,6 @@ class MyApp(Frame):
         self.main_notebook.add(pane_run, text='Run Configuration')
         
         
-
         # set up a tree-view for the results
         pane_results = ttk.Notebook(self.main_notebook)
         self.main_notebook.add(pane_results, text="Results (initialized)")
@@ -218,8 +291,8 @@ class MyApp(Frame):
         # Placeholder for the Matplotlib figure
         self.fig_ep_plot = Figure(figsize=(5, 4), dpi=100)
         self.plot= self.fig_ep_plot.add_subplot(1, 1, 1)
-        self.canvas = FigureCanvasTkAgg(self.fig_ep_plot, plots)  # A tk.DrawingArea.
-        self.canvas.get_tk_widget().pack(side=TOP, fill=BOTH, expand=1)
+        self.plot_canvas = FigureCanvasTkAgg(self.fig_ep_plot, plots)  # A tk.DrawingArea.
+        self.plot_canvas.get_tk_widget().pack(side=TOP, fill=BOTH, expand=1)
         
         # Create the second inner frame within pane_results for thermal model results
         thermal_results = Frame(pane_results)
@@ -408,7 +481,7 @@ class MyApp(Frame):
         lines2, labels2 = ax2.get_legend_handles_labels()
         self.plot.legend(lines + lines2, labels + labels2, loc='best')
         
-        self.canvas.draw()
+        self.plot_canvas.draw()
 
     def set_gui_status_for_run(self, is_running: bool):
         if is_running:
