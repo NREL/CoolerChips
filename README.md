@@ -55,11 +55,13 @@ https://docs.docker.com/engine/install/
 
 `docker compose build`
 
-6. Run the container:
+
+
+6. Give docker permission to display it's GUI app on host. This step must be repeated each time the computer/virtual machine is restarted: `xhost +local:docker`
+
+7. Run the container:
 
 `docker compose up`
-
-7. Give docker permission to display it's GUI app on host: `xhost +local:docker`
 
   
 
