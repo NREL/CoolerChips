@@ -6,32 +6,33 @@ import logging
 @dataclass
 class Pub:
     name: str
-    id: int
+    id: int = None
     value: float = None
+    unit: str = None
 
 
 @dataclass
 class Sub:
     name: str
-    id: int
+    id: int = None
     value: float = None
+    unit: str = None
 
 
-# Define a dictionary to store the results - unnecessary if you don't need it. 
-results = {"HVAC Energy": [], "Total Energy": [], "Time": [], "Liquid Cooling Load": [], "Supply Approach Temperature": [], "CPU load": []}
-
-
-class energyplus_federate:
-    def __init__(self):
+class mostcool_federate:
+    def __init__(self, 
+                 federate_name: str =None,
+                 subscriptions: list =None,
+                 publications: list =None):
         import helics as h
 
         self.logger = logging.getLogger(__name__)
         self.logger.setLevel(logging.DEBUG)
-        self.subs = {}
-        self.pubs = {}
+        self.subs = subscriptions
+        self.pubs = publications
         self.granted_time = 0
         self.federate = None
-        self.setup_helics_federate()
+        self.setup_helics_federate(federate_name)
         self.time_interval_seconds = int(
             h.helicsFederateGetTimeProperty(
                 self.federate, h.HELICS_PROPERTY_TIME_PERIOD
@@ -50,17 +51,18 @@ class energyplus_federate:
         h.helicsFederateInfoSetTimeProperty(fedinfo, h.HELICS_PROPERTY_TIME_PERIOD, period)
         h.helicsFederateInfoSetFlagOption(fedinfo, h.HELICS_FLAG_UNINTERRUPTIBLE, True)  # Forces the granted time to be the requested time (i.e., EnergyPlus timestep)
         h.helicsFederateInfoSetFlagOption(fedinfo, h.HELICS_FLAG_TERMINATE_ON_ERROR, True)  # Stop the whole co-simulation if there is an error
+        time_controller_federate = True if name == "EnergyPlus_federate" else False
         h.helicsFederateInfoSetFlagOption(
-            fedinfo, h.HELICS_FLAG_WAIT_FOR_CURRENT_TIME_UPDATE, True
-        )  #This makes sure that this federate will be the last one granted a given time step. Thus it will have the most up-to-date values for all other federates.
+            fedinfo, h.HELICS_FLAG_WAIT_FOR_CURRENT_TIME_UPDATE, time_controller_federate
+        )  # This makes sure that this federate will be the last one granted a given time step. Thus it will have the most up-to-date values for all other federates.
         fed = h.helicsCreateValueFederate(name, fedinfo)
         return fed                                          
 
     # Function to create and configure HELICS federate
-    def setup_helics_federate(self):
+    def setup_helics_federate(self, federate_name=None):
         import helics as h
-        self.federate = self.create_value_federate("", "EnergyPlus_federate_1", definitions.TIMESTEP_PERIOD_SECONDS)
-        self.logger.info("HELICS federate for EnergyPlus created.")
+        self.federate = self.create_value_federate("", federate_name, definitions.TIMESTEP_PERIOD_SECONDS)
+        self.logger.info(f"HELICS federate for {federate_name} created.")
         self.register_pubs()
         self.register_subs()
         h.helicsFederateEnterExecutingMode(self.federate)
@@ -69,37 +71,41 @@ class energyplus_federate:
     def register_pubs(self):  # Sensors
         import helics as h
 
-        for i in range(0, len(definitions.SENSORS)):
-            self.logger.info(
-                f'Registering publication: {definitions.SENSORS[i]["variable_key"]}/{definitions.SENSORS[i]["variable_name"]}'
-            )
-            pubid = h.helicsFederateRegisterGlobalTypePublication(
-                self.federate,
-                f'{definitions.SENSORS[i]["variable_key"]}/{definitions.SENSORS[i]["variable_name"]}',
-                "double",
-                definitions.SENSORS[i]["variable_unit"],
-            )
-            pub_name = h.helicsPublicationGetName(pubid)
-            if pub_name not in self.pubs:
-                self.pubs[pub_name] = Pub(name=pub_name, id=pubid)
-            self.logger.debug(f"\tRegistered publication---> {pubid} as {pub_name}")
+        if self.pubs is not None:
+            for pub in self.pubs:
+                self.logger.info(
+                    f'Registering publication: {pub.name}'
+                )
+                pub.id = h.helicsFederateRegisterGlobalTypePublication(
+                    self.federate,
+                    f"{pub.name}",
+                    "double",
+                    f"{pub.unit}",
+                )
+                pub_name = h.helicsPublicationGetName(pub.id)
+                if pub.name != pub_name:
+                    raise Exception(f"Name mismatch: {pub.name} != {pub_name}")
+                # if pub_name not in self.pubs:
+                #     self.pubs.append(Pub(name=pub_name, id=pubid))
+                self.logger.debug(f"\tRegistered publication---> {pub.id} as {pub_name}")
 
     def register_subs(self):  # Actuators
         import helics as h
 
-        for i in range(0, len(definitions.ACTUATORS)):
-            self.logger.info(
-                f'Registering subscription: {definitions.ACTUATORS[i]["component_type"]}/{definitions.ACTUATORS[i]["control_type"]}/{definitions.ACTUATORS[i]["actuator_key"]}'
-            )
-            subid = h.helicsFederateRegisterSubscription(
-                self.federate,
-                f'{definitions.ACTUATORS[i]["component_type"]}/{definitions.ACTUATORS[i]["control_type"]}/{definitions.ACTUATORS[i]["actuator_key"]}',
-                definitions.ACTUATORS[i]["actuator_unit"],
-            )
-            sub_name = h.helicsInputGetTarget(subid)
-            if sub_name not in self.subs:
-                self.subs[sub_name] = Sub(name=sub_name, id=subid)
-            self.logger.debug(f"\tRegistered subscription---> {sub_name}")
+        if self.subs is not None:
+            for sub in self.subs:
+                self.logger.info(
+                    f'Registering subscription: {sub.name}'
+                )
+                sub.id = h.helicsFederateRegisterSubscription(
+                    self.federate,
+                    f'{sub.name}',
+                    sub.unit,
+                )
+                sub_name = h.helicsInputGetTarget(sub.id)
+                if sub.name != sub_name:
+                    raise Exception(f"Name mismatch: {sub.name} != {sub_name}")
+                self.logger.debug(f"\tRegistered subscription---> {sub.id} as {sub_name}")
 
     def request_time(self):
         import helics as h
@@ -113,36 +119,25 @@ class energyplus_federate:
         )
         return self.granted_time
 
-    def update_actuators(self):
+    def update_subs(self):
         import helics as h
 
-        for sub_key in self.subs:
-            if h.helicsInputIsUpdated(self.subs[sub_key].id):
-                self.subs[sub_key].value = h.helicsInputGetDouble(self.subs[sub_key].id)
+        for sub in self.subs:
+            if h.helicsInputIsUpdated(sub.id):
+                sub.value = h.helicsInputGetDouble(sub.id)
             else:
-                self.subs[sub_key].value = 0
-                self.logger.warning(f"{sub_key} was not updated at {self.granted_time}, set to zero.")
-            if sub_key == "Schedule:Compact/Schedule Value/Load Profile 1 Load Schedule":
-                results["Liquid Cooling Load"].append(self.subs[sub_key].value*(-1))
-            elif sub_key == "Schedule:Constant/Schedule Value/Supply Temperature Difference Schedule Mod":
-                results["Supply Approach Temperature"].append(self.subs[sub_key].value)
-            elif sub_key == "Schedule:Compact/Schedule Value/Data Center CPU Loading Schedule":
-                results["CPU load"].append(self.subs[sub_key].value)
+                sub.value = 0
+                self.logger.warning(f"{sub} was not updated at {self.granted_time}, set to zero.")
 
         return self.subs
 
-    def update_sensors(self):
+    def update_pubs(self):
         import helics as h
-
-        for pub_key in self.pubs:
+        
+        for pub in self.pubs:
             h.helicsPublicationPublishDouble(
-                self.pubs[pub_key].id, self.pubs[pub_key].value
+                pub.id, pub.value
             )
-            if pub_key == "Whole Building/Facility Total HVAC Electricity Demand Rate":
-                results["HVAC Energy"].append(self.pubs[pub_key].value)
-            elif pub_key == "Whole Building/Facility Total Electricity Demand Rate":
-                results["Total Energy"].append(self.pubs[pub_key].value)
-        results["Time"].append(self.granted_time)
 
     # Function to clean up HELICS federate
     def destroy_federate(self):

@@ -13,7 +13,14 @@
         "exec": "python -u controller.py",
         "host": "localhost",
         "name": "Controller_federate"
+      },
+      {
+        "directory": ".",
+        "exec": "python -u server_federate.py",
+        "host": "localhost",
+        "name": "Server_federate"
       }
+
     ]
   }
   
