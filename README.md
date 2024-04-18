@@ -105,7 +105,8 @@ https://docs.docker.com/engine/install/
 
   
 
-![image](https://github.com/NREL/CoolerChips/assets/45446967/39e9495c-0458-42ae-86ea-47ae77e3990c)
+![image](https://github.com/NREL/CoolerChips/assets/45446967/9189f34e-5b97-486d-8387-c5049401e23b)
+
 
   
 
