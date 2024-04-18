@@ -5,7 +5,7 @@ EnergyPlusExample/EnergyPlus
 *.pyc
 .idea/*
 Output*
-Modes.csv
+modes.csv
 *.cgns
 .venv/
 build/
