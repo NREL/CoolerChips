@@ -42,7 +42,7 @@ server_inlet_velocity=5#in m/s
 class Server_thermal_federate:
     def __init__(self) -> None:
         self.total_time = definitions.TOTAL_SECONDS  # get this from IDF
-        self.modes = np.loadtxt('ThermalModel_datacenter/Modes.csv', delimiter=',')
+        self.modes = np.loadtxt('ThermalModel_datacenter/modes.csv', delimiter=',')
         self.coefficients = np.loadtxt('ThermalModel_datacenter/coeff.csv', delimiter=',')
         self.parameter_array=np.loadtxt('ThermalModel_datacenter/parameter_array.csv', delimiter=',')
         
