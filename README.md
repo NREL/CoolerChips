@@ -136,4 +136,7 @@ Results from Paraview:
 
 
 ## Individual Model Documentation:
-1. Thermal model documentation can be found in the repo root as [NEITcool DOCUMENTATION.pdf](https://github.com/NREL/CoolerChips/blob/gui/NEITcool%20DOCUMENTATION.pdf). 
+
+1. Thermal model documentation can be found in the repo root as [NEITcool DOCUMENTATION.pdf](https://github.com/NREL/CoolerChips/blob/gui/NEITcool%20DOCUMENTATION.pdf).
+2. EnergyPlus documentation can be found [here](https://energyplus.net/documentation). 
+3. EnergyPlus Python API Documentation can be found [here](https://energyplus.readthedocs.io/en/latest/api.html). 
