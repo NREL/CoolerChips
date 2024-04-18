@@ -458,13 +458,12 @@ class MyApp(Frame):
             menu['menu'].add_command(label=option, command=lambda value=option: self.y_axis_variable.set(value))
         self.y_axis_variable.set(new_options[0])
 
-        
     def update_plot(self):
-        """Update the plot with the selected y-axis variable."""        
-        y_data = self.results[self.y_axis_variable.get()]        
+        """Update the plot with the selected y-axis variable."""
+        y_data = self.results[self.y_axis_variable.get()]
         self.plot.clear()
         self.plot.plot(self.results.index, y_data, color='blueviolet', alpha=0.8, label=self.y_axis_variable.get())
-        # # Plot the previous run if it exists
+        # Plot the previous run if it exists
         # if self.results_previous is not None:
         #     self.plot.plot(self.results_previous.index, self.results_previous[self.y_axis_variable.get()])
         #     self.plot.legend(['Current Run', 'Previous Run'])
@@ -475,7 +474,7 @@ class MyApp(Frame):
         ax2.yaxis.set_label_position("right")
         ax2.yaxis.tick_right()
         ax2.plot(self.results.index, self.results["Maximum CPU Temperature [C]"], label="Maximum CPU Temperature [C]",
-                 color='coral', alpha=0.8, linestyle='--')
+                color='coral', alpha=0.8, linestyle='--')
         ax2.set_ylabel("Temperature [C]")
         ax2.tick_params(axis='y')    
         
@@ -486,12 +485,16 @@ class MyApp(Frame):
         self.fig_ep_plot.autofmt_xdate()
         self.plot.set_xlabel("Date/Time")
         
-        # Set legend for both axes in one location
+        # Adjust subplot parameters to make space for the legend at the bottom
+        self.fig_ep_plot.subplots_adjust(bottom=0.2)  # Increase bottom margin
+
+        # Set legend for both axes in the lower right corner inside the plot area
         lines, labels = self.plot.get_legend_handles_labels()
         lines2, labels2 = ax2.get_legend_handles_labels()
-        self.plot.legend(lines + lines2, labels + labels2, loc='best')
-        
+        self.plot.legend(lines + lines2, labels + labels2, loc='lower right')
+
         self.plot_canvas.draw()
+
 
     def set_gui_status_for_run(self, is_running: bool):
         if is_running:
