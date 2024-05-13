@@ -12,8 +12,7 @@
 
   
 
-1. Ubuntu 22.04 with administrator access (Also works on Virtual Machines).
-
+1. Install Docker 
   
 
 2. At least Quad Core CPU
@@ -70,7 +69,7 @@ https://docs.docker.com/engine/install/
 
 | File Name            | Link                                                                                          | Place in this path in local directory                          |
 |----------------------|-----------------------------------------------------------------------------------------------|----------------------------------------------------------------|
-| modes.csv            | [link](https://drive.google.com/file/d/19Ed_tRQhcz2zkdxL1GT-yD_eb6NXPUdn/view?usp=drive_link)    | EnergyPlusExample/ThermalModel_datacenter/Modes.csv            |
+| modes.csv            | [link](https://drive.google.com/file/d/19Ed_tRQhcz2zkdxL1GT-yD_eb6NXPUdn/view?usp=drive_link)    | EnergyPlusExample/ThermalModel_datacenter/modes.csv            |
 | PythonPOD_Solid.cgns | [link](https://drive.google.com/file/d/19H1HXCjzYx6ymz6PY_3xEAhDZdyza7D0/view?usp=sharing) | EnergyPlusExample/ThermalModel_datacenter/PythonPOD_Solid.cgns |
 
   
@@ -85,13 +84,9 @@ https://docs.docker.com/engine/install/
 
   
   
-  
+ 
 
-6. Give docker permission to display it's GUI app on host. This step must be repeated each time the computer/virtual machine is restarted: `xhost +local:docker`
-
-  
-
-7. Run the container:
+6. Run the container:
 
   
 
@@ -101,7 +96,7 @@ https://docs.docker.com/engine/install/
 
   
 
-8. You should see the app pop up:
+7. Wait for the run to complete:
 
   
 
@@ -109,7 +104,7 @@ https://docs.docker.com/engine/install/
 
 
   
-
+8. You can see the plots in the ./Plots/ directory:
   
 
 ## Sample results:
