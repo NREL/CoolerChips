@@ -41,4 +41,4 @@ RUN ln -s /EnergyPlus/energyplus /usr/local/bin/energyplus
 
 WORKDIR /app
 
-CMD ["python", "main.py"]
+CMD ["python", "generate_plots.py"]
