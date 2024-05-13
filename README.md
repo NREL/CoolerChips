@@ -49,7 +49,7 @@ https://docs.docker.com/engine/install/
 
   
 
-`git clone https://github.com/NREL/CoolerChips.git`
+`git clone https://github.com/NREL/CoolerChips.git` and checkout this branch: `windows_noGUI`
 
   
 
@@ -96,15 +96,12 @@ https://docs.docker.com/engine/install/
 
   
 
-7. Wait for the run to complete:
+7. Wait for the run to complete.
 
   
 
-![image](https://github.com/NREL/CoolerChips/assets/45446967/9189f34e-5b97-486d-8387-c5049401e23b)
-
-
-  
-8. You can see the plots in the ./Plots/ directory:
+ 
+8. You can see the plots in the ./Plots/ directory.
   
 
 ## Sample results:
@@ -120,14 +117,6 @@ Simulation outputs:
 ![image](https://github.com/NREL/CoolerChips/assets/45446967/9dc5e93b-0303-4de4-87fd-588b7e70efc9)
 
   
-
-  
-
-Results from Paraview:
-
-  
-
-![image](https://github.com/NREL/CoolerChips/assets/45446967/f607abac-d3b3-4069-8778-86b1e5648a14)
 
 
 ## Individual Model Documentation:
