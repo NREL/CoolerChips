@@ -5,6 +5,7 @@ from json import dumps
 import os
 from pathlib import Path
 from platform import system
+import re
 from subprocess import Popen
 import sys
 from threading import Thread
@@ -25,7 +26,6 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from PIL import ImageTk, Image
 
 plt.rcParams.update({'font.size': 16})  # Adjust font size as needed
-
 
 
 class PubSubMessageTypes:
@@ -572,19 +572,41 @@ class MyApp(Frame):
 
     def starting_handler(self, num_progress_steps):
         self.label_status.set("Running")
-        num_progress_steps = 10
+        num_progress_steps = definitions.TOTAL_SECONDS
         self.progress['maximum'] = num_progress_steps
         self.progress['value'] = 0
+        server_log = 'Server_federate.log'
+        pattern = re.compile(r'at time (\d+\.?\d*)')
 
         def update_progress(value):
             """Increment progress bar value and schedule next increment or reset."""
-            progress_bar_steps = 10  # Setting the number of steps directly in the handler
+            progress_bar_steps = definitions.TOTAL_SECONDS  # Setting the number of steps directly in the handler
             if value < progress_bar_steps:
-                self.progress['value'] = value + 1
-                self.progress_update_id = self.root.after(1000, update_progress, value + 1)  # Schedule next increment
+                if os.path.isfile(server_log):
+                    with open(server_log, 'r') as f:
+                        lines = f.readlines()
+                        if lines:
+                            last_line = lines[-1]
+                            match = pattern.search(last_line)
+                            if match:
+                                time = float(match.group(1))
+                                self.progress['value'] = time
+                                self.progress_update_id = self.root.after(1000, update_progress, time)  # Schedule next increment
+                                self.label_status.set(f"Running: {time/definitions.TOTAL_SECONDS*100:.2f}% complete")
+                            else:
+                                self.label_status.set("Setting up")
+                                self.progress['value'] = 0
+                                self.progress_update_id = self.root.after(1000, update_progress, 0)
+                        else:
+                            self.label_status.set("Setting up")
+                            self.progress['value'] = 0
+                            self.progress_update_id = self.root.after(1000, update_progress, 0)  # Restart the progress update
+                else:
+                    self.label_status.set("Setting up")
+                    self.progress['value'] = 0
+                    self.progress_update_id = self.root.after(1000, update_progress, 0)  # Restart the progress update
             else:
-                self.progress['value'] = 0  # Reset the progress bar
-                self.progress_update_id = self.root.after(1000, update_progress, 0)  # Restart the progress update
+                return
 
         update_progress(0)  # Start the progress update
 
