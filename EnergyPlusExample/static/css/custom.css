@@ -1,0 +1,72 @@
+#nav ul {
+  list-style: none;
+  padding-left: 0;
+}
+
+#nav li {
+  background: #f8f8f8;
+  padding: 10px;
+  border-radius: 5px;
+}
+
+#map {
+  height: 600px;
+  width: 100%;
+}
+
+/* New styles for the sidebar */
+.sidebar {
+  background-color: #343a40;
+  color: white;
+  height: 100vh; /* Full height */
+}
+
+.sidebar a {
+  color: white;
+}
+
+.sidebar .nav-link.active {
+  background-color: #007bff;
+}
+
+.sidebar .table {
+  background-color: #343a40;
+  color: white;
+}
+
+.sidebar .table thead {
+  background-color: #454d55;
+}
+
+.sidebar .table tbody tr {
+  background-color: #343a40;
+  color: white;
+}
+
+.sidebar .table tbody tr td {
+  color: white;
+}
+
+.sidebar .dropdown-menu {
+  background-color: #343a40;
+}
+
+.sidebar .dropdown-menu .dropdown-item {
+  color: white;
+}
+
+.sidebar .dropdown-menu .dropdown-item:hover {
+  background-color: #007bff;
+  color: white;
+}
+
+/* Custom styles for maroon button */
+.btn-maroon {
+  background-color: maroon;
+  color: white;
+}
+
+.btn-maroon:hover {
+  background-color: darkred;
+  color: white;
+}
