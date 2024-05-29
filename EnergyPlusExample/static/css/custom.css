@@ -1,72 +1,40 @@
-#nav ul {
-  list-style: none;
-  padding-left: 0;
+body {
+  background-color: #f8f9fa;
 }
 
-#nav li {
-  background: #f8f8f8;
-  padding: 10px;
-  border-radius: 5px;
-}
-
-#map {
-  height: 600px;
-  width: 100%;
-}
-
-/* New styles for the sidebar */
 .sidebar {
   background-color: #343a40;
   color: white;
-  height: 100vh; /* Full height */
 }
 
-.sidebar a {
+.sidebar .nav-link {
   color: white;
+  transition: background-color 0.3s;
 }
 
 .sidebar .nav-link.active {
-  background-color: #007bff;
+  background-color: #495057;
 }
 
-.sidebar .table {
-  background-color: #343a40;
-  color: white;
+.sidebar .nav-link:hover {
+  background-color: #495057;
 }
 
-.sidebar .table thead {
-  background-color: #454d55;
-}
-
-.sidebar .table tbody tr {
-  background-color: #343a40;
-  color: white;
-}
-
-.sidebar .table tbody tr td {
-  color: white;
-}
-
-.sidebar .dropdown-menu {
-  background-color: #343a40;
-}
-
-.sidebar .dropdown-menu .dropdown-item {
-  color: white;
-}
-
-.sidebar .dropdown-menu .dropdown-item:hover {
-  background-color: #007bff;
-  color: white;
-}
-
-/* Custom styles for maroon button */
 .btn-maroon {
-  background-color: maroon;
+  background-color: #800000;
   color: white;
 }
 
 .btn-maroon:hover {
-  background-color: darkred;
+  background-color: #990000;
+}
+
+.table-dark {
+  background-color: #343a40;
   color: white;
+}
+
+.table-dark th,
+.table-dark td {
+  border-color: #454d55;
 }

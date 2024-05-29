@@ -22,18 +22,18 @@
         </a>
       </li>
       <li class="nav-item">
-        <a href="/pre-simulation" class="nav-link text-white">
+        <a href="/pre-simulation" class="nav-link text-white active">
           Pre-Simulation
         </a>
       </li>
       <li class="nav-item">
-        <button class="btn btn-maroon" type="button" onclick="location.href='/simulation'">
+        <button class="btn btn-maroon" type="button" id="start-sim-btn">
           Start Sim
         </button>
       </li>
       <li class="nav-item">
-        <a href="#" class="nav-link text-white">
-          Post
+        <a href="/results" class="nav-link text-white">
+          Results
         </a>
       </li>
     </ul>
@@ -60,12 +60,115 @@
   <main class="flex-fill p-3">
     <div class="pt-3 pb-2 mb-3">
       <h2>Pre-Simulation</h2>
-      <div id="map" style="height: 600px;"></div>
+      
+      <!-- Modal for Simulation Started -->
+      <div class="modal fade" id="simulationStartedModal" tabindex="-1" aria-labelledby="simulationStartedModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-sm">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="simulationStartedModalLabel">Simulation Status</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+              Simulation started.
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Modal for Simulation Completed -->
+      <div class="modal fade" id="simulationCompletedModal" tabindex="-1" aria-labelledby="simulationCompletedModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-sm">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="simulationCompletedModalLabel">Simulation Status</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+              Simulation completed.
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Step 1: Select EPW File -->
+      <div class="step" id="step-1">
+        <h3>Step 1: Select EPW File</h3>
+        <div id="map" style="height: 600px;"></div>
+      </div>
+      <hr>
+
+      <!-- Placeholder for Step 2 -->
+      <div class="step" id="step-2">
+        <h3>Step 2: Placeholder for Next Step</h3>
+        <p>Content for step 2 will go here.</p>
+      </div>
+      <hr>
+
+      <!-- Placeholder for Step 3 -->
+      <div class="step" id="step-3">
+        <h3>Step 3: Placeholder for Next Step</h3>
+        <p>Content for step 3 will go here.</p>
+      </div>
+      <hr>
+
+      <!-- Add more steps as needed -->
     </div>
   </main>
 </div>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
 <script src="{{ url_for('static', filename='js/custom.js') }}"></script>
+<script>
+document.getElementById('start-sim-btn').addEventListener('click', function() {
+    fetch('/start_simulation', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: new URLSearchParams({
+            idf_path: 'your_idf_path',
+            control_option: 'your_control_option',
+            datacenter_location: 'your_datacenter_location'
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        const statusModal = new bootstrap.Modal(document.getElementById('simulationStartedModal'), {
+            keyboard: false
+        });
+        if (data.status === 'Error') {
+            statusModal._element.querySelector('.modal-body').innerText = `Error: ${data.message}`;
+        } else {
+            statusModal._element.querySelector('.modal-body').innerText = data.status;
+        }
+        statusModal.show();
+        
+        if (data.status !== 'Error') {
+            // Simulate the completion of the simulation
+            setTimeout(() => {
+                const completedModal = new bootstrap.Modal(document.getElementById('simulationCompletedModal'), {
+                    keyboard: false
+                });
+                completedModal.show();
+            }, 5000); // Adjust the delay as necessary
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        const statusModal = new bootstrap.Modal(document.getElementById('simulationStartedModal'), {
+            keyboard: false
+        });
+        statusModal._element.querySelector('.modal-body').innerText = 'An unexpected error occurred';
+        statusModal.show();
+    });
+});
+</script>
 </body>
 </html>
