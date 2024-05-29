@@ -1,12 +1,14 @@
 import os
+import definitions
 import requests
 from flask import Flask, render_template, request, jsonify
-from threading import Thread
+from threading import Thread, Lock
 import subprocess
 from time import sleep
 import pandas as pd
 from pathlib import Path
 import plotly.express as px
+import re
 
 app = Flask(__name__)
 
@@ -25,8 +27,15 @@ location_to_url = {
     "Miami": "https://raw.githubusercontent.com/NREL/EnergyPlus/develop/weather/USA_FL_Miami.Intl.AP.722020_TMY3.epw"
 }
 
-def fix_results(results):
+# Define the max value for the progress bar
+progress_max = definitions.TOTAL_SECONDS  # Example max value; this can be any float
 
+progress = 0
+progress_lock = Lock()
+server_log = 'Server_federate.log'
+pattern = re.compile(r'at time (\d+\.?\d*)')
+
+def fix_results(results):
     def fix_datetime(dt_str):
         date_part, time_part = dt_str.split()
         if time_part == '24:00:00':
@@ -71,22 +80,23 @@ class Simulator:
             ["echo", "Simulation completed."]
             # Add your actual simulation commands here
         ]
-        for command in commands:
+        
+        for i, command in enumerate(commands):
             process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
             for line in iter(process.stdout.readline, ''):
                 print(line, end='')
             process.wait()
             print(f"Command '{' '.join(command)}' finished with exit code {process.returncode}")
-        # Simulate some processing time
-        sleep(2)
+            # Simulate progress
+            with progress_lock:
+                progress_value = (i + 1) / len(commands) * 100
+                global progress
+                progress = progress_value
+            sleep(2)  # Simulate some processing time
         print("Simulation completed.")
         ep_results = pd.read_csv("Output/eplusout.csv")
         ep_results = ep_results.drop(ep_results.index[:1])  # Drop the initial strange values
-        self.results = self.fix_results(ep_results)
-
-
-
-
+        self.results = fix_results(ep_results)
 
 @app.route("/")
 def home():
@@ -170,6 +180,25 @@ def start_simulation():
 
     except Exception as e:
         return jsonify({'status': 'Error', 'message': str(e)}), 500
+
+@app.route('/get_progress', methods=['GET'])
+def get_progress():
+    with progress_lock:
+        progress = 0
+        if os.path.isfile(server_log):
+            with open(server_log, 'r') as f:
+                lines = f.readlines()
+                if lines:
+                    last_line = lines[-1]
+                    match = pattern.search(last_line)
+                    if match:
+                        time = float(match.group(1))
+                        progress = time
+        return jsonify({'progress': progress})
+
+@app.route('/get_progress_max', methods=['GET'])
+def get_progress_max():
+    return jsonify({'progress_max': progress_max})
 
 if __name__ == "__main__":
     app.run("0.0.0.0", debug=False)
