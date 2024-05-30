@@ -118,7 +118,7 @@ def pre_simulation():
 def results():
     return render_template('results.html')
 
-@app.route('/results_building_energy')
+@app.route('/results/building_energy')
 def results_building_energy():
     return render_template('results_building_energy.html')
 
@@ -223,4 +223,4 @@ def get_progress_max():
     return jsonify({'progress_max': progress_max})
 
 if __name__ == "__main__":
-    app.run("0.0.0.0", debug=True)
+    app.run("0.0.0.0", debug=False)
