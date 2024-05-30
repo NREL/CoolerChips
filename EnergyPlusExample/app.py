@@ -118,6 +118,10 @@ def pre_simulation():
 def results():
     return render_template('results.html')
 
+@app.route('/results_building_energy')
+def results_building_energy():
+    return render_template('results_building_energy.html')
+
 @app.route('/get_results')
 def get_results():
     try:
@@ -128,6 +132,24 @@ def get_results():
         
         # Generate the Plotly plot
         fig = px.line(results, x=results.index, y="Maximum CPU Temperature [C]", title="Simulation Results")
+        
+        # Serialize the Plotly figure
+        fig_json = fig.to_json()
+        
+        return jsonify(fig_json)
+    except Exception as e:
+        return jsonify({'status': 'Error', 'message': str(e)}), 500
+
+@app.route('/get_building_energy_results')
+def get_building_energy_results():
+    try:
+        # Load the simulation results for building energy
+        ep_results = pd.read_csv("Output/eplusout.csv")
+        ep_results = ep_results.drop(ep_results.index[:1])  # Drop the initial strange values
+        results = fix_results(ep_results)
+        
+        # Generate the Plotly plot for building energy results
+        fig = px.line(results, x=results.index, y="Cooling:Electricity [J]", title="Building Energy Results")
         
         # Serialize the Plotly figure
         fig_json = fig.to_json()
@@ -201,4 +223,4 @@ def get_progress_max():
     return jsonify({'progress_max': progress_max})
 
 if __name__ == "__main__":
-    app.run("0.0.0.0", debug=False)
+    app.run("0.0.0.0", debug=True)
