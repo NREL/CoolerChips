@@ -11,4 +11,4 @@ modes.csv
 build/
 *.egg-info/
 MOSTcool
-weather.epw
+*/weather.epw

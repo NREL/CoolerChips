@@ -182,6 +182,8 @@ def download_epw():
 @app.route('/start_simulation', methods=['POST'])
 def start_simulation():
     try:
+        if os.path.isfile(server_log):
+            os.remove(server_log) # Let's start from the beginning
         # Extract parameters from the request if needed
         idf_path = request.form.get('idf_path', 'default_idf_path')
         epw_path = os.path.join(DOWNLOAD_DIRECTORY, "weather.epw")

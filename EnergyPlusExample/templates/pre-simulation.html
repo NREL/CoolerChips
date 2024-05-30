@@ -192,7 +192,7 @@ document.getElementById('start-sim-btn').addEventListener('click', function() {
                                 const progressPercent = (progress / progressMax) * 100;
                                 progressBar.style.width = progressPercent + '%';
                                 progressBar.setAttribute('aria-valuenow', progress);
-                                progressBar.textContent = progressPercent.toFixed(2) + '%';
+                                progressBar.textContent = progressPercent.toFixed(1) + '%';
                                 
                                 if (progressPercent >= 100) {
                                     clearInterval(progressInterval);
