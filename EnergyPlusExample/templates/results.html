@@ -7,11 +7,12 @@
 <link rel="stylesheet" href="{{ url_for('static', filename='css/custom.css') }}">
 <title>Results - MOSTCOOL</title>
 <style>
+
 </style>
 </head>
 <body>
 <div class="d-flex">
-  <div class="d-flex flex-column flex-shrink-0 p-3 sidebar bg-dark text-white" style="width: 280px; height: 100vh;">
+  <div class="d-flex flex-column flex-shrink-0 p-4 sidebar">
     <a href="/" class="d-flex align-items-center mb-3 mb-md-0 me-md-auto text-white text-decoration-none">
       <span class="fs-4">MOSTCOOL</span>
     </a>
@@ -53,25 +54,25 @@
       </tbody>
     </table>
   </div>
-  <main class="flex-fill p-3">
+  <main class="flex-fill p-0 main-content">
     <div class="pt-3 pb-2 mb-3">
       <h2>Simulation Results</h2>
       <div class="card-container">
-        <div class="card" style="background-image: url('/static/images/card_backgrounds/server_visualization.jpg');">
+        <div class="card" style="background-image: url('{{ url_for('static', filename='images/card_backgrounds/server_visualization.jpg') }}');">
           <a href="/results/server_visualization">
             <div class="card-overlay">
               <h2 class="text-center">Server Thermal Profiles</h2>
             </div>
           </a>
         </div>
-        <div class="card" style="background-image: url('/static/images/card_backgrounds/datacenter_visualization.png');">
+        <div class="card" style="background-image: url('{{ url_for('static', filename='images/card_backgrounds/datacenter_visualization.png') }}');">
           <a href="/results/datacenter_visualization">
             <div class="card-overlay">
               <h2 class="text-center">Data Center IR Visualization</h2>
             </div>
           </a>
         </div>
-        <div class="card" style="background-image: url('/static/images/card_backgrounds/building_energy.jpg');">
+        <div class="card" style="background-image: url('{{ url_for('static', filename='images/card_backgrounds/building_energy.jpg') }}');">
           <a href="/results/building_energy">
             <div class="card-overlay">
               <h2 class="text-center">Building Energy Plots</h2>
