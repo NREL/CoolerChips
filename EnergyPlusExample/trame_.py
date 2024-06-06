@@ -7,6 +7,7 @@ sys.path.append("/Paraview/lib/")
 # from paraview import simple
 from paraview.simple import *
 
+from pathlib import Path
 from trame.app import get_server
 from trame.widgets import vuetify, paraview, client
 from trame.ui.vuetify import SinglePageLayout
@@ -28,7 +29,7 @@ paraview.initialize(server)
 
 def load_data(**kwargs):
     # CLI
-    # args, _ = server.cli.parse_known_args()
+    args, _ = server.cli.parse_known_args()
 
     # full_path = str(Path(args.data).resolve().absolute())
     # working_directory = str(Path(args.data).parent.resolve().absolute())
@@ -44,7 +45,7 @@ def load_data(**kwargs):
     # simple.Render(view)
 
     #### disable automatic camera reset on 'Show'
-    # _DisableFirstRenderCameraReset()
+    # simple._DisableFirstRenderCameraReset()
 
     # create a new 'CGNS Series Reader'
     solution_PythonPOD_Solidcgns = CGNSSeriesReader(registrationName='solution_PythonPOD_Solid.cgns', FileNames=['ThermalModel_datacenter/PythonPOD_Solid.cgns'])
