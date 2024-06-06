@@ -1,5 +1,5 @@
-
   
+
   
 
   
@@ -12,13 +12,19 @@
 
   
 
+  
+
 ## Requirements/Tested on:
 
   
 
   
 
-1. Ubuntu 22.04 with administrator access (Also works on Virtual Machines). If you are using Windows and need to install a Virtual Machine, please follow these instructions: 
+  
+
+1. Ubuntu 22.04 with administrator access (Also works on Virtual Machines). If you are using Windows and need to install a Virtual Machine, please follow these instructions ([link](https://github.com/NREL/CoolerChips/blob/windows_documentation/MOSTCOOL%20Windows%20Instructions.pdf)).
+
+  
 
   
 
@@ -30,13 +36,19 @@
 
   
 
+  
+
 3. At least 16 GB RAM
 
   
 
   
 
+  
+
 4. At least 4 GB hard disk space
+
+  
 
   
 
@@ -52,7 +64,11 @@
 
   
 
+  
+
 1. Install docker in your computer:
+
+  
 
   
 
@@ -66,7 +82,11 @@ https://docs.docker.com/engine/install/
 
   
 
+  
+
 2. Clone this repo:
+
+  
 
   
 
@@ -80,7 +100,11 @@ https://docs.docker.com/engine/install/
 
   
 
+  
+
 3. cd into the cloned directory.
+
+  
 
   
 
@@ -93,16 +117,10 @@ https://docs.docker.com/engine/install/
   
 
   
-  
-
-| File Name | Link | Place in this path in local directory |
-
+| File Name            | Link                                                                                          | Place in this path in local directory                          |
 |----------------------|-----------------------------------------------------------------------------------------------|----------------------------------------------------------------|
-
-| modes.csv | [link](https://drive.google.com/file/d/19Ed_tRQhcz2zkdxL1GT-yD_eb6NXPUdn/view?usp=drive_link) | EnergyPlusExample/ThermalModel_datacenter/Modes.csv |
-
+| modes.csv            | [link](https://drive.google.com/file/d/19Ed_tRQhcz2zkdxL1GT-yD_eb6NXPUdn/view?usp=drive_link)    | EnergyPlusExample/ThermalModel_datacenter/modes.csv            |
 | PythonPOD_Solid.cgns | [link](https://drive.google.com/file/d/19H1HXCjzYx6ymz6PY_3xEAhDZdyza7D0/view?usp=sharing) | EnergyPlusExample/ThermalModel_datacenter/PythonPOD_Solid.cgns |
-
   
 
   
@@ -115,7 +133,11 @@ https://docs.docker.com/engine/install/
 
   
 
+  
+
 `docker compose build`
+
+  
 
   
 
@@ -127,7 +149,11 @@ https://docs.docker.com/engine/install/
 
   
 
+  
+
 7. Run the container:
+
+  
 
   
 
@@ -141,7 +167,11 @@ https://docs.docker.com/engine/install/
 
   
 
+  
+
 8. You should see the app pop up:
+
+  
 
   
 
@@ -150,6 +180,7 @@ https://docs.docker.com/engine/install/
 ![image](https://github.com/NREL/CoolerChips/assets/45446967/9189f34e-5b97-486d-8387-c5049401e23b)
 
   
+
   
 
   
@@ -164,7 +195,11 @@ https://docs.docker.com/engine/install/
 
   
 
+  
+
 Simulation outputs:
+
+  
 
   
 
@@ -178,7 +213,11 @@ Simulation outputs:
 
   
 
+  
+
 Results from Paraview:
+
+  
 
   
 
@@ -187,14 +226,21 @@ Results from Paraview:
 ![image](https://github.com/NREL/CoolerChips/assets/45446967/f607abac-d3b3-4069-8778-86b1e5648a14)
 
   
+
   
 
 ## Individual Model Documentation:
 
   
 
+  
+
 1. Thermal model documentation can be found in the repo root as [NEITcool DOCUMENTATION.pdf](https://github.com/NREL/CoolerChips/blob/gui/NEITcool%20DOCUMENTATION.pdf).
 
+  
+
 2. EnergyPlus documentation can be found [here](https://energyplus.net/documentation).
+
+  
 
 3. EnergyPlus Python API Documentation can be found [here](https://energyplus.readthedocs.io/en/latest/api.html).
