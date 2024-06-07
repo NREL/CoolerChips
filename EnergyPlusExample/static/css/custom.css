@@ -53,19 +53,17 @@ body {
   display: flex;
   justify-content: center;
   align-items: start;
-  /* height: 100vh; Full screen height */
   width: 100%; /* Full width */
 }
 
 .main-content {
   height: 100vh; /* Full screen height */
-  /* width: 100%; Full width */
 }
 
 .card {
   position: relative;
-  width: 40vh; /* 20% of the viewport height */
-  height: 40vh; /* 20% of the viewport height */
+  width: 40vw; /* 40% of the viewport width */
+  height: 40vh; /* 40% of the viewport height */
   background-size: cover;
   background-position: center;
   color: white;
