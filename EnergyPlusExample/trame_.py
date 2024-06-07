@@ -478,7 +478,7 @@ def load_data(**kwargs):
     # HTML
     with SinglePageLayout(server) as layout:
         layout.icon.click = ctrl.view_reset_camera
-        layout.title.set_text("ParaView State Viewer")
+        layout.title.set_text("Server Board Thermal Profile")
 
         with layout.content:
             with vuetify.VContainer(fluid=True, classes="pa-0 fill-height"):
@@ -493,11 +493,11 @@ ctrl.on_server_ready.add(load_data)
 # GUI
 # -----------------------------------------------------------------------------
 
-state.trame__title = "State Viewer"
+state.trame__title = "Server Board Thermal Profile"
 
 with SinglePageLayout(server) as layout:
     layout.icon.click = ctrl.view_reset_camera
-    layout.title.set_text("ParaView State Viewer")
+    layout.title.set_text("Server Board Thermal Profile")
 
     with layout.content:
         with vuetify.VContainer(fluid=True, classes="pa-0 fill-height"):

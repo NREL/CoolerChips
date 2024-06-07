@@ -1,5 +1,3 @@
-// custom.js
-
 // Initialize the map
 var map = L.map('map').setView([37.8, -96], 4);
 
