@@ -145,6 +145,13 @@ def get_results():
         # Generate the Plotly plot
         fig = px.line(results, x=results.index, y="Maximum CPU Temperature [C]", title="Simulation Results")
         
+        # Customize the x-axis to remove the year
+        fig.update_layout(
+            xaxis=dict(
+                tickformat='%m-%d'
+            )
+        )
+        
         # Serialize the Plotly figure
         fig_json = fig.to_json()
         
@@ -152,16 +159,38 @@ def get_results():
     except Exception as e:
         return jsonify({'status': 'Error', 'message': str(e)}), 500
 
+
+@app.route('/get_available_variables')
+def get_available_variables():
+    try:
+        ep_results = pd.read_csv("Output/eplusout.csv")
+        ep_results = ep_results.drop(ep_results.index[:1])  # Drop the initial strange values
+        results = fix_results(ep_results)
+        variables = results.columns.tolist()
+        return jsonify({'variables': variables})
+    except Exception as e:
+        return jsonify({'status': 'Error', 'message': str(e)}), 500
+
 @app.route('/get_building_energy_results')
 def get_building_energy_results():
     try:
-        # Load the simulation results for building energy
+        variable = request.args.get('variable', 'Cooling:Electricity [J]')  # Default to a specific variable
         ep_results = pd.read_csv("Output/eplusout.csv")
         ep_results = ep_results.drop(ep_results.index[:1])  # Drop the initial strange values
         results = fix_results(ep_results)
         
-        # Generate the Plotly plot for building energy results
-        fig = px.line(results, x=results.index, y="Cooling:Electricity [J]", title="Building Energy Results")
+        if variable not in results.columns:
+            return jsonify({'status': 'Error', 'message': 'Variable not found'}), 400
+        
+        # Generate the Plotly plot for the selected variable
+        fig = px.line(results, x=results.index, y=variable, title=f"Building Energy Results: {variable}")
+        
+        # Customize the x-axis to remove the year
+        fig.update_layout(
+            xaxis=dict(
+                tickformat='%m-%d'
+            )
+        )
         
         # Serialize the Plotly figure
         fig_json = fig.to_json()
@@ -169,6 +198,7 @@ def get_building_energy_results():
         return jsonify(fig_json)
     except Exception as e:
         return jsonify({'status': 'Error', 'message': str(e)}), 500
+
 
 @app.route('/post')
 def post_simulation():
