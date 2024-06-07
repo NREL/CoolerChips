@@ -108,11 +108,23 @@ def simulation():
 
 @app.route('/pre-simulation')
 def pre_simulation():
+    return render_template('pre-simulation.html')
+
+@app.route('/step-1')
+def step_1():
     weather_epw_path = os.path.join(DOWNLOAD_DIRECTORY, "weather.epw")
     epw_location = None
     if os.path.exists(weather_epw_path):
         epw_location = get_epw_location(weather_epw_path)
-    return render_template('pre-simulation.html', epw_location=epw_location)
+    return render_template('step-1.html', epw_location=epw_location)
+
+@app.route('/step-2')
+def step_2():
+    return render_template('step-2.html')
+
+@app.route('/step-3')
+def step_3():
+    return render_template('step-3.html')
 
 @app.route('/results')
 def results():

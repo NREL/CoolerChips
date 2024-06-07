@@ -8,6 +8,10 @@
 <link rel="stylesheet" href="{{ url_for('static', filename='css/custom.css') }}">
 <title>Pre-Simulation - MOSTCOOL</title>
 <style>
+  .sidebar, .card-custom {
+    background-color: #343a40; /* Sidebar color */
+    color: white; /* Text color */
+  }
   .progress-modal {
     display: none; /* Initially hide the progress bar modal */
     position: fixed;
@@ -25,6 +29,10 @@
     color: white;
     margin-bottom: 5px;
   }
+  .btn-maroon {
+    background-color: maroon;
+    color: white;
+  }
 </style>
 </head>
 <body>
@@ -35,11 +43,17 @@
     </a>
     <hr>
     <ul class="nav nav-pills flex-column mb-auto">
-      <li class="nav-item">
-        <a href="/pre-simulation" class="nav-link text-white active">
+      <li class="nav-item dropdown">
+        <a class="nav-link dropdown-toggle text-white" href="#" id="preSimDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
           Pre-Simulation
         </a>
-      </li>
+        <ul class="dropdown-menu" aria-labelledby="preSimDropdown">
+          <li><a class="dropdown-item" href="/step-1">Step 1: Select EPW File</a></li>
+          <li><a class="dropdown-item" href="/step-2">Step 2: Placeholder for Next Step</a></li>
+          <li><a class="dropdown-item" href="/step-3">Step 3: Placeholder for Next Step</a></li>
+          <!-- Add more steps as needed -->
+        </ul>
+      </li>    
       <li class="nav-item">
         <button class="btn btn-maroon" type="button" id="start-sim-btn">
           Start Sim
@@ -72,67 +86,41 @@
     </table>
   </div>
   <main class="flex-fill p-0 main-content">
-    <div class="pt-3 pb-2 mb-3">
-      <h2>Pre-Simulation</h2>
+    <div class="pt-3 pb-2 mb-3 container">
+      <h2>Pre-Simulation Setup</h2>
+      <p>Welcome to the pre-simulation setup for MOSTCOOL. This process will guide you through selecting the necessary parameters for your simulation.</p>
       
-      <!-- Modal for Simulation Started -->
-      <div class="modal fade" id="simulationStartedModal" tabindex="-1" aria-labelledby="simulationStartedModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-sm">
-          <div class="modal-content">
-            <div class="modal-header">
-              <h5 class="modal-title" id="simulationStartedModalLabel">Simulation Status</h5>
-              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      <div class="row">
+        <div class="col-md-4">
+          <div class="card card-custom mb-3">
+            <div class="card-body">
+              <h5 class="card-title">Step 1: Select EPW File</h5>
+              <p class="card-text">Choose the appropriate EPW file for your simulation from a variety of locations.</p>
+              <a href="/step-1" class="btn btn-primary">Go to Step 1</a>
             </div>
-            <div class="modal-body">
-              Simulation started.
+          </div>
+        </div>
+
+        <div class="col-md-4">
+          <div class="card card-custom mb-3">
+            <div class="card-body">
+              <h5 class="card-title">Step 2: Placeholder for Next Step</h5>
+              <p class="card-text">This step will contain additional configuration options for your simulation.</p>
+              <a href="/step-2" class="btn btn-primary">Go to Step 2</a>
             </div>
-            <div class="modal-footer">
-              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          </div>
+        </div>
+
+        <div class="col-md-4">
+          <div class="card card-custom mb-3">
+            <div class="card-body">
+              <h5 class="card-title">Step 3: Placeholder for Next Step</h5>
+              <p class="card-text">Finalize your pre-simulation setup with the last configuration options.</p>
+              <a href="/step-3" class="btn btn-primary">Go to Step 3</a>
             </div>
           </div>
         </div>
       </div>
-      
-      <!-- Modal for Simulation Completed -->
-      <div class="modal fade" id="simulationCompletedModal" tabindex="-1" aria-labelledby="simulationCompletedModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-sm">
-          <div class="modal-content">
-            <div class="modal-header">
-              <h5 class="modal-title" id="simulationCompletedModalLabel">Simulation Status</h5>
-              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-              Simulation completed.
-            </div>
-            <div class="modal-footer">
-              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-            </div>
-          </div>
-        </div>
-      </div>
-      
-      <!-- Step 1: Select EPW File -->
-      <div class="step" id="step-1">
-        <h3>Step 1: Select EPW File</h3>
-        <div id="map" style="height: 600px;"></div>
-      </div>
-      <hr>
-
-      <!-- Placeholder for Step 2 -->
-      <div class="step" id="step-2">
-        <h3>Step 2: Placeholder for Next Step</h3>
-        <p>Content for step 2 will go here.</p>
-      </div>
-      <hr>
-
-      <!-- Placeholder for Step 3 -->
-      <div class="step" id="step-3">
-        <h3>Step 3: Placeholder for Next Step</h3>
-        <p>Content for step 3 will go here.</p>
-      </div>
-      <hr>
-
-      <!-- Add more steps as needed -->
     </div>
   </main>
 </div>
@@ -143,6 +131,42 @@
     <div class="progress-title">Simulation Progress</div>
     <div class="progress">
       <div class="progress-bar" id="simulation-progress-bar" role="progressbar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0">0%</div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal for Simulation Started -->
+<div class="modal fade" id="simulationStartedModal" tabindex="-1" aria-labelledby="simulationStartedModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-sm">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="simulationStartedModalLabel">Simulation Status</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        Simulation started.
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal for Simulation Completed -->
+<div class="modal fade" id="simulationCompletedModal" tabindex="-1" aria-labelledby="simulationCompletedModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-sm">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="simulationCompletedModalLabel">Simulation Status</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        Simulation completed.
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+      </div>
     </div>
   </div>
 </div>
