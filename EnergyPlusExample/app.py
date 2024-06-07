@@ -106,9 +106,9 @@ def home():
 def simulation():
     return render_template('simulation.html')
 
-@app.route('/pre-simulation')
-def pre_simulation():
-    return render_template('pre-simulation.html')
+@app.route('/simulation-setup')
+def simulation_setup():
+    return render_template('simulation-setup.html')
 
 @app.route('/step-1')
 def step_1():
