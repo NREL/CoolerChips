@@ -2,7 +2,7 @@ body {
   background-color: #f8f9fa;
 }
 
-.sidebar {
+.sidebar, .card-custom {
   background-color: #343a40;
   color: white;
 }
@@ -21,7 +21,7 @@ body {
 }
 
 .btn-maroon {
-  background-color: #800000;
+  background-color: maroon;
   color: white;
 }
 
@@ -105,3 +105,22 @@ body {
 .logo-container img {
   height: 100px; /* Larger size for logos */
 }
+
+.progress-modal {
+  display: none; /* Initially hide the progress bar modal */
+  position: fixed;
+  bottom: 0;
+  left: 280px; /* Same as the sidebar width */
+  width: calc(100% - 280px); /* Adjust width to not overlap the sidebar */
+  z-index: 1050; /* Same as Bootstrap's modal z-index */
+}
+.progress-bar-container {
+  background-color: rgba(0, 0, 0, 0.75);
+  padding: 10px;
+  border-radius: 5px;
+}
+.progress-title {
+  color: white;
+  margin-bottom: 5px;
+}
+

@@ -142,23 +142,10 @@ def get_results():
         ep_results = ep_results.drop(ep_results.index[:1])  # Drop the initial strange values
         results = fix_results(ep_results)
         
-        # Generate the Plotly plot
-        fig = px.line(results, x=results.index, y="Maximum CPU Temperature [C]", title="Simulation Results")
-        
-        # Customize the x-axis to remove the year
-        fig.update_layout(
-            xaxis=dict(
-                tickformat='%m-%d'
-            )
-        )
-        
-        # Serialize the Plotly figure
-        fig_json = fig.to_json()
-        
-        return jsonify(fig_json)
+        # Return the columns as JSON
+        return jsonify(results.columns.tolist())
     except Exception as e:
         return jsonify({'status': 'Error', 'message': str(e)}), 500
-
 
 @app.route('/get_available_variables')
 def get_available_variables():
@@ -174,21 +161,42 @@ def get_available_variables():
 @app.route('/get_building_energy_results')
 def get_building_energy_results():
     try:
-        variable = request.args.get('variable', 'Cooling:Electricity [J]')  # Default to a specific variable
+        left_variable = request.args.get('left_variable', 'Cooling:Electricity [J]')  # Default to a specific variable
+        right_variable = request.args.get('right_variable', 'Maximum CPU Temperature [C]')  # Default to a specific variable
+
         ep_results = pd.read_csv("Output/eplusout.csv")
         ep_results = ep_results.drop(ep_results.index[:1])  # Drop the initial strange values
         results = fix_results(ep_results)
         
-        if variable not in results.columns:
+        if left_variable not in results.columns or right_variable not in results.columns:
             return jsonify({'status': 'Error', 'message': 'Variable not found'}), 400
         
-        # Generate the Plotly plot for the selected variable
-        fig = px.line(results, x=results.index, y=variable, title=f"Building Energy Results: {variable}")
+        # Generate the Plotly plot for the selected variables
+        fig = px.line(results, x=results.index, y=left_variable, title=f"{left_variable} vs {right_variable}", color_discrete_sequence=['firebrick'])
         
-        # Customize the x-axis to remove the year
+        # Add the right y-axis
+        fig.add_trace(
+            px.line(results, x=results.index, y=right_variable).data[0]
+        )
+        fig.data[-1].update(yaxis='y2')
+
+        # Customize the layout to include a secondary y-axis
         fig.update_layout(
+            yaxis2=dict(
+                title=right_variable,
+                overlaying='y',
+                side='right'
+            ),
             xaxis=dict(
                 tickformat='%m-%d'
+            ),
+            legend=dict(
+                title='Variables',
+                orientation='h',
+                yanchor='bottom',
+                y=1.02,
+                xanchor='right',
+                x=1
             )
         )
         
@@ -198,7 +206,6 @@ def get_building_energy_results():
         return jsonify(fig_json)
     except Exception as e:
         return jsonify({'status': 'Error', 'message': str(e)}), 500
-
 
 @app.route('/post')
 def post_simulation():

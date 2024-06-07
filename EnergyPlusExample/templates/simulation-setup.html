@@ -7,33 +7,6 @@
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
 <link rel="stylesheet" href="{{ url_for('static', filename='css/custom.css') }}">
 <title>Simulation Setup - MOSTCOOL</title>
-<style>
-  .sidebar, .card-custom {
-    background-color: #343a40; /* Sidebar color */
-    color: white; /* Text color */
-  }
-  .progress-modal {
-    display: none; /* Initially hide the progress bar modal */
-    position: fixed;
-    bottom: 0;
-    left: 280px; /* Same as the sidebar width */
-    width: calc(100% - 280px); /* Adjust width to not overlap the sidebar */
-    z-index: 1050; /* Same as Bootstrap's modal z-index */
-  }
-  .progress-bar-container {
-    background-color: rgba(0, 0, 0, 0.75);
-    padding: 10px;
-    border-radius: 5px;
-  }
-  .progress-title {
-    color: white;
-    margin-bottom: 5px;
-  }
-  .btn-maroon {
-    background-color: maroon;
-    color: white;
-  }
-</style>
 </head>
 <body>
 <div class="d-flex">

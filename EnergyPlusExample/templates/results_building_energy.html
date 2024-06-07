@@ -54,9 +54,19 @@
   <main class="flex-fill p-0 main-content">
     <div class="pt-3 pb-2 mb-3">
       <h2>Building Energy Plots</h2>
-      <div class="form-group">
-        <label for="variable-select">Select Variable:</label>
-        <select class="form-control" id="variable-select"></select>
+      <div class="row mb-3">
+        <div class="col">
+          <label for="left-variable">Left Y-Axis Variable:</label>
+          <select id="left-variable" class="form-select">
+            <!-- Options will be populated dynamically -->
+          </select>
+        </div>
+        <div class="col">
+          <label for="right-variable">Right Y-Axis Variable:</label>
+          <select id="right-variable" class="form-select">
+            <!-- Options will be populated dynamically -->
+          </select>
+        </div>
       </div>
       <div id="plotly-div" style="height: 600px;"></div>
     </div>
@@ -66,35 +76,69 @@
 <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
 <script>
 document.addEventListener("DOMContentLoaded", function() {
-    fetch('/get_available_variables')
+    // Fetch and populate dropdowns with available variables
+    fetch('/get_results')
         .then(response => response.json())
         .then(data => {
-            const select = document.getElementById('variable-select');
-            data.variables.forEach(variable => {
-                const option = document.createElement('option');
-                option.value = variable;
-                option.textContent = variable;
-                select.appendChild(option);
+            const leftSelect = document.getElementById('left-variable');
+            const rightSelect = document.getElementById('right-variable');
+
+            // Clear existing options
+            leftSelect.innerHTML = '';
+            rightSelect.innerHTML = '';
+
+            // Populate options
+            data.forEach(column => {
+                const leftOption = document.createElement('option');
+                leftOption.value = column;
+                leftOption.textContent = column;
+                leftSelect.appendChild(leftOption);
+
+                const rightOption = document.createElement('option');
+                rightOption.value = column;
+                rightOption.textContent = column;
+                rightSelect.appendChild(rightOption);
             });
-            // Trigger plot update on change
-            select.addEventListener('change', updatePlot);
+            
+            // Set default selections
+            leftSelect.value = 'Cooling:Electricity [J]';
+            rightSelect.value = 'Maximum CPU Temperature [C]';
+
+            // Fetch and display initial plot
+            fetchPlot(leftSelect.value, rightSelect.value);
         })
         .catch(error => {
             console.error('Error:', error);
         });
 
-    function updatePlot() {
-        const variable = document.getElementById('variable-select').value;
-        fetch(`/get_building_energy_results?variable=${variable}`)
+    function fetchPlot(leftVariable, rightVariable) {
+        fetch(`/get_building_energy_results?left_variable=${leftVariable}&right_variable=${rightVariable}`)
             .then(response => response.json())
             .then(data => {
                 const fig = JSON.parse(data);
+
+                // Add legend
+                fig.layout.showlegend = true;
+
                 Plotly.newPlot('plotly-div', fig.data, fig.layout);
             })
             .catch(error => {
                 console.error('Error:', error);
             });
     }
+
+    // Add event listeners to dropdowns
+    document.getElementById('left-variable').addEventListener('change', function() {
+        const leftVariable = this.value;
+        const rightVariable = document.getElementById('right-variable').value;
+        fetchPlot(leftVariable, rightVariable);
+    });
+
+    document.getElementById('right-variable').addEventListener('change', function() {
+        const rightVariable = this.value;
+        const leftVariable = document.getElementById('left-variable').value;
+        fetchPlot(leftVariable, rightVariable);
+    });
 });
 </script>
 </body>
