@@ -41,13 +41,12 @@ body {
 
 .carousel-inner img {
   width: 100%;
-  height: 80vh; /* Adjust as needed */
+  height: 80vh; 
   object-fit: cover;
 }
 
 .carousel-caption {
-  background: rgba(0, 0, 0, 0.5); /* Grey translucent background */
-  /* padding: 1rem; */
+  background: rgba(0, 0, 0, 0.5); 
 }
 
 .carousel-container {
@@ -91,13 +90,15 @@ body {
   flex-wrap: wrap;
   justify-content: space-around;
   align-items: center;
-  height: calc(100vh - 56px); /* Adjust based on header height */
+  height: calc(100vh - 56px); 
 }
-/* .progress-bar-animated {
-  animation: progressBar 10s linear infinite;
+.logo-container {
+  display: flex;
+  justify-content: space-between; 
+  align-items: center;
+  padding: 0 5% 40px;
+}
+.logo-container img {
+  height: 100px; /* Larger size for logos */
 }
 
-@keyframes progressBar {
-  0% { width: 0; }
-  100% { width: 100%; }
-} */
