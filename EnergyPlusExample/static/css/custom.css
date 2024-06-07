@@ -62,8 +62,8 @@ body {
 
 .card {
   position: relative;
-  width: 40vw; /* 40% of the viewport width */
-  height: 40vh; /* 40% of the viewport height */
+  width: 20vw; /* 20% of the viewport width */
+  height: 20vh; /* 20% of the viewport height */
   background-size: cover;
   background-position: center;
   color: white;

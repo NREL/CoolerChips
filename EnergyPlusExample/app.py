@@ -1,5 +1,6 @@
 from flask import Flask, render_template, request, jsonify
 import subprocess
+import definitions
 import os
 import requests
 from threading import Thread, Lock
@@ -27,7 +28,7 @@ location_to_url = {
 }
 
 # Define the max value for the progress bar
-progress_max = 100.0  # Example max value; this can be any float
+progress_max = definitions.TOTAL_SECONDS  # Example max value; this can be any float
 
 progress = 0
 progress_lock = Lock()

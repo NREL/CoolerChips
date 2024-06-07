@@ -48,9 +48,9 @@
           Simulation Setup
         </a>
         <ul class="dropdown-menu" aria-labelledby="preSimDropdown">
-          <li><a class="dropdown-item" href="/step-1">Step 1: Select EPW File</a></li>
-          <li><a class="dropdown-item" href="/step-2">Step 2: Placeholder for Next Step</a></li>
-          <li><a class="dropdown-item" href="/step-3">Step 3: Placeholder for Next Step</a></li>
+          <li><a class="dropdown-item" href="/step-1">Select EPW File</a></li>
+          <!--<li><a class="dropdown-item" href="/step-2">Step 2: Placeholder for Next Step</a></li>
+          <li><a class="dropdown-item" href="/step-3">Step 3: Placeholder for Next Step</a></li> -->
           <!-- Add more steps as needed -->
         </ul>
       </li>    
@@ -94,9 +94,9 @@
         <div class="col-md-4">
           <div class="card card-custom mb-3">
             <div class="card-body">
-              <h5 class="card-title">Step 1: Select EPW File</h5>
+              <h5 class="card-title">Select EPW File</h5>
               <p class="card-text">Choose the appropriate EPW file for your simulation from a variety of locations.</p>
-              <a href="/step-1" class="btn btn-primary">Go to Step 1</a>
+              <a href="/step-1" class="btn btn-primary">Select EPW File</a>
             </div>
           </div>
         </div>
@@ -104,14 +104,14 @@
         <div class="col-md-4">
           <div class="card card-custom mb-3">
             <div class="card-body">
-              <h5 class="card-title">Step 2: Placeholder for Next Step</h5>
-              <p class="card-text">This step will contain additional configuration options for your simulation.</p>
-              <a href="/step-2" class="btn btn-primary">Go to Step 2</a>
+              <h5 class="card-title">Placeholder for Next Step</h5>
+              <p class="card-text">Additional configuration options for simulation (Coming up).</p>
+              <a href="/step-2" class="btn btn-primary">Step 2</a>
             </div>
           </div>
         </div>
 
-        <div class="col-md-4">
+        <!-- <div class="col-md-4">
           <div class="card card-custom mb-3">
             <div class="card-body">
               <h5 class="card-title">Step 3: Placeholder for Next Step</h5>
@@ -119,7 +119,8 @@
               <a href="/step-3" class="btn btn-primary">Go to Step 3</a>
             </div>
           </div>
-        </div>
+        </div> -->
+
       </div>
     </div>
   </main>
@@ -222,7 +223,7 @@ document.getElementById('start-sim-btn').addEventListener('click', function() {
                                 progressBar.setAttribute('aria-valuenow', progress);
                                 progressBar.textContent = progressPercent.toFixed(1) + '%';
                                 
-                                if (progressPercent >= 100) {
+                                if (round(progressPercent) >= 100) {
                                     clearInterval(progressInterval);
                                     document.getElementById('progress-modal').style.display = 'none'; // Hide the progress bar modal
                                     const completedModal = new bootstrap.Modal(document.getElementById('simulationCompletedModal'), {
