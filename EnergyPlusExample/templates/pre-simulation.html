@@ -9,6 +9,7 @@
 <title>Pre-Simulation - MOSTCOOL</title>
 <style>
   .progress-modal {
+    display: none; /* Initially hide the progress bar modal */
     position: fixed;
     bottom: 0;
     left: 280px; /* Same as the sidebar width */
@@ -137,7 +138,7 @@
 </div>
 
 <!-- Progress Modal -->
-<div class="progress-modal">
+<div class="progress-modal" id="progress-modal">
   <div class="progress-bar-container">
     <div class="progress-title">Simulation Progress</div>
     <div class="progress">
@@ -175,6 +176,9 @@ document.getElementById('start-sim-btn').addEventListener('click', function() {
         statusModal.show();
         
         if (data.status !== 'Error') {
+            // Show the progress bar modal
+            document.getElementById('progress-modal').style.display = 'block';
+            
             // Fetch the maximum progress value
             fetch('/get_progress_max')
                 .then(response => response.json())
@@ -196,6 +200,7 @@ document.getElementById('start-sim-btn').addEventListener('click', function() {
                                 
                                 if (progressPercent >= 100) {
                                     clearInterval(progressInterval);
+                                    document.getElementById('progress-modal').style.display = 'none'; // Hide the progress bar modal
                                     const completedModal = new bootstrap.Modal(document.getElementById('simulationCompletedModal'), {
                                         keyboard: false
                                     });
