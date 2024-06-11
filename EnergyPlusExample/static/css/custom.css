@@ -2,9 +2,11 @@ body {
   background-color: #f8f9fa;
 }
 
-.sidebar, .card-custom {
+.sidebar {
   background-color: #343a40;
   color: white;
+  width: 280px; /* Fixed width for sidebar */
+  flex-shrink: 0; /* Ensure sidebar does not shrink */
 }
 
 .sidebar .nav-link {
@@ -58,6 +60,7 @@ body {
 
 .main-content {
   height: 100vh;
+  flex-grow: 1; /* Ensure main content grows to fill remaining space */
 }
 
 .card {
@@ -110,7 +113,7 @@ body {
   display: none;
   position: fixed;
   bottom: 0;
-  left: 280px;
+  left: 280px; /* Same as the sidebar width */
   width: calc(100% - 280px);
   z-index: 1050;
 }
