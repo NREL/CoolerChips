@@ -53,17 +53,17 @@ body {
   display: flex;
   justify-content: center;
   align-items: start;
-  width: 100%; /* Full width */
+  width: 100%;
 }
 
 .main-content {
-  height: 100vh; /* Full screen height */
+  height: 100vh;
 }
 
 .card {
   position: relative;
-  width: 20vw; /* 20% of the viewport width */
-  height: 20vh; /* 20% of the viewport height */
+  width: 20vw;
+  height: 20vh;
   background-size: cover;
   background-position: center;
   color: white;
@@ -103,16 +103,16 @@ body {
 }
 
 .logo-container img {
-  height: 100px; /* Larger size for logos */
+  height: 100px;
 }
 
 .progress-modal {
-  display: none; /* Initially hide the progress bar modal */
+  display: none;
   position: fixed;
   bottom: 0;
-  left: 280px; /* Same as the sidebar width */
-  width: calc(100% - 280px); /* Adjust width to not overlap the sidebar */
-  z-index: 1050; /* Same as Bootstrap's modal z-index */
+  left: 280px;
+  width: calc(100% - 280px);
+  z-index: 1050;
 }
 .progress-bar-container {
   background-color: rgba(0, 0, 0, 0.75);
@@ -123,4 +123,3 @@ body {
   color: white;
   margin-bottom: 5px;
 }
-
