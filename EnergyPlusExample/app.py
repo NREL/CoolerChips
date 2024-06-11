@@ -28,7 +28,7 @@ location_to_url = {
 }
 
 # Define the max value for the progress bar
-progress_max = definitions.TOTAL_SECONDS  # Example max value; this can be any float
+progress_max = definitions.TOTAL_SECONDS - definitions.TIMESTEP_PERIOD_SECONDS  # First time step is skipped
 
 progress = 0
 progress_lock = Lock()
