@@ -32,11 +32,15 @@
       <h2>Simulation</h2>
       <p>Take control of your simulation here. Check if a simulation is already running. If not, start your simulation with the settings defined in simulation setup.</p>
       <div>
-        <p>Status: <span id="simulation-status">Ready</span></p>
-        <div class="progress mb-4" style="height: 30px;">
+        <p>Status: <span id="simulation-status">Ready</span>
+          <div class="spinner-border" role="status" id="status-spinner" style="display: none; margin-left: 10px;">
+            <span class="sr-only"></span>
+          </div>
+        </p>
+        <div class="progress mb-4" style="height: 30px; display: none;">
           <div class="progress-bar" id="simulation-progress-bar" role="progressbar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="{{ total_seconds }}">0%</div>
         </div>
-        <button class="btn btn-maroon" id="start-simulation-btn" onclick="startSimulation()">Start Simulation</button>
+        <button class="btn btn-maroon" id="start-simulation-btn" onclick="startSimulation()" disabled>Start Simulation</button>
       </div>
     </div>
   </main>
@@ -46,12 +50,16 @@
 <script>
 let isSimulationRunning = false;
 const totalSeconds = {{ total_seconds }};
+let previousProgress = 0;
+let noProgressCount = 0;
+const maxNoProgressCount = 60; // Check for progress every second, so 60 seconds
 
 function startSimulation() {
   if (isSimulationRunning) return;
   isSimulationRunning = true;
   
   document.getElementById('simulation-status').innerText = 'Running';
+  document.getElementById('status-spinner').style.display = 'none';
   document.getElementById('start-simulation-btn').disabled = true;
 
   fetch('/start_simulation', {
@@ -73,6 +81,7 @@ function startSimulation() {
       isSimulationRunning = false;
     } else {
       document.getElementById('simulation-status').innerText = 'Running';
+      document.getElementById('status-spinner').style.display = 'none';
       document.getElementById('start-simulation-btn').disabled = true;
       
       // Start progress bar updates
@@ -90,6 +99,7 @@ function startSimulation() {
 function updateProgress() {
   const progressBar = document.getElementById('simulation-progress-bar');
   const statusElement = document.getElementById('simulation-status');
+  const statusSpinner = document.getElementById('status-spinner');
   
   fetch('/get_progress')
     .then(response => response.json())
@@ -101,19 +111,86 @@ function updateProgress() {
 
       if (progress >= 100) {
         statusElement.innerText = 'Completed';
+        statusSpinner.style.display = 'none';
         document.getElementById('start-simulation-btn').disabled = false;
         isSimulationRunning = false;
+      } else if (progress === previousProgress) {
+        noProgressCount++;
+        statusElement.style.display = 'none';
+        statusSpinner.style.display = 'inline-block';
+        if (noProgressCount >= maxNoProgressCount) {
+          statusElement.innerText = 'Stopped';
+          statusElement.style.display = 'inline';
+          statusSpinner.style.display = 'none';
+          document.getElementById('start-simulation-btn').disabled = false;
+          isSimulationRunning = false;
+          return;
+        }
       } else {
-        setTimeout(updateProgress, 1000); // Update every second
+        previousProgress = progress;
+        noProgressCount = 0;
+        statusElement.innerText = 'Running';
+        statusElement.style.display = 'inline';
+        statusSpinner.style.display = 'none';
       }
+
+      setTimeout(updateProgress, 1000); // Update every second
     })
     .catch(error => {
       console.error('Error:', error);
       statusElement.innerText = 'Stopped';
+      statusSpinner.style.display = 'none';
       document.getElementById('start-simulation-btn').disabled = false;
       isSimulationRunning = false;
     });
 }
+
+function checkIfRunning() {
+  const statusElement = document.getElementById('simulation-status');
+  const statusSpinner = document.getElementById('status-spinner');
+  const progressBar = document.getElementById('simulation-progress-bar');
+  const progressContainer = document.querySelector('.progress');
+  const startButton = document.getElementById('start-simulation-btn');
+
+  fetch('/get_progress')
+    .then(response => response.json())
+    .then(data => {
+      const progress = data.progress / totalSeconds * 100;
+      if (progress > 0 && progress < 100) {
+        isSimulationRunning = true;
+        statusElement.innerText = 'Running';
+        statusElement.style.display = 'inline';
+        statusSpinner.style.display = 'none';
+        startButton.disabled = true;
+        progressBar.style.width = progress + '%';
+        progressBar.setAttribute('aria-valuenow', progress);
+        progressBar.textContent = progress.toFixed(1) + '%';
+        updateProgress();
+      } else {
+        statusElement.innerText = 'Ready';
+        statusElement.style.display = 'inline';
+        statusSpinner.style.display = 'none';
+        startButton.disabled = false;
+        progressBar.style.width = progress + '%';
+        progressBar.setAttribute('aria-valuenow', progress);
+        progressBar.textContent = progress.toFixed(1) + '%';
+      }
+    })
+    .catch(error => {
+      console.error('Error:', error);
+      statusElement.innerText = 'Error';
+      statusElement.style.display = 'inline';
+      statusSpinner.style.display = 'none';
+    })
+    .finally(() => {
+      statusSpinner.style.display = 'none';
+      progressContainer.style.display = 'block';
+    });
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  checkIfRunning();
+});
 </script>
 </body>
 </html>
