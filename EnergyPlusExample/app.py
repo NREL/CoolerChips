@@ -104,7 +104,7 @@ def home():
 
 @app.route('/simulation')
 def simulation():
-    return render_template('simulation.html')
+    return render_template('simulation.html', total_seconds=definitions.TOTAL_SECONDS)
 
 @app.route('/simulation-setup')
 def simulation_setup():
