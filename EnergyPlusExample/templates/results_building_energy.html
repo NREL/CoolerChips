@@ -47,8 +47,8 @@
           </select>
         </div>
       </div>
-      <div id="plotly-div" style="height: 600px;"></div>
     </div>
+    <div id="plotly-div"></div>
   </main>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
@@ -116,6 +116,11 @@ document.addEventListener("DOMContentLoaded", function() {
         const rightVariable = this.value;
         const leftVariable = document.getElementById('left-variable').value;
         fetchPlot(leftVariable, rightVariable);
+    });
+
+    // Adjust plot size on window resize
+    window.addEventListener('resize', function() {
+        Plotly.Plots.resize(document.getElementById('plotly-div'));
     });
 });
 </script>

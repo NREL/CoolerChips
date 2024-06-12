@@ -172,23 +172,25 @@ def get_building_energy_results():
             return jsonify({'status': 'Error', 'message': 'Variable not found'}), 400
         
         # Generate the Plotly plot for the selected variables
-        fig = px.line(results, x=results.index, y=left_variable, title=f"{left_variable} vs {right_variable}", color_discrete_sequence=['firebrick'])
-        
-        # Add the right y-axis
-        fig.add_trace(
-            px.line(results, x=results.index, y=right_variable).data[0]
-        )
-        fig.data[-1].update(yaxis='y2')
+        fig = px.line(results, x=results.index, y=left_variable, title=f"{left_variable} vs {right_variable}", color_discrete_sequence=['firebrick'], labels={left_variable: left_variable})
 
-        # Customize the layout to include a secondary y-axis
+        # Add the right y-axis
+        right_trace = px.line(results, x=results.index, y=right_variable, labels={right_variable: right_variable}).data[0]
+        right_trace.update(yaxis='y2', name=right_variable)
+        fig.add_trace(right_trace)
+
+        # Customize the layout to include a secondary y-axis, a legend, and a white background
         fig.update_layout(
+            yaxis=dict(
+                title=left_variable
+            ),
             yaxis2=dict(
                 title=right_variable,
                 overlaying='y',
                 side='right'
             ),
             xaxis=dict(
-                tickformat='%m-%d'
+                tickformat='%m-%d %H:%M'
             ),
             legend=dict(
                 title='Variables',
@@ -197,7 +199,10 @@ def get_building_energy_results():
                 y=1.02,
                 xanchor='right',
                 x=1
-            )
+            ),
+            showlegend=True,
+            plot_bgcolor='white',  # Set plot background color to white
+            paper_bgcolor='white'  # Set the paper background color to white
         )
         
         # Serialize the Plotly figure

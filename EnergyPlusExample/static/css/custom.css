@@ -71,8 +71,15 @@ html {
 .main-content {
   flex-grow: 1; 
   height: 100vh;
-  width: 100%; 
+  display: flex;
+  flex-direction: column;
   overflow-y: auto; 
+}
+
+#plotly-div {
+  flex-grow: 1;
+  padding-top: 3px; /* Add 3px padding on top */
+  background-color: white; /* Ensure background is white */
 }
 
 .progress {
@@ -133,11 +140,13 @@ html {
   width: calc(100% - 280px);
   z-index: 1050;
 }
+
 .progress-bar-container {
   background-color: rgba(0, 0, 0, 0.75);
   padding: 10px;
   border-radius: 5px;
 }
+
 .progress-title {
   color: white;
   margin-bottom: 5px;
