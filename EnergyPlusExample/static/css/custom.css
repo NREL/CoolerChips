@@ -12,8 +12,8 @@ html {
 .sidebar {
   background-color: #343a40;
   color: white;
-  width: 280px; /* Fixed width for sidebar */
-  flex-shrink: 0; /* Ensure sidebar does not shrink */
+  width: 280px; 
+  flex-shrink: 0; 
   display: flex;
   flex-direction: column;
   height: 100vh;
@@ -25,7 +25,7 @@ html {
 }
 
 .sidebar .nav-link.active {
-  background-color: #495057;
+  background-color: maroon; 
 }
 
 .sidebar .nav-link:hover {
@@ -69,7 +69,11 @@ html {
 }
 
 .main-content {
-  flex-grow: 1; /* Ensure main content grows to fill remaining space */
+  flex-grow: 1; 
+}
+
+.progress {
+  width: 100%; 
 }
 
 .card {
@@ -122,7 +126,7 @@ html {
   display: none;
   position: fixed;
   bottom: 0;
-  left: 280px; /* Same as the sidebar width */
+  left: 280px; 
   width: calc(100% - 280px);
   z-index: 1050;
 }
