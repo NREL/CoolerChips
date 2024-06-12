@@ -1,4 +1,5 @@
-FROM --platform=linux/x86_64 ubuntu:22.04
+# Use the nvidia/opengl image as base image (For paraview/trame dependencies)
+FROM --platform=linux/x86_64 nvidia/opengl:1.2-glvnd-runtime-ubuntu22.04 
 
 ARG DEBIAN_FRONTEND=noninteractive
 
@@ -26,9 +27,6 @@ RUN wget -O ParaView-5.12.0-egl-MPI-Linux-Python3.10-x86_64.tar.gz "https://www.
     && tar -xzf ParaView-5.12.0-egl-MPI-Linux-Python3.10-x86_64.tar.gz \
     && mv ParaView-5.12.0-egl-MPI-Linux-Python3.10-x86_64 Paraview
 
-# Install Paraview dependencies
-RUN apt-get install ffmpeg libsm6 libxext6 libxcb-icccm4 libxcb-image0 libxcb-keysyms1 libxcb-render-util0 libxcb-xinerama0 libxcb-xinput0 libxcb-xfixes0 libxkbcommon-x11-0 libopengl0 libgl1-mesa-glx libegl1 -y
-
 # Copy requirements.txt to the docker image
 COPY requirements.txt /app/requirements.txt
 
@@ -36,6 +34,15 @@ COPY requirements.txt /app/requirements.txt
 RUN pip install --no-cache-dir -r /app/requirements.txt
 
 RUN apt update -y && apt install -y libosmesa6-dev
+
+# Install Paraview/Trame dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+        pkg-config \
+        libglvnd-dev \
+        libgl1-mesa-dev \
+        libegl1-mesa-dev \
+        libgles2-mesa-dev && \
+    rm -rf /var/lib/apt/lists/*
 
 # Create symbolic link for EnergyPlus
 RUN ln -s /EnergyPlus/energyplus /usr/local/bin/energyplus
