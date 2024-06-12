@@ -29,27 +29,9 @@
       </li>
     </ul>
     <hr>
-    <table class="table table-dark table-striped">
-      <thead>
-        <tr>
-          <th scope="col">Attribute</th>
-          <th scope="col">Value</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td>Location</td>
-          <td id="selected-location">{{ epw_location or 'None' }}</td>
-        </tr>
-        <tr>
-          <td>Climate Type</td>
-          <td id="selected-climate">None</td>
-        </tr>
-      </tbody>
-    </table>
   </div>
   <main class="flex-fill p-0 main-content">
-    <div class="pt-3 pb-2 mb-3 container">
+    <div class="pt-3 pb-2 container">
       <h2>Simulation Results</h2>
       <div class="card-container">
         <div class="card" style="background-image: url('{{ url_for('static', filename='images/card_backgrounds/server_visualization.jpg') }}');">
