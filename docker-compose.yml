@@ -10,6 +10,7 @@ services:
     volumes:
       - /tmp/.X11-unix:/tmp/.X11-unix
       - ./MOSTCOOL:/app
+# Uncomment for gpu options!      
   # main-gpu:
   #   build: MOSTCOOL
   #   ports:

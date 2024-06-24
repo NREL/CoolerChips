@@ -482,7 +482,7 @@ def load_data(**kwargs):
 
         with layout.content:
             with vuetify.VContainer(fluid=True, classes="pa-0 fill-height"):
-                html_view = paraview.VtkRemoteView(renderView1)
+                html_view = paraview.VtkLocalView(renderView1)
                 ctrl.view_reset_camera = html_view.reset_camera
                 ctrl.view_update = html_view.update
 
