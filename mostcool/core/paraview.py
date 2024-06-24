@@ -24,7 +24,7 @@ solution_path = "/app/ThermalModel_datacenter/PythonPOD_Solid.cgns"  # Update wi
 paraview_path = "/Paraview/bin/paraview"  # Ensure this matches your ParaView installation path
 
 
-# This fucntion "build_and_scale_rbf_models" has to be run once to run the online_prediction function multiple time inside Helics
+# This function "build_and_scale_rbf_models" has to be run once to run the online_prediction function multiple time inside Helics
 def build_and_scale_rbf_models(kernel_function='multiquadric'):
     """
     Build RBF models for each coefficient dimension with parameter and coefficient scaling.
