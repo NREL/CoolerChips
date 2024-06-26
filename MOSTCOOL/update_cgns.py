@@ -88,10 +88,11 @@ def predict_temperature(velocity, CPU_load_fraction=0.73, inlet_server_temperatu
     - adjusted_predicted_state: 2D array of the predicted system state for the new parameters,
                                 adjusted for the inlet temperature deviation.
     """
-    
+    print("Reading modes.csv")
     #----------------------------------Need to be excuted only once---------------------------
     modes = np.loadtxt('/app/ThermalModel_datacenter/modes.csv', delimiter=',')
     #-----------------------------------------------------------------------------------------
+    print("Finished reading modes.csv")
     # Create a 2D array from the input parameters
     new_parameters = np.array([[velocity, CPU_load_fraction]])
     
@@ -125,11 +126,11 @@ def predict_temperature(velocity, CPU_load_fraction=0.73, inlet_server_temperatu
         return
     
     # Launch ParaView to view the updated file.
-    try:
-        command = [paraview_path, solution_path]
-        subprocess.Popen(command)
-    except Exception as e:
-        print(f"Failed to launch ParaView: {e}")
+    # try:
+    #     command = [paraview_path, solution_path]
+    #     subprocess.Popen(command)
+    # except Exception as e:
+    #     print(f"Failed to launch ParaView: {e}")
 
 if __name__ == '__main__':
  
