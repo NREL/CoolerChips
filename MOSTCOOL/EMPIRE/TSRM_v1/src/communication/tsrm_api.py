@@ -13,6 +13,7 @@ the parapower simulation using ParaPowerPythonAPI and ReliabilityCalc.
 
 import os
 import shutil
+import argparse
 import json
 from src.utils.simData_util import SimData
 from src.communication.parapower_python_api import ParaPowerPythonApi
@@ -168,9 +169,30 @@ class TSRMApi:
         """
         self.ppa.stop_matlab_sim()
 
-def main():
+#---------------------------Use software from the commandline with JSON file / Use without GUI---------------------------#
+"""
+Run tsrm_api.py from the command line using:
+    > python -m src.communication.tsrm_api libs/gui_json_template/json_option_input_template.json
+
+Note: This requires you to be inside the TSRM_V1 directory first.
+"""
+
+def main(json_file_path):
+    # Normalize the file path to ensure compatibility with the OS
+    json_file_path = os.path.normpath(json_file_path)
+    
     api = TSRMApi()
-    return api.gen_and_run_sim(user_file_path='C:/Users/tyler/OneDrive - University of Arkansas/Desktop/UARK/Research-Spring-2024/TSRM_v1/libs/gui_json_template/json_option_input_template.json')
+    result = api.gen_and_run_sim(user_file_path=json_file_path)
+    
+    if result:
+        print(f"Simulation completed successfully. Reliability calculations output path: {result}")
+    else:
+        print("Simulation failed.")
 
 if __name__ == "__main__":
-    main()
+    parser = argparse.ArgumentParser(description='Run thermal stack reliability simulation using a JSON file.')
+    parser.add_argument('json_file_path', type=str, help='Path to the JSON file')
+    
+    args = parser.parse_args()
+    
+    main(args.json_file_path)
