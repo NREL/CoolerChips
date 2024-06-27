@@ -47,6 +47,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 # Create symbolic link for EnergyPlus
 RUN ln -s /EnergyPlus/energyplus /usr/local/bin/energyplus
 
+# Paraview env variable
+ARG TRAME_DEFAULT_HOST=127.0.0.1
+
 # Set working directory
 WORKDIR /app
 
