@@ -83,4 +83,3 @@ class SimData:
         output_file_name = f"{prefix}_{timestamp}.json"
         # Modified return
         return os.path.normpath(os.path.join(results_dir, output_file_name))
-        return os.path.join(results_dir, output_file_name)
