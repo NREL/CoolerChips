@@ -140,5 +140,6 @@ if __name__ == "__main__":
     # For direct execution, use default input paths
     simdata = SimData()
     rel = ReliabilityCalc()
-    default_parapower_results_path = os.path.join(simdata.find_base_dir('TSRM_v1'), 'path_to_parapower_results_json_file.json')
+    #Modified default_parapower_results_path
+    default_parapower_results_path = os.path.normpath(os.path.join(simdata.find_base_dir('TSRM_v1'), 'path_to_parapower_results_json_file.json'))
     rel.generate_calculation(default_parapower_results_path)

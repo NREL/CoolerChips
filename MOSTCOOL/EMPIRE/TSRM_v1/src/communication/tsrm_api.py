@@ -67,9 +67,12 @@ class TSRMApi:
         """
         file_mapping, template_dir = self.get_dynamic_file_mapping()
         
-        template_path = os.path.join(template_dir, file_mapping[(cooling_type, processor_type)])
-        
-        input_file_path = self.simdata.create_input_path("TSRM_v1", "therm_mech_inputs", "parapower_config")
+        # Modified template_path
+        template_path = os.path.normpath(os.path.join(template_dir, file_mapping[(cooling_type, processor_type)]))
+
+        # Modified input_file_path
+        input_file_path = os.path.normpath(self.simdata.create_input_path("TSRM_v1", "therm_mech_inputs", "parapower_config"))
+
         shutil.copyfile(template_path, input_file_path)
 
         with open(input_file_path, 'r') as json_file:
@@ -132,7 +135,8 @@ class TSRMApi:
             string: Path directory to the input template json file
         """
         base_directory = self.simdata.find_base_dir("TSRM_v1")
-        template_dir = os.path.join(base_directory, "libs", "thermal-stack-config")
+        # Modified template_dir
+        template_dir = os.path.normpath(os.path.join(base_directory, "libs", "thermal-stack-config"))
         
         file_mapping = {}
         for filename in os.listdir(template_dir):
@@ -167,7 +171,7 @@ class TSRMApi:
         """
         Stops the matlab simulation by terminating the subprocess.
         """
-        self.ppa.stop_matlab_sim()
+        return self.ppa.stop_matlab_sim()
 
 #---------------------------Use software from the commandline with JSON file / Use without GUI---------------------------#
 """

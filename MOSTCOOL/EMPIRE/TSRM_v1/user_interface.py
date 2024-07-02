@@ -94,7 +94,7 @@ class TSRMApiWrapper:
         Calls the TSRM API function to quit the matlab engine and stop the simulation
         """ 
         try:
-            self.api.stop_simulation()
+            return self.api.stop_simulation()
         except Exception as e:
             print(f"Error occurred in stop_simulation: {e}")
 
@@ -375,10 +375,10 @@ class UserInterface:
         Updates the user interface and status label while calling the api wrapper function
         to stop the matlab engine
         """
-        self.wrapper.stop_simulation()
-        self.progress_bar.stop()
-        self.progress_bar.grid_forget()
-        self.status_label.config(text="Simulation stopped before completion")
+        if self.wrapper.stop_simulation():
+            self.progress_bar.stop()
+            self.progress_bar.grid_forget()
+            self.status_label.config(text="Simulation stopped before completion")
 
     def save_result_file(self, result_output_path):
         """

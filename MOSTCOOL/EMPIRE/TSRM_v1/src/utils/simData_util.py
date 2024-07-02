@@ -39,7 +39,8 @@ class SimData:
             if parent_directory == script_directory:  # reached the root directory
                 raise FileNotFoundError(f"'{target_dir}' directory not found in the path hierarchy.")
             script_directory = parent_directory
-        return os.path.join(script_directory, target_dir)
+        # Modified return
+        return os.path.normpath(os.path.join(script_directory, target_dir))
 
     def create_input_path(self, target_dir, input_type, prefix):
         """
@@ -55,10 +56,12 @@ class SimData:
             string: Path of generated input JSON file
         """
         base_directory = self.find_base_dir(target_dir)
-        results_dir = os.path.join(base_directory, "simData", "inputs", input_type)
+        # Modified results_dir
+        results_dir = os.path.normpath(os.path.join(base_directory, "simData", "inputs", input_type))
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         input_file_name = f"{prefix}_{timestamp}.json"
-        return os.path.join(results_dir, input_file_name)
+        # Modified return
+        return os.path.normpath(os.path.join(results_dir, input_file_name))
 
     def create_output_path(self, target_dir, output_type, prefix):
         """
@@ -74,7 +77,10 @@ class SimData:
             string: Path of the generated output JSON file
         """
         base_directory = self.find_base_dir(target_dir)
-        results_dir = os.path.join(base_directory, "simData", "results", output_type)
+        # Modified results_dir
+        results_dir = os.path.normpath(os.path.join(base_directory, "simData", "results", output_type))
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         output_file_name = f"{prefix}_{timestamp}.json"
+        # Modified return
+        return os.path.normpath(os.path.join(results_dir, output_file_name))
         return os.path.join(results_dir, output_file_name)

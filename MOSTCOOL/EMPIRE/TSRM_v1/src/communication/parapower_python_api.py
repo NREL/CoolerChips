@@ -14,6 +14,7 @@ returning the path to the resulting output file.
 
 import os
 import subprocess
+import logging
 from src.utils.simData_util import SimData
 
 class ParaPowerPythonApi:
@@ -40,22 +41,38 @@ class ParaPowerPythonApi:
             base_dir = self.simdata.find_base_dir('TSRM_v1')
             
             # Path to the directory containing the compiled MATLAB executable
-            compiled_dir = os.path.join(base_dir, "src", "therm_mech", "TSRM_ParaPower")
-            
+            # Modified compiled_dir
+            compiled_dir = os.path.normpath(os.path.join(base_dir, "src", "therm_mech", "TSRM_ParaPower"))
+
             # Path to the compiled MATLAB executable
-            matlab_executable = os.path.join(compiled_dir, "parapower_matlab_api.exe")
+            # Modified matlab_executable
+            matlab_executable = os.path.normpath(os.path.join(compiled_dir, "parapower_matlab_api.exe"))
 
             # Call the compiled MATLAB executable
-            subprocess.run([matlab_executable, input_file_path, output_file_path, compiled_dir], check=True)
+            logging.info("Starting subprocess...")
+            self.process = subprocess.Popen([matlab_executable, input_file_path, output_file_path, compiled_dir])
+            self.process.wait()
         
         except subprocess.CalledProcessError as e:
             print(f"Simulation was stopped. Error: {e}")
         
         return output_file_path
+    
+    def stop_matlab_sim(self):
+        if self.process:
+            self.process.terminate()
+            self.process.wait()
+            self.process = None
+            logging.info("Subprocess terminated.")
+            return True
+        else:
+            logging.warning("No subprocess to terminate")
+            return False
 
 def main():
     parapower = ParaPowerPythonApi()
-    input_file_path = os.path.join(parapower.simdata.find_base_dir('TSRM_v1'), "libs", "thermal-stack-config", "AirCooled_NVIDIA_H100_GPU.json")
+    # Modified input_file_path
+    input_file_path = os.path.normpath(os.path.join(parapower.simdata.find_base_dir('TSRM_v1'), "libs", "thermal-stack-config", "AirCooled_NVIDIA_H100_GPU.json"))
     parapower.run_matlab_sim(input_file_path)
 
 if __name__ == "__main__":
