@@ -1,0 +1,15 @@
+[
+  {
+    "feature": "AMD_EPYC_Embedded_9004_Series_CPU", "time": [0, 0], "temperature": [0, 1.2050875103719922E+12], "stress": []
+  }, {
+    "feature": "FR_4_Substrate", "time": [0, 0], "temperature": [0, 1.2050875103721479E+12], "stress": []
+  }, {
+    "feature": "GAPPad_HC_5_0_TIM", "time": [0, 0], "temperature": [0, 1.2050875103719863E+12], "stress": []
+  }, {
+    "feature": "HeatSpreader_IHS_Copper", "time": [0, 0], "temperature": [0, 1.2050875103719668E+12], "stress": []
+  }, {
+    "feature": "TIM_Therm_A_Gap_Gel_T635", "time": [0, 0], "temperature": [0, 1.2050875103719758E+12], "stress": []
+  }, {
+    "feature": "HeatSink_Aluminum", "time": [0, 0], "temperature": [0, 1.2050875103720005E+12], "stress": []
+  }
+]

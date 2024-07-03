@@ -1,0 +1,35 @@
+[
+    {
+        "Feature": "AMD_EPYC_Embedded_9004_Series_CPU",
+        "Temperature": 1205087510371.9922,
+        "Reliability (mean time to failure)": [
+            "Final Failure rate \u03bb: 155824906092 FITs",
+            "[MTTF Calculation] MTTF: 6.4175e-03 hours @ 95% CL"
+        ],
+        "Processed by": "Processor Reliability Calculator"
+    },
+    {
+        "Feature": "GAPPad_HC_5_0_TIM",
+        "Temperature": 1205087510371.9863,
+        "Reliability (mean time to failure)": "No thermal interface material reliability available for TSRM.v1",
+        "Processed by": "Thermal Interface Material (TIM) Reliability Calculator"
+    },
+    {
+        "Feature": "HeatSpreader_IHS_Copper",
+        "Temperature": 1205087510371.9668,
+        "Reliability (mean time to failure)": "No heat spreader reliability available for TSRM.v1",
+        "Processed by": "Heat Spreader Reliability Calculator"
+    },
+    {
+        "Feature": "TIM_Therm_A_Gap_Gel_T635",
+        "Temperature": 1205087510371.9758,
+        "Reliability (mean time to failure)": "No thermal interface material reliability available for TSRM.v1",
+        "Processed by": "Thermal Interface Material (TIM) Reliability Calculator"
+    },
+    {
+        "Feature": "HeatSink_Aluminum",
+        "Temperature": 1205087510372.0005,
+        "Reliability (mean time to failure)": "No heat sink reliability available for TSRM.v1",
+        "Processed by": "Heat Sink Reliability Calculator"
+    }
+]
