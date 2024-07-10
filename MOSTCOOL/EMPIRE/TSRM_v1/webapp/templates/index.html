@@ -1,0 +1,174 @@
+<html>
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>TSRM Web App</title>
+	<link rel="stylesheet" href="{{ url_for('static', filename='style.css')}}">
+</head>
+<body>
+    <header>
+	    <h1>Thermal Stack Reliability Module</h1>
+    </header>
+    <div class="container">
+        <form action="{{ url_for('run_simulation') }}" method="post" enctype="multipart/form-data" id="simulationForm">
+            <div>
+                <h3>Options to Provide Inputs</h2>
+                <input type="radio" name="input_option" value="file" id="input_file" checked>
+                <label for="input_file">Import JSON File</label><br>
+                <div id="user_inputs">
+                    <input type="file" name="input_file"><br>
+                </div>
+                <input type="radio" name="input_option" value="manual" id="manual_input">
+                <label for="manual_input">Manually Input Values</label><br>
+            </div>
+
+            <div id="manual_inputs" style="display:none;">
+                <h3>Cooling System Parameters (Environmental Conditions)</h3>
+                <label for="cooling_method">Cooling Method:</label>
+                <select name="cooling_method" id="cooling_method">
+                    {% for cooling in cooling_types %}
+                    <option value="LiquidCooled">{{ cooling }}</option>
+                    {% endfor %}
+                </select><br>
+                <label for="heat_transfer_coefficient">Heat Transfer Coefficient (W/m²·K):</label>
+                <input type="number" name="heat_transfer_coefficient" value=0><br>
+                <label for="ambient_temperature">Ambient Temperature (°C):</label>
+                <input type="number" name="ambient_temperature" value=0><br>
+
+                <h3>Processor Conditions</h3>
+                <label for="processor_type">Processor Type:</label>
+                <select name="processor_type" id="processor_type">
+                    {% for processor in processor_types %}
+                    <option value="{{ processor }}">{{ processor }}</option>
+                    {% endfor %}
+                </select><br>
+                <label for="processor_temperature">Processing Temperature (°C):</label>
+                <input type="number" name="processor_temperature" value=0><br>
+                <label for="initial_temperature">Initial Temperature (°C):</label>
+                <input type="number" name="initial_temperature" value=0><br>
+            </div>
+            <div id="simulation-button-container">
+                <button type="submit" id="run-simulation-button">Run Simulation</button>
+                <button type="button" id="stop-simulation-button" onclick=stopSimulation() disabled>Stop Simulation</button>
+            </div>
+        </form>
+        <div id="progress-container">
+            <div class="status-label" id="status-label">Ready to start simulation.</div>
+            <progress id="progress-bar" style="display:none;"></progress>
+        </div>
+
+        <div id="results-container" style="display:none;">
+            <h3>Results Handling</h3>
+            <button id="save-result" class="btn btn-secondary" onclick=downloadFile() disabled>Save Results</button>
+            <button id="view-result" class="btn btn-secondary" onclick=showResults()>View Results</button>
+        </div>
+        <div id="view-results-container" style="display:none;">
+            <p id="display-results"></p>
+        </div>
+
+    </div>
+    <footer>
+        <p>© 2024 Thermal Stack Reliability Module. All rights reserved.</p>
+    </footer>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.js"
+          integrity="sha256-QWo7LDvxbWT2tbbQ97B53yJnYU3WhH/C8ycbRAkjPDc="
+          crossorigin="anonymous"></script>
+    <script type="text/javascript">
+        $(document).on('submit','#simulationForm',function(e){
+            let formData = new FormData(this);            
+            e.preventDefault();
+
+            $("#status-label").text("Running simulation, please wait...");
+            $("#save-result").prop('disabled', true);
+            $("#view-result").prop('disabled', true);
+            $("#stop-simulation-button").prop('disabled', false);
+            $("#run-simulation-button").prop('disabled', true);
+            $('#progress-bar').show();
+            $('#view-results-container').hide();
+            $.ajax({
+                type:'POST',
+                url:"{{ url_for('run_simulation') }}",
+                data: formData,
+                processData: false,
+                contentType: false,
+                success:function(response) {
+                    $("#status-label").text("Simulation completed!")
+                    $("#results-container").show();
+                    $("#progress-bar").hide();
+                    $("#save-result").prop('disabled', false);
+                    $("#view-result").prop('disabled', false);
+                    $("#stop-simulation-button").prop('disabled', true);
+                    $("#run-simulation-button").prop('disabled', false);
+                },
+                error: function(xhr, status, error) {
+
+                }
+            })
+        });
+
+        function downloadFile() {
+            let xhttp = new XMLHttpRequest();
+            xhttp.onreadystatechange = function() {
+                if (xhttp.status === 200 && xhttp.readyState === 4) {
+                let blob = new Blob([xhttp.response], { type: "text/plain" });
+                let url = window.URL.createObjectURL(blob);
+                let link = document.createElement("a");
+                link.href = url;
+                link.download = "output.json";
+                link.style.display = "none";
+                document.body.appendChild(link);
+                link.click();
+                window.URL.revokeObjectURL(url);
+                document.body.removeChild(link);
+                }
+            };
+            xhttp.open("POST", "/download_results", true);
+            xhttp.responseType = "blob";
+            xhttp.send();
+        }
+        
+        function showResults() {
+            $.ajax({
+                type:'GET',
+                url:"{{ url_for('view_results') }}",
+                success:function(response) {
+                    $("#view-results-container").show();
+                    $('#view-results-container').html('<pre>' + JSON.stringify(response, null, 2) + '</pre>');
+                },
+                error: function(xhr, status, error) {
+                    console.error('Error:', error);
+                    alert('Failed to retrieve results.');
+                }
+            })
+        }
+
+        function stopSimulation() {
+            $.ajax({
+                type: 'POST',
+                url: "{{ url_for('stop_simulation') }}",
+                success: function(response) {
+                    console.log('Success:', response);
+                    $("#status-label").text("Simulation has been stopped.")    
+                    $("#stop-simulation-button").prop('disabled', true);     
+                    $("#run-simulation-button").prop('disabled', false);      
+                    $('#progress-bar').hide();         
+                },
+                error: function(xhr, status, error) {
+                    console.error('Error:', error);
+                    alert('Failed to stop simulation.');
+                }
+            });
+        }
+
+        document.getElementById('manual_input').addEventListener('change', function() {
+            document.getElementById('manual_inputs').style.display = 'block';
+            document.getElementById('user_inputs').style.display = 'none';
+        });
+        document.getElementById('input_file').addEventListener('change', function() {
+            document.getElementById('manual_inputs').style.display = 'none';
+            document.getElementById('user_inputs').style.display = 'block';
+        });
+    </script>
+</body>
+</html>
