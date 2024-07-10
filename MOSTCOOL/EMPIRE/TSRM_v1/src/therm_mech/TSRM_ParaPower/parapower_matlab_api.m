@@ -5,29 +5,18 @@
 % Date: June 26, 2024*
 %
 
-function parapower_matlab_api(input_json_path, output_json_path, compiled_dir)
-    clearvars -except input_json_path output_json_path execution_dir compiled_dir
+function parapower_matlab_api(input_json_str, compiled_dir, output_file_path)
+    clearvars -except input_json_str compiled_dir output_file_path
     % Add the path to the TSRM_ParaPower folder
 
-    % baseDir = fullfile('C:\Users\n-stu\OneDrive - University of Arkansas\EMPIRE\3 - MOSTCOOL Project\TSRM_v1\src\therm_mech\TSRM_ParaPower');
     baseDir = compiled_dir;
-    % % Use ctfroot to handle paths correctly in deployed application
-    % root = ctfroot;
-    % relativePath = fullfile('TSRM_v1', 'src', 'therm_mech', 'TSRM_ParaPower');
-    % baseDir = fullfile(root, relativePath);
 
-    configFile = fileread(input_json_path);
-    config = jsondecode(configFile);
+    config = jsondecode(input_json_str);
 
-    addMaterials(input_json_path, baseDir);
-    TSRM = definePPTCM(input_json_path, baseDir);
+    addMaterials(config, baseDir);
+    TSRM = definePPTCM(config, baseDir);
 
     TSRM_MI = FormModel(TSRM);
-
-    % Visualize Original Model Before simulation
-    % figure;
-    % PlotTitle = 'TSRM Pre-Simulation';
-    % Visualize(PlotTitle, TSRM_MI, 'ShowQ');
     
     % Perform the specified type of analysis
     if strcmpi(config.analysis.type, 'thermal')
@@ -83,18 +72,21 @@ function parapower_matlab_api(input_json_path, output_json_path, compiled_dir)
     strResults = regexprep(strResults, '\[\s*([^\[\]]*?)\s*\]', '[$1]');
     strResults = regexprep(strResults, ',\s*\n\s*', ', ');
 
-    % Write the JSON to file
-    fid = fopen(output_json_path, 'w');
-    fwrite(fid, strResults, 'char');
+    % Write the JSON output to a file instead of displaying it
+    fid = fopen(output_file_path, 'w');
+    if fid == -1
+        error('Failed to open file for writing JSON output');
+    end
+    fprintf(fid, '%s', strResults);
     fclose(fid);
-    
-    % Define the path to the temporary material library file in the same folder as the original file
+
+    % Delete the temporary material file as before
     temporaryMaterialFile = fullfile(baseDir, 'TemporaryMaterials.mat');
-    % Delete the temporary file
     delete(temporaryMaterialFile);
+
 end
 
-function addMaterials(configFilePath, baseDir)
+function addMaterials(config, baseDir)
     %
     % Inputs:
     %           Material Types and Properties (units in parentheses):
@@ -130,15 +122,10 @@ function addMaterials(configFilePath, baseDir)
     
     % Load the temporary material library file
     load(temporaryMaterialFile, 'MatLib');
-
-    
-    % Read and decode the JSON configuration file.
-    configFile = fileread(configFilePath);
-    jsonData = jsondecode(configFile);
     
     % Ensure the "materials" key exists and extract material array.
-    if isfield(jsonData, 'materials')
-        materialsArray = jsonData.materials;
+    if isfield(config, 'materials')
+        materialsArray = config.materials;
     else
         error('The JSON file does not contain a "materials" key.');
     end
@@ -185,8 +172,8 @@ function addMaterials(configFilePath, baseDir)
         end
         
         % Debug statement to print the material properties
-        disp(['Adding material #' num2str(idx) ': ' materialConfig.name]);
-        disp(materialConfig);
+        %disp(['Adding material #' num2str(idx) ': ' materialConfig.name]);
+        %disp(materialConfig);
         
         % Create the material object based on its type and properties.
         switch materialType
@@ -211,7 +198,7 @@ function addMaterials(configFilePath, baseDir)
 
 end
 
-function model = definePPTCM(configFilePath, baseDir)
+function model = definePPTCM(config, baseDir)
     % Inputs:
     %           ExternalConditions: Defines the thermal interaction of the model with its environment.
     %                     - h_Xminus: Heat transfer coefficient on the negative X face (W/(m^2·K))
@@ -248,10 +235,6 @@ function model = definePPTCM(configFilePath, baseDir)
     % Load the teporary material library.
     load(temporaryMaterialFile, 'MatLib');
     
-    % Read and decode the JSON configuration file.
-    configFile = fileread(configFilePath);
-    configData = jsondecode(configFile);
-
     % Instantiate the PPTCM class.
     model = PPTCM();
     
@@ -259,13 +242,13 @@ function model = definePPTCM(configFilePath, baseDir)
     model.MatLib = MatLib;
 
     % PottingMaterial handling
-    if isfield(configData, 'PottingMaterial')
-        model.PottingMaterial = configData.PottingMaterial;
+    if isfield(config, 'PottingMaterial')
+        model.PottingMaterial = config.PottingMaterial;
     else
         model.PottingMaterial = 0; % If Material is 0, then the space is empty.
     end
 
-    % Dynamically assign properties from configData for ExternalConditions and Params
+    % Dynamically assign properties from config for ExternalConditions and Params
     configMaps = struct(...
                         'ExternalConditions', {{'h_Xminus', 'h_Xplus', 'h_Yminus', 'h_Yplus', 'h_Zminus', 'h_Zplus', ...
                                                'Ta_Xminus', 'Ta_Xplus', 'Ta_Yminus', 'Ta_Yplus', 'Ta_Zminus', 'Ta_Zplus', 'Tproc'}}, ...
@@ -276,26 +259,26 @@ function model = definePPTCM(configFilePath, baseDir)
     fieldNames = fieldnames(configMaps);
     for i = 1:length(fieldNames)
         fieldName = fieldNames{i};
-        if isfield(configData, fieldName) && ~strcmp(fieldName, 'Features')
+        if isfield(config, fieldName) && ~strcmp(fieldName, 'Features')
             props = configMaps.(fieldName);
             for j = 1:length(props)
                 prop = props{j};
-                if isfield(configData.(fieldName), prop)
-                    model.(fieldName).(prop) = configData.(fieldName).(prop);
+                if isfield(config.(fieldName), prop)
+                    model.(fieldName).(prop) = config.(fieldName).(prop);
                 end
             end
         end
     end
 
     % Handling multiple features from "features" key
-    if isfield(configData, 'features')
+    if isfield(config, 'features')
         % Direct assignment if featuresData is a structure array
-        model.Features = configData.features; % Assuming featuresData matches the expected structure array format for model.Features
+        model.Features = config.features; % Assuming featuresData matches the expected structure array format for model.Features
     else
         error('The JSON file does not contain a "features" key.');
     end
 
-    disp('PPTCM has been successfully defined and configured according to the JSON configuration.');
+    disp('PPTCM has been successfully defined and configured according to the specified configuration.');
 end
 
 function resobj = thermal_static(model)
