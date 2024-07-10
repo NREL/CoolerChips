@@ -266,10 +266,8 @@ class UserInterface:
         self.results_frame.grid(row=7, column=0, columnspan=3, padx=10, pady=10, sticky="ew")
         self.button_save_result = tk.Button(self.results_frame, text="Save Output File", state=tk.DISABLED)
         self.button_save_result.grid(row=0, column=0, padx=10, pady=10)
-        self.button_view_result = tk.Button(self.results_frame, text="View Result Location", state=tk.DISABLED)
-        self.button_view_result.grid(row=0, column=1, padx=10, pady=10)
         self.button_open_result = tk.Button(self.results_frame, text="Open Result", state=tk.DISABLED)
-        self.button_open_result.grid(row=0, column=2, padx=10, pady=10)
+        self.button_open_result.grid(row=0, column=1, padx=10, pady=10)
 
     def __handle_input_selection(self):
         """
@@ -294,19 +292,20 @@ class UserInterface:
         self.root.update_idletasks()
         self.root.geometry("")  # Adjust window size dynamically
 
-    def __handle_simulation_completion(self, simulation_output_path):
+    # Modified
+    def __handle_simulation_completion(self, simulation_output_json_str):
         """
-        Updates the UI upon simulation completion. It enables the buttons to save,
-        view, and open the result, and updates the status label. 
+        Updates the UI upon simulation completion. It enables the buttons to view,
+        save, and open the result JSON string, and updates the status label.
 
         Args:
-            simulation_output_path (string): Path of the simulation output
-        """    
-        if simulation_output_path:
-            self.label_selected_output.config(text=f"Input File Selected: {self.state.selected_input_path}")
-            self.button_save_result.config(state=tk.NORMAL, command=lambda: self.save_result_file(simulation_output_path))
-            self.button_view_result.config(state=tk.NORMAL, command=lambda: self.show_result_location(simulation_output_path))
-            self.button_open_result.config(state=tk.NORMAL, command=lambda: self.open_result_file(simulation_output_path))
+            simulation_output_json_str (string): JSON string of the simulation output
+        """
+        if simulation_output_json_str:
+            self.simulation_output_json_str = simulation_output_json_str
+            self.label_selected_output.config(text="Simulation completed successfully.")
+            self.button_save_result.config(state=tk.NORMAL, command=lambda: self.save_result_file())
+            self.button_open_result.config(state=tk.NORMAL, command=lambda: self.open_result_file())
             self.status_label.config(text="Simulation completed!")
             logging.info("Simulation completed!")
         else:
@@ -314,20 +313,21 @@ class UserInterface:
             logging.info("Simulation failed.")
         self.stop_simulation_button.config(state=tk.DISABLED)
 
+    # Modified
     def __run_simulation_thread(self):
         """
         Calls the API wrapper to run the simulation based on user input, either 
-        from a JSON file or manual input, and updates the UI upon completion
+        from a JSON file or manual input, and updates the UI upon completion.
 
         Args:
             input_option (IntVar): User's input method choice
         """
-        simulation_output_path = None
-        if self.input_option.get() == 1 and self.state.selected_input_path: # User-provided JSON file
-            simulation_output_path = self.wrapper.run_simulation(user_file_path=self.state.selected_input_path)
-        else: # Manual inputs
+        simulation_output_json_str = None
+        if self.input_option.get() == 1 and self.state.selected_input_path:  # User-provided JSON file
+            simulation_output_json_str = self.wrapper.run_simulation(user_file_path=self.state.selected_input_path)
+        else:  # Manual inputs
             try:
-                simulation_output_path = self.wrapper.run_simulation(
+                simulation_output_json_str = self.wrapper.run_simulation(
                     None,
                     self.method_variable.get(),
                     self.component_variable.get(),
@@ -341,7 +341,7 @@ class UserInterface:
                 logging.error(f"Simulation failed due to missing key: {e}")
         self.progress_bar.stop()
         self.progress_bar.grid_forget()
-        self.status_label.after(0, self.__handle_simulation_completion, simulation_output_path)
+        self.status_label.after(0, self.__handle_simulation_completion, simulation_output_json_str)
 
     def select_input_file(self):
         """
@@ -380,46 +380,34 @@ class UserInterface:
             self.progress_bar.grid_forget()
             self.status_label.config(text="Simulation stopped before completion")
 
-    def save_result_file(self, result_output_path):
+    # Modified
+    def save_result_file(self):
         """
         Saves the simulation result to a user-specified location. Opens a save
-        dialog and copies the result file to the chosen path
-
-        Args:
-            result_output_path (string): Path of the simulation results
+        dialog and writes the JSON string to the chosen path.
         """    
         file_path = filedialog.asksaveasfilename(title="Save Output File As", defaultextension=".json", filetypes=[("JSON files", "*.json")])
         if file_path:
-            shutil.copy(result_output_path, file_path)
+            with open(file_path, 'w') as file:
+                file.write(self.simulation_output_json_str)
             self.label_selected_output.config(text=f"Output file saved as: {file_path}")
             logging.info("File successfully saved!")
 
-    def show_result_location(self, result_file_path):
-        """
-        Displays the result file location in a message box.
 
-        Args:
-            result_file_path (string): Path of the simulation results
+    def open_result_file(self):
         """
-        messagebox.showinfo("File Location", f"Results are at: {result_file_path}")
-
-    def open_result_file(self, result_file_path):
-        """
-        Opens and displays the content of the result file in a new window.
-
-        Args:
-            result_file_path (string): Path of the simulation results.
+        Opens and displays the content of the result JSON string in a new window.
         """
         try:
-            with open(result_file_path, 'r') as result_file:
-                result_data = json.load(result_file)
-                self.result_window = tk.Toplevel(self.root)
-                self.result_window.title("Simulation Results")
-                tk.Label(self.result_window, text=json.dumps(result_data, indent=4), justify="left").pack(padx=10, pady=10)
-                logging.info("Successfully opened output data.")
+            result_data = json.loads(self.simulation_output_json_str)
+            self.result_window = tk.Toplevel(self.root)
+            self.result_window.title("Simulation Results")
+            tk.Label(self.result_window, text=json.dumps(result_data, indent=4), justify="left").pack(padx=10, pady=10)
+            logging.info("Successfully opened output data.")
         except Exception as e:
-            messagebox.showerror("Error", f"Failed to read the results file: {e}")
-            logging.error(f"Failed to read the results file: {e}")
+            messagebox.showerror("Error", f"Failed to read the results: {e}")
+            logging.error(f"Failed to read the results: {e}")
+
 
 
 def main():

@@ -3,7 +3,7 @@ Module: parapower_python_api.py
 Authors:
 - Najee Stubbs {nistubbs@uark.edu}, University of Arkansas, Mechanical Engineering Dept.
 - Tyler Kuper {tdkuper@uark.edu}, University of Arkansas, Computer Science Dept.
-Date: June 20, 2024
+Date: July 9, 2024
 
 Description:
 This module provides an interface to run ParaPower simulations using a compiled MATLAB executable.
@@ -15,6 +15,7 @@ returning the path to the resulting output file.
 import os
 import subprocess
 import logging
+import tempfile
 from src.utils.simData_util import SimData
 
 class ParaPowerPythonApi:
@@ -22,42 +23,49 @@ class ParaPowerPythonApi:
         self.simdata = SimData()
         self.process = None
 
-    def run_matlab_sim(self, input_file_path):
-        """
-        Runs the ParaPower simulation using the compiled MATLAB executable and returns the output
-        file path.
-
-        Args:
-            input_file_path (str): Path of the input JSON file for the simulation
-
-        Returns:
-            str: Path of the output results JSON file 
-        """
-        # Generate output file path
-        output_file_path = self.simdata.create_output_path("TSRM_v1", "therm_mech_results", "ParaPowerResults")
+    def run_matlab_sim(self, input_json_str):
         
-        try:
-            # Find the base directory for the TSRM_v1 project
-            base_dir = self.simdata.find_base_dir('TSRM_v1')
-            
-            # Path to the directory containing the compiled MATLAB executable
-            # Modified compiled_dir
-            compiled_dir = os.path.normpath(os.path.join(base_dir, "src", "therm_mech", "TSRM_ParaPower"))
+        # Find the base directory for the TSRM_v1 project
+        base_dir = self.simdata.find_base_dir('TSRM_v1')
 
-            # Path to the compiled MATLAB executable
-            # Modified matlab_executable
-            matlab_executable = os.path.normpath(os.path.join(compiled_dir, "parapower_matlab_api.exe"))
+        # Path to the directory containing the compiled MATLAB executable
+        compiled_dir = os.path.normpath(os.path.join(base_dir, "src", "therm_mech", "TSRM_ParaPower"))
 
-            # Call the compiled MATLAB executable
-            logging.info("Starting subprocess...")
-            self.process = subprocess.Popen([matlab_executable, input_file_path, output_file_path, compiled_dir])
-            self.process.wait()
-        
-        except subprocess.CalledProcessError as e:
-            print(f"Simulation was stopped. Error: {e}")
-        
-        return output_file_path
-    
+        # Path to the compiled MATLAB executable
+        matlab_executable = os.path.normpath(os.path.join(compiled_dir, "parapower_matlab_api.exe"))
+
+        # Create a temporary file to hold the JSON output
+        output_file = tempfile.NamedTemporaryFile(delete=False)
+        output_file_path = output_file.name
+        output_file.close()
+
+        # Call the compiled MATLAB executable with the JSON strings
+        logging.info("Starting subprocess...")
+        command = [matlab_executable, input_json_str, compiled_dir, output_file_path]
+        self.process = subprocess.Popen(command, stderr=subprocess.PIPE, text=True)
+        _, stderr = self.process.communicate()
+
+        logging.debug(f"MATLAB stderr: {stderr}")
+
+        if self.process.returncode != 0:
+            logging.error(f"MATLAB process failed with return code {self.process.returncode}")
+            os.remove(output_file_path)
+            raise subprocess.CalledProcessError(self.process.returncode, matlab_executable, stderr=stderr)
+
+        # Read the output JSON from the temporary file
+        with open(output_file_path, 'r') as file:
+            output_json_str = file.read().strip()
+
+        # Clean up the temporary file
+        os.remove(output_file_path)
+
+        if not output_json_str:
+            logging.error("No JSON output received from MATLAB")
+            raise ValueError("No JSON output received from MATLAB")
+
+        #logging.info(f"Output JSON from MATLAB: {output_json_str}")
+        return output_json_str
+
     def stop_matlab_sim(self):
         if self.process:
             self.process.terminate()
@@ -69,11 +77,3 @@ class ParaPowerPythonApi:
             logging.warning("No subprocess to terminate")
             return False
 
-def main():
-    parapower = ParaPowerPythonApi()
-    # Modified input_file_path
-    input_file_path = os.path.normpath(os.path.join(parapower.simdata.find_base_dir('TSRM_v1'), "libs", "thermal-stack-config", "AirCooled_NVIDIA_H100_GPU.json"))
-    parapower.run_matlab_sim(input_file_path)
-
-if __name__ == "__main__":
-    main()

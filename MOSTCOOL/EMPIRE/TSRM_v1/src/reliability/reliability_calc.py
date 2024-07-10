@@ -11,7 +11,7 @@ from ParaPower simulation results and builds an output path for the reliability 
 """
 
 import json
-import os
+# import logging
 from libs.reliability_lib import (
     processor_calc,
     tim_calc,
@@ -35,19 +35,18 @@ class ReliabilityCalc:
     def __init__(self):
         self.simdata = SimData()
 
-    def __extract_data(self, parapower_results_path):
+    def __extract_data(self, parapower_results_json_str):
         """
         Extracts features and temperatures from the parapower data for
         reliability calculations
 
         Args:
-            parapower_results_path (string): Path of the parapower results file
+            parapower_results_json_str (string): JSON string of the parapower results
 
         Returns:
             list: Extracted data that contains features and temperature values
         """
-        with open(parapower_results_path, 'r') as json_file:
-            input_data = json.load(json_file)
+        input_data = json.loads(parapower_results_json_str)
         
         extracted_data = []
         for data_item in input_data:
@@ -84,7 +83,8 @@ class ReliabilityCalc:
                 reliability_results[feature] = calc_result
             else:
                 # Skip the features that don't match anything
-                print(f"Feature '{feature}' was skipped because it did not match any known categories.")
+                pass
+                #print(f"Feature '{feature}' was skipped because it did not match any known categories.")
         return reliability_results
 
     def __build_output_json(self, calc_results):
@@ -102,20 +102,20 @@ class ReliabilityCalc:
             output_json.append(calc_result)
         return output_json
 
-    def generate_calculation(self, parapower_results_path):
+    def generate_calculation(self, parapower_results_json_str):
         """
         Main function for extracting features, performing calculations and 
         saving results.
 
         Args:
-            input_file_path (string): Path of the input JSON file
+            parapower_results_json_str (string): JSON string of the parapower results
 
         Returns:
-            string: Path of the output JSON file
+            string: JSON string of the reliability calculation results
         """
 
         # Extract data based on the parapower results 
-        extracted_data = self.__extract_data(parapower_results_path)
+        extracted_data = self.__extract_data(parapower_results_json_str)
 
         # Calculate reliability based on the extracted data
         calc_results = self.__calc_reliability(extracted_data)
@@ -126,20 +126,7 @@ class ReliabilityCalc:
         # Generate the output file path
         output_file_path = self.simdata.create_output_path("TSRM_v1", "reliability_results", "ReliabilityResults")
 
-        # Output results to the JSON file
-        with open(output_file_path, 'w') as output_file:
-            json.dump(output_json_data, output_file, indent=4)
+        # Output results to an in-memory JSON string
+        output_json_str = json.dumps(output_json_data, indent=4)
 
-        # Print the calculation results
-        for feature, calc_result in calc_results.items():
-            print(f"Feature: {feature}, Calculation Result: {calc_result}")
-
-        return output_file_path
-
-if __name__ == "__main__":
-    # For direct execution, use default input paths
-    simdata = SimData()
-    rel = ReliabilityCalc()
-    #Modified default_parapower_results_path
-    default_parapower_results_path = os.path.normpath(os.path.join(simdata.find_base_dir('TSRM_v1'), 'path_to_parapower_results_json_file.json'))
-    rel.generate_calculation(default_parapower_results_path)
+        return output_json_str
