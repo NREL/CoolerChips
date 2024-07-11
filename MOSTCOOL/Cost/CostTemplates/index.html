@@ -6,27 +6,23 @@
     <title>Cost Model Demonstration V1.1</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <style>
-        .excel-content {
-            display: grid;
-            grid-template-columns: repeat(5, 1fr); /* Adjust the number of columns as needed */
-            gap: 1px;
-            width: 100%;
-        }
-        .excel-content div, .excel-content .header {
-            border: 1px solid #ddd;
-            height: 30px; /* Adjust height as needed */
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 5px;
-            box-sizing: border-box;
-            text-align: center;
-        }
-        .container {
+        .table-container {
+            overflow-x: auto;
             margin-top: 20px;
         }
-        .header {
-            font-weight: bold;
+        .table thead th {
+            vertical-align: middle;
+        }
+        .form-control {
+            padding: 0.375rem 0.75rem;
+            height: auto;
+        }
+        .graph-container {
+            margin-top: 20px;
+            text-align: center;
+        }
+        .editable {
+            background-color: #f9f9f9;
         }
     </style>
 </head>
@@ -35,112 +31,387 @@
         <h1 class="mt-4">Cost Model Demonstration V1.1</h1>
 
         <div class="mt-3">
-            <a href="/settings" class="btn btn-secondary">Settings</a>
-            <a href="/elements.html" class="btn btn-secondary">Cost Elements Menu</a>
-            <button class="btn btn-secondary" id="saveBtn">Save</button>
+            <a href="/settings" class="btn btn-secondary" onclick="saveState()">Settings</a>
+            <a href="/elements.html" class="btn btn-secondary" onclick="saveState()">Cost Elements Menu</a>
+            <button class="btn btn-secondary" id="saveBtn" onclick="saveState()">Save</button>
             <button class="btn btn-secondary" id="loadBtn">Load</button>
         </div>
 
-        <form id="fileForm" method="post">
-            <div class="form-group">
+        <form id="fileForm" method="post" action="/process_file" onsubmit="return handleFormSubmit(event);">
+            <div class="form-group" id="file1-group">
                 <label for="file1">Add the first HTM/SQL file:</label>
-                <input type="file" class="form-control" id="file1" name="file1" onchange="processFile(this)">
-                <label for="file1Text1">Additional Input 1:</label>
-                <input type="text" class="form-control" id="file1Text1" name="file1Text1">
+                <input type="file" class="form-control" id="file1" name="file1" onchange="showModal(this, 'file1')">
                 <div class="mt-2 mb-2">
                     <button type="button" class="btn btn-primary">Add</button>
-                    <button type="button" class="btn btn-danger">Remove</button>
-                    <button type="button" class="btn btn-warning">Clear</button>
+                    <button type="button" class="btn btn-danger" onclick="clearTable('file1')">Remove</button>
+                    <button type="button" class="btn btn-warning" onclick="clearTable('file1')">Clear</button>
                 </div>
-                <label for="file1Text2">Additional Input 2:</label>
-                <div id="file1Text2" class="form-control excel-content"></div>
+                <div class="table-container">
+                    <table class="table table-bordered" id="file1-table">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Cost per Equipment</th>
+                                <th>Redundancy</th>
+                                <th>MTBF</th>
+                                <th>Gamma (hours)</th>
+                                <th>Beta</th>
+                                <th>Eta (hours)</th>
+                                <th>Cost per Maintenance Event</th>
+                                <th>Total Cost</th>
+                            </tr>
+                        </thead>
+                        <tbody id="file1-details">
+                            {% for row in table_data[1:] %}
+                                <tr>
+                                    {% for cell in row %}
+                                        <td>{{ cell }}</td>
+                                    {% endfor %}
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <th colspan="8">Total</th>
+                                <th id="file1-totalCost">{{ table_data|length > 1 and table_data[-1][-1] }}</th>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
             </div>
-            
-            <div class="form-group">
+
+            <div class="form-group" id="file2-group">
                 <label for="file2">Add the second HTM/SQL file:</label>
-                <input type="file" class="form-control" id="file2" name="file2" onchange="processFile(this)">
-                <label for="file2Text1">Additional Input 1:</label>
-                <input type="text" class="form-control" id="file2Text1" name="file2Text1">
+                <input type="file" class="form-control" id="file2" name="file2" onchange="showModal(this, 'file2')">
                 <div class="mt-2 mb-2">
                     <button type="button" class="btn btn-primary">Add</button>
-                    <button type="button" class="btn btn-danger">Remove</button>
-                    <button type="button" class="btn btn-warning">Clear</button>
+                    <button type="button" class="btn btn-danger" onclick="clearTable('file2')">Remove</button>
+                    <button type="button" class="btn btn-warning" onclick="clearTable('file2')">Clear</button>
                 </div>
-                <label for="file2Text2">Additional Input 2:</label>
-                <div id="file2Text2" class="form-control excel-content"></div>
+                <div class="table-container">
+                    <table class="table table-bordered" id="file2-table">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Cost per Equipment</th>
+                                <th>Redundancy</th>
+                                <th>MTBF</th>
+                                <th>Gamma (hours)</th>
+                                <th>Beta</th>
+                                <th>Eta (hours)</th>
+                                <th>Cost per Maintenance Event</th>
+                                <th>Total Cost</th>
+                            </tr>
+                        </thead>
+                        <tbody id="file2-details">
+                            <!-- Data will be inserted here -->
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <th colspan="8">Total</th>
+                                <th id="file2-totalCost"></th>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
             </div>
             <button type="submit" class="btn btn-primary">Submit</button>
         </form>
 
-        <ul class="nav nav-tabs mt-4" id="myTab" role="tablist">
-            <li class="nav-item">
-                <a class="nav-link active" id="graph1-tab" data-toggle="tab" href="#graph1" role="tab" aria-controls="graph1" aria-selected="true">Graph 1</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" id="graph2-tab" data-toggle="tab" href="#graph2" role="tab" aria-controls="graph2" aria-selected="false">Graph 2</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" id="graph3-tab" data-toggle="tab" href="#graph3" role="tab" aria-controls="graph3" aria-selected="false">Graph 3</a>
-            </li>
-        </ul>
-        <div class="tab-content" id="myTabContent">
-            <div class="tab-pane fade show active" id="graph1" role="tabpanel" aria-labelledby="graph1-tab">
-                <p>Graph 1 content goes here.</p>
+        <div class="graph-container">
+            <h2>Graphs</h2>
+            <div>
+                <h3>ROI vs Time</h3>
+                <img id="roi-graph" src="data:image/png;base64,{{ roi_image }}" alt="ROI Graph">
             </div>
-            <div class="tab-pane fade" id="graph2" role="tabpanel" aria-labelledby="graph2-tab">
-                <p>Graph 2 content goes here.</p>
+            <div>
+                <h3>IRR vs Time</h3>
+                <img id="irr-graph" src="data:image/png;base64,{{ irr_image }}" alt="IRR Graph">
             </div>
-            <div class="tab-pane fade" id="graph3" role="tabpanel" aria-labelledby="graph3-tab">
-                <p>Graph 3 content goes here.</p>
+            <div>
+                <h3>Net NPV vs Time</h3>
+                <img id="npv-graph" src="data:image/png;base64,{{ npv_image }}" alt="NPV Graph">
             </div>
         </div>
     </div>
 
-    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <!-- Modal for input -->
+    <div class="modal fade" id="inputModal" tabindex="-1" role="dialog" aria-labelledby="inputModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="inputModalLabel">Enter Values</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form id="modalForm">
+                        <div class="form-group">
+                            <label for="modalMTBF">MTBF:</label>
+                            <input type="text" class="form-control" id="modalMTBF">
+                        </div>
+                        <div class="form-group">
+                            <label for="modalGamma">Gamma (hours):</label>
+                            <input type="text" class="form-control" id="modalGamma">
+                        </div>
+                        <div class="form-group">
+                            <label for="modalBeta">Beta:</label>
+                            <input type="text" class="form-control" id="modalBeta">
+                        </div>
+                        <div class="form-group">
+                            <label for="modalEta">Eta (hours):</label>
+                            <input type="text" class="form-control" id="modalEta">
+                        </div>
+                        <div class="form-group">
+                            <label for="modalCostPerMaintenanceEvent">Cost per Maintenance Event:</label>
+                            <input type="text" class="form-control" id="modalCostPerMaintenanceEvent">
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" onclick="submitModalForm()">Submit</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script>
-        function processFile(input) {
-            const file = input.files[0];
-            const reader = new FileReader();
-            reader.onload = function() {
-                const content = reader.result;
-                console.log("File content read successfully");
-                $.ajax({
-                    type: 'POST',
-                    url: '/process_file',
-                    data: { fileContent: content },
-                    success: function(response) {
-                        console.log("Server response received", response);
-                        let displayContent = "";
-                        for (const [key, value] of Object.entries(response.table_lookup)) {
-                            displayContent += `<div>${key}: ${value}</div>`;
-                        }
-                        
-                        let coolingSystemDetails = response.cooling_system_details.map(row => {
-                            return row.map(cell => `<div>${cell}</div>`).join('');
-                        }).join('');
-                        
-                        if (input.id === 'file1') {
-                            document.getElementById('file1Text1').value = '';
-                            document.getElementById('file1Text1').insertAdjacentHTML('afterend', `<div class="excel-content">${displayContent}</div>`);
-                            document.getElementById('file1Text2').innerHTML = coolingSystemDetails;
-                        } else if (input.id === 'file2') {
-                            document.getElementById('file2Text1').value = '';
-                            document.getElementById('file2Text1').insertAdjacentHTML('afterend', `<div class="excel-content">${displayContent}</div>`);
-                            document.getElementById('file2Text2').innerHTML = coolingSystemDetails;
-                        }
-                    },
-                    error: function(xhr, status, error) {
+        let currentFileInput;
+
+        function saveState() {
+            const formData = new FormData(document.getElementById('fileForm'));
+            const table1Data = document.getElementById('file1-details').innerHTML;
+            const table2Data = document.getElementById('file2-details').innerHTML;
+            const totalCost1 = document.getElementById('file1-totalCost').textContent;
+            const totalCost2 = document.getElementById('file2-totalCost').textContent;
+
+            sessionStorage.setItem('formData', JSON.stringify(Object.fromEntries(formData.entries())));
+            sessionStorage.setItem('table1Data', table1Data);
+            sessionStorage.setItem('table2Data', table2Data);
+            sessionStorage.setItem('totalCost1', totalCost1);
+            sessionStorage.setItem('totalCost2', totalCost2);
+        }
+
+        function restoreState() {
+            const formData = JSON.parse(sessionStorage.getItem('formData'));
+            const table1Data = sessionStorage.getItem('table1Data');
+            const table2Data = sessionStorage.getItem('table2Data');
+            const totalCost1 = sessionStorage.getItem('totalCost1');
+            const totalCost2 = sessionStorage.getItem('totalCost2');
+
+            if (formData) {
+                for (const [key, value] of Object.entries(formData)) {
+                    document.querySelector(`[name="${key}"]`).value = value;
+                }
+            }
+            if (table1Data) {
+                document.getElementById('file1-details').innerHTML = table1Data;
+            }
+            if (table2Data) {
+                document.getElementById('file2-details').innerHTML = table2Data;
+            }
+            if (totalCost1) {
+                document.getElementById('file1-totalCost').textContent = totalCost1;
+            }
+            if (totalCost2) {
+                document.getElementById('file2-totalCost').textContent = totalCost2;
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', restoreState);
+
+        function showModal(input, fileId) {
+            currentFileInput = input;
+            currentFileInput.fileId = fileId;
+            $('#inputModal').modal('show');
+        }
+
+        function submitModalForm() {
+            const mtbf = document.getElementById('modalMTBF').value;
+            const gamma = document.getElementById('modalGamma').value;
+            const beta = document.getElementById('modalBeta').value;
+            const eta = document.getElementById('modalEta').value;
+            const costPerMaintenanceEvent = document.getElementById('modalCostPerMaintenanceEvent').value;
+
+            if (mtbf && gamma && beta && eta && costPerMaintenanceEvent) {
+                const reader = new FileReader();
+                reader.onload = function() {
+                    const content = reader.result;
+
+                    // Remove existing hidden inputs if they exist
+                    removeHiddenInputs(currentFileInput.fileId);
+
+                    // Add new hidden inputs
+                    addHiddenInput(currentFileInput.fileId, 'mtbf', mtbf.trim());
+                    addHiddenInput(currentFileInput.fileId, 'gamma', gamma.trim());
+                    addHiddenInput(currentFileInput.fileId, 'beta', beta.trim());
+                    addHiddenInput(currentFileInput.fileId, 'eta', eta.trim());
+                    addHiddenInput(currentFileInput.fileId, 'costPerMaintenanceEvent', costPerMaintenanceEvent.trim());
+
+                    const formData = new FormData();
+                    formData.append('fileContent', content);
+                    formData.append('mtbf', mtbf.trim());
+                    formData.append('gamma', gamma.trim());
+                    formData.append('beta', beta.trim());
+                    formData.append('eta', eta.trim());
+                    formData.append('costPerMaintenanceEvent', costPerMaintenanceEvent.trim());
+
+                    fetch('/process_file', {
+                        method: 'POST',
+                        body: formData
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        console.log("Server response received", data);
+                        displayCoolingSystemDetails(data.cooling_system_details, currentFileInput.fileId);
+                        calculateTotalCost(data.total_cooling_cost);
+                        updateGraphs(data.roi_image, data.irr_image, data.npv_image);
+                    })
+                    .catch(error => {
                         console.error("Error occurred:", error);
+                    });
+
+                    $('#inputModal').modal('hide');
+                };
+                reader.onerror = function() {
+                    console.error("Could not read file");
+                };
+                reader.readAsText(currentFileInput.files[0]);
+            } else {
+                alert("All values are required.");
+            }
+        }
+
+        function removeHiddenInputs(fileId) {
+            const hiddenInputs = document.querySelectorAll(`#${fileId}-group input[type='hidden']`);
+            hiddenInputs.forEach(input => input.remove());
+        }
+
+        function addHiddenInput(fileId, name, value) {
+            const input = document.createElement('input');
+            input.type = 'hidden';
+            input.id = `${fileId}-${name}`;
+            input.name = name;
+            input.value = value;
+            document.getElementById(fileId + '-group').appendChild(input);
+        }
+
+        function handleFormSubmit(event) {
+            event.preventDefault();
+
+            const form = event.target;
+            const formData = new FormData(form);
+
+            fetch('/process_file', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log("Form submitted successfully", data);
+                updateGraphs(data.roi_image, data.irr_image, data.npv_image);
+            })
+            .catch(error => {
+                console.error("Error occurred:", error);
+            });
+        }
+
+        function updateGraphs(roi_image, irr_image, npv_image) {
+            document.getElementById('roi-graph').src = "data:image/png;base64," + roi_image;
+            document.getElementById('irr-graph').src = "data:image/png;base64," + irr_image;
+            document.getElementById('npv-graph').src = "data:image/png;base64," + npv_image;
+        }
+
+        function displayCoolingSystemDetails(details, fileId) {
+            let tbody = "";
+            details.forEach((row, index) => {
+                if (index === 0) return; // Skip the header row
+                tbody += "<tr>";
+                row.forEach((cell, cellIndex) => {
+                    if (cellIndex === 2) { // Redundancy column
+                        tbody += `<td>
+                                    <select class="form-control" onchange="updateRedundancy(${index - 1}, this.value, '${fileId}')">
+                                        <option value="N" ${cell === 'N' ? 'selected' : ''}>N</option>
+                                        <option value="N+1" ${cell === 'N+1' ? 'selected' : ''}>N+1</option>
+                                        <option value="N+2" ${cell === 'N+2' ? 'selected' : ''}>N+2</option>
+                                        <option value="2N" ${cell === '2N' ? 'selected' : ''}>2N</option>
+                                        <option value="2N+1" ${cell === '2N+1' ? 'selected' : ''}>2N+1</option>
+                                    </select>
+                                  </td>`;
+                    } else {
+                        tbody += `<td ondblclick="makeEditable(this)">${cell}</td>`;
                     }
                 });
-            };
-            reader.onerror = function() {
-                console.error("Could not read file");
-            };
-            reader.readAsText(file);
+                tbody += "</tr>";
+            });
+
+            document.getElementById(`${fileId}-details`).innerHTML = tbody;
+        }
+
+        function calculateTotalCost(totalCost) {
+            document.getElementById('file1-totalCost').textContent = totalCost;
+            document.getElementById('file2-totalCost').textContent = totalCost;
+        }
+
+        function clearTable(fileId) {
+            document.getElementById(`${fileId}-details`).innerHTML = "";
+            document.getElementById(`${fileId}-totalCost`).textContent = "";
+        }
+
+        function makeEditable(cell) {
+            const originalContent = cell.textContent;
+            const input = document.createElement('input');
+            input.type = 'text';
+            input.value = originalContent;
+            input.className = 'form-control editable';
+            input.addEventListener('blur', function() {
+                cell.textContent = input.value;
+                updateCell(cell, input.value);
+            });
+            input.addEventListener('keydown', function(event) {
+                if (event.key === 'Enter') {
+                    cell.textContent = input.value;
+                    updateCell(cell, input.value);
+                } else if (event.key === 'Escape') {
+                    cell.textContent = originalContent;
+                }
+            });
+            cell.textContent = '';
+            cell.appendChild(input);
+            input.focus();
+        }
+
+        function updateCell(cell, newValue) {
+            const row = cell.parentNode;
+            const table = row.parentNode;
+            const rowIndex = Array.prototype.indexOf.call(table.children, row);
+            const cellIndex = Array.prototype.indexOf.call(row.children, cell);
+
+            // Send an AJAX request to update the cell data on the server
+            fetch('/update_cell', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    rowIndex: rowIndex,
+                    cellIndex: cellIndex,
+                    newValue: newValue
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log("Cell updated successfully", data);
+            })
+            .catch(error => {
+                console.error("Error occurred while updating cell", error);
+            });
         }
     </script>
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 </body>
 </html>

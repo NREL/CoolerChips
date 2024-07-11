@@ -1,72 +1,100 @@
-# CostModelFileCalculationsV1_1.py
-import matplotlib.pyplot as plt
+import matplotlib
+matplotlib.use('Agg')  # Use the non-interactive backend
+
 import numpy as np
+import matplotlib.pyplot as plt
+import io
+import base64
 from CostModelFileProcessingV1_1 import table_lookup
 
 Cooling_System_Details = {
     "chiller": {
         "Name": 'Chiller',
-        "Cost_per_equipment": '',
-        "Redundancy": '',
+        "Cost_per_equipment": 0.0,
+        "Redundancy": 'N',
         "MTBF": '',
+        "Gamma": '',
+        "Beta": '',
+        "Eta": '',
         "Cost_per_maintenance_event": '',
-        "Total_cost_of_cooling_system": ''
+        "Total_cost_of_cooling_system": 0.0
     },
     "coolingTower": {
         "Name": 'Cooling Tower',
-        "Cost_per_equipment": '',
-        "Redundancy": '',
+        "Cost_per_equipment": 0.0,
+        "Redundancy": 'N',
         "MTBF": '',
+        "Gamma": '',
+        "Beta": '',
+        "Eta": '',
         "Cost_per_maintenance_event": '',
-        "Total_cost_of_cooling_system": ''
+        "Total_cost_of_cooling_system": 0.0
     },
     "pump": {
         "Name": 'Pump',
-        "Cost_per_equipment": '',
-        "Redundancy": '',
+        "Cost_per_equipment": 0.0,
+        "Redundancy": 'N',
         "MTBF": '',
+        "Gamma": '',
+        "Beta": '',
+        "Eta": '',
         "Cost_per_maintenance_event": '',
-        "Total_cost_of_cooling_system": ''
+        "Total_cost_of_cooling_system": 0.0
     },
     "fluid": {
         "Name": 'Fluid',
-        "Cost_per_equipment": '',
-        "Redundancy": '',
+        "Cost_per_equipment": 0.0,
+        "Redundancy": 'N',
         "MTBF": '',
+        "Gamma": '',
+        "Beta": '',
+        "Eta": '',
         "Cost_per_maintenance_event": '',
-        "Total_cost_of_cooling_system": ''
+        "Total_cost_of_cooling_system": 0.0
     },
     "ducting": {
         "Name": 'Ducting',
-        "Cost_per_equipment": '',
-        "Redundancy": '',
+        "Cost_per_equipment": 0.0,
+        "Redundancy": 'N',
         "MTBF": '',
+        "Gamma": '',
+        "Beta": '',
+        "Eta": '',
         "Cost_per_maintenance_event": '',
-        "Total_cost_of_cooling_system": ''
+        "Total_cost_of_cooling_system": 0.0
     },
     "piping": {
         "Name": 'Piping',
-        "Cost_per_equipment": '',
-        "Redundancy": '',
+        "Cost_per_equipment": 0.0,
+        "Redundancy": 'N',
         "MTBF": '',
+        "Gamma": '',
+        "Beta": '',
+        "Eta": '',
         "Cost_per_maintenance_event": '',
-        "Total_cost_of_cooling_system": ''
+        "Total_cost_of_cooling_system": 0.0
     },
     "CRAH": {
         "Name": 'Computer Room Air Handler',
-        "Cost_per_equipment": '',
-        "Redundancy": '',
+        "Cost_per_equipment": 0.0,
+        "Redundancy": 'N',
         "MTBF": '',
+        "Gamma": '',
+        "Beta": '',
+        "Eta": '',
         "Cost_per_maintenance_event": '',
-        "Total_cost_of_cooling_system": ''
+        "Total_cost_of_cooling_system": 0.0
     },
     "air_Economizer": {
-        "Name": 'Air Economizier',
-        "Cost_per_equipment": '',
-        "Redundancy": '',
+        "Name": 'Air Economizer',
+        "Cost_per_equipment": 0.0,
+        "Redundancy": 'N',
         "MTBF": '',
+        "Gamma": '',
+        "Beta": '',
+        "Eta": '',
         "Cost_per_maintenance_event": '',
-        "Total_cost_of_cooling_system": ''
+        "Total_cost_of_cooling_system": 0.0
     }
 }
 
@@ -167,16 +195,18 @@ def fluid_calculator(volume_value):
 def get_redundancy_multiplier(redundancy):
     if redundancy == "N":
         return 1
+    elif redundancy == "N+1":
+        return 2
+    elif redundancy == "N+2":
+        return 3  
     elif redundancy == "2N":
         return 2
-    elif redundancy == "N+1":
-        return 2  
     elif redundancy == "2N+1":
         return 3
     else:
         return 1  # Default to 1 if redundancy is not recognized
 
-def update_cooling_system_details():
+def update_cooling_system_details(mtbf, gamma, beta, eta, cost_per_maintenance_event):
     if table_lookup["chiller"]["value"]:
         Cooling_System_Details["chiller"]["Cost_per_equipment"] = chiller_calculator(table_lookup["chiller"]["value"])
     if table_lookup["coolingTower"]["value"]:
@@ -191,29 +221,151 @@ def update_cooling_system_details():
     Cooling_System_Details["CRAH"]["Cost_per_equipment"] = CRAH_calculator(float(variables["Data Center Capacity (W)"]))
     Cooling_System_Details["air_Economizer"]["Cost_per_equipment"] = air_economizer_calculator(float(variables["Data Center Capacity (W)"]))
 
-update_cooling_system_details()
+    for component in Cooling_System_Details.values():
+        component["MTBF"] = mtbf
+        component["Gamma"] = gamma
+        component["Beta"] = beta
+        component["Eta"] = eta
+        component["Cost_per_maintenance_event"] = cost_per_maintenance_event
+        if component["Cost_per_equipment"] == '':
+            component["Cost_per_equipment"] = 0.0
+        component["Total_cost_of_cooling_system"] = float(component["Cost_per_equipment"]) * get_redundancy_multiplier(component["Redundancy"])
 
 def get_cooling_system_details():
-    details = [["Name", "Cost_per_equipment", "Redundancy", "MTBF", "Cost_per_maintenance_event", "Total_cost_of_cooling_system"]]
+    details = [["Name", "Cost per Equipment", "Redundancy", "MTBF", "Gamma (hours)", "Beta", "Eta (hours)", "Cost per Maintenance Event", "Total Cost"]]
     for component, data in Cooling_System_Details.items():
         details.append([
             data['Name'],
-            data.get('Cost_per_equipment', ''),
-            data.get('Redundancy', ''),
+            format_currency(data.get('Cost_per_equipment', 0.0)),
+            data.get('Redundancy', 'N'),
             data.get('MTBF', ''),
-            data.get('Cost_per_maintenance_event', ''),
-            data.get('Total_cost_of_cooling_system', '')
+            format_currency(data.get('Gamma', 0.0)),
+            data.get('Beta', ''),
+            format_currency(data.get('Eta', 0.0)),
+            format_currency(data.get('Cost_per_maintenance_event', 0.0)),
+            format_currency(data.get('Total_cost_of_cooling_system', 0.0))
         ])
     return details
 
 
-# Example function that might use the updated Cooling_System_Details
+def get_cooling_system_details():
+    details = [["Name", "Cost per Equipment", "Redundancy", "MTBF", "Gamma (hours)", "Beta", "Eta (hours)", "Cost per Maintenance Event", "Total Cost"]]
+    for component, data in Cooling_System_Details.items():
+        details.append([
+            data['Name'],
+            format_currency(data.get('Cost_per_equipment', 0.0)),
+            data.get('Redundancy', 'N'),
+            data.get('MTBF', ''),
+            data.get('Gamma', ''),
+            data.get('Beta', ''),
+            data.get('Eta', ''),
+            format_currency(data.get('Cost_per_maintenance_event', 0.0)),
+            format_currency(data.get('Total_cost_of_cooling_system', 0.0))
+        ])
+    return details
+
 def calculate_total_cooling_cost():
-    total_cost = 0
-    for component in Cooling_System_Details.values():
-        if component["Cost_per_equipment"]:
-            total_cost += float(component["Cost_per_equipment"])
+    total_cost = sum(
+        float(component["Total_cost_of_cooling_system"].replace(',', '').replace('$', '')) 
+        if isinstance(component["Total_cost_of_cooling_system"], str) 
+        else float(component["Total_cost_of_cooling_system"])
+        for component in Cooling_System_Details.values() 
+        if component["Total_cost_of_cooling_system"]
+    )
     return total_cost
+
+def format_currency(value):
+    try:
+        value = float(value)
+    except ValueError:
+        value = 0.0
+    return "${:,.2f}".format(value)
+
+class MonteCarloMaintenance:
+    def __init__(self, monte_carlo=True, samples=1, number_items=3):
+        self.monte_carlo = monte_carlo
+        self.samples = samples
+        self.number_items = number_items
+        self.fail_dist_gamma = np.zeros(4000)  # max of 4000 items
+        self.fail_dist_beta = np.zeros(4000)
+        self.fail_dist_eta = np.zeros(4000)
+        self.maint_cost = np.zeros(4000)
+        self.next_failure = np.zeros(4000)
+        self.year_cost = np.zeros(100)  # max of 100 years
+
+    def run_simulation(self, stype, dura, input_data):
+        # Convert duration to seconds
+        dura = dura * 365 * 24 * 60 * 60  # sec
+
+        # Determine if Monte Carlo simulation is to be used
+        self.monte_carlo = (stype == "Yes")
+
+        if not self.monte_carlo:
+            self.samples = 1
+
+        # Get input data and initialize distributions
+        for i, data in enumerate(input_data):
+            x, gamma1, beta, eta, cost = data
+            if x > 0:
+                lambda_val = 1 / x  # 1/hours
+            else:
+                lambda_val = -1
+
+            # Convert to a Weibull or collect Weibull parameters
+            if lambda_val > 0:
+                gamma1 = 0
+                beta = 1
+                eta = 1 / lambda_val
+            self.fail_dist_gamma[i] = gamma1 * 60 * 60  # sec
+            self.fail_dist_beta[i] = beta
+            self.fail_dist_eta[i] = eta * 60 * 60  # sec
+            self.maint_cost[i] = cost  # $
+
+        # Initialize the costs accumulations
+        self.year_cost.fill(0)
+
+        # Monte Carlo loop
+        for _ in range(self.samples):
+            self._initialize_failures(dura)
+            self._simulate_failures(dura)
+
+        # Print annual costs
+        x = int(dura / 365 / 24 / 60 / 60)
+        sum_cost = np.sum(self.year_cost[:x]) / self.samples
+        return [(k, self.year_cost[k] / self.samples) for k in range(1, x+1)], sum_cost / x
+
+    def _initialize_failures(self, dura):
+        self.next_failure.fill(dura)
+        for i in range(self.number_items):
+            self._sample_weibull(0, i)
+
+    def _simulate_failures(self, dura):
+        clock = 0
+        for _ in range(200):
+            ff, failure_i = min((self.next_failure[i], i) for i in range(self.number_items))
+            clock = ff
+            if clock >= dura:
+                break
+            self._sum_cost(clock, failure_i)
+            self._sample_weibull(clock, failure_i)
+
+    def _sample_weibull(self, clock, i):
+        if self.monte_carlo:
+            F = np.random.rand()
+            Power = 1 / self.fail_dist_beta[i]
+            logx = np.log(1 - F)
+            self.next_failure[i] = clock + self.fail_dist_gamma[i] + self.fail_dist_eta[i] * ((-logx) ** Power)
+        else:
+            self.next_failure[i] = clock + self.fail_dist_gamma[i] + self.fail_dist_eta[i] * self._gamma(1 + 1 / self.fail_dist_beta[i])
+
+    def _sum_cost(self, clock, i):
+        y = int(clock / 365 / 24 / 60 / 60) + 1
+        self.year_cost[y] += self.maint_cost[i]
+
+    @staticmethod
+    def _gamma(x):
+        from scipy.special import gamma
+        return gamma(x)
 
 def calculate_irr():
     # Update variables from the settings window (if applicable)
@@ -375,8 +527,6 @@ def calculate_irr():
 
         i = i + 1
 
-    # Time step adjustment for inflation and discount rates
-
     # ROI and IRR Calculations
     i = 0
     ROI = []
@@ -410,6 +560,13 @@ def calculate_irr():
     ax_ROI.set_ylabel('ROI')
     ax_ROI.set_title('ROI')
 
+    # Save ROI plot to buffer
+    roi_buf = io.BytesIO()
+    plt.savefig(roi_buf, format='png')
+    roi_buf.seek(0)
+    roi_image = base64.b64encode(roi_buf.getvalue()).decode('utf-8')
+    plt.close(fig_ROI)
+
     # Plot IRR
     ax_IRR.scatter(N_Time, IRR)
     ax_IRR.plot([0, 20], [0.1, 0.1], 'r-')
@@ -417,26 +574,27 @@ def calculate_irr():
     ax_IRR.set_xlabel('Year')
     ax_IRR.set_ylabel('IRR')
     ax_IRR.set_title('IRR')
-    
+
+    # Save IRR plot to buffer
+    irr_buf = io.BytesIO()
+    plt.savefig(irr_buf, format='png')
+    irr_buf.seek(0)
+    irr_image = base64.b64encode(irr_buf.getvalue()).decode('utf-8')
+    plt.close(fig_IRR)
+
     # Plot NPV
     ax_NPV.scatter(N_Time, Net_NPV, label='NPV Difference')
     ax_NPV.grid()
     ax_NPV.set_xlabel('Year')
     ax_NPV.set_ylabel('NPV Difference ($ in Millions)')
-    ax_NPV.setTitle('NPV Difference')
+    ax_NPV.set_title('NPV Difference')
     ax_NPV.legend(loc="upper left")
-    
-    # Finding the breakeven year
-    BreakevenYear = None
-    for i in range(1, int(SimulationDuration)):
-        if IRR[i] > 0:
-            BreakevenYear = i
-            break
 
-    if BreakevenYear is not None:
-        print('The first breakeven year is at', BreakevenYear)
-    else:
-        print('No breakeven year found within the simulation duration.')
+    # Save NPV plot to buffer
+    npv_buf = io.BytesIO()
+    plt.savefig(npv_buf, format='png')
+    npv_buf.seek(0)
+    npv_image = base64.b64encode(npv_buf.getvalue()).decode('utf-8')
+    plt.close(fig_NPV)
 
-    # Show plots
-    plt.show()
+    return roi_image, irr_image, npv_image
