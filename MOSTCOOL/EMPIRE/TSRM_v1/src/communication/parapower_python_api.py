@@ -16,21 +16,28 @@ import os
 import subprocess
 import logging
 import tempfile
+import platform
 
 class ParaPowerPythonApi:
     def __init__(self):
         self.process = None
 
     def run_matlab_sim(self, input_data):
-        
         # Find the base directory for the TSRM_v1 project
         base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
 
         # Path to the directory containing the compiled MATLAB executable
         compiled_dir = os.path.normpath(os.path.join(base_dir, "src", "therm_mech", "TSRM_ParaPower"))
 
-        # Path to the compiled MATLAB executable
-        matlab_executable = os.path.normpath(os.path.join(compiled_dir, "parapower_matlab_api.exe"))
+        # Determine the OS and set the executable paths
+        system = platform.system()
+        if system == 'Windows':
+            matlab_executable = os.path.normpath(os.path.join(compiled_dir, "parapower_matlab_api.exe"))
+        elif system == 'Linux':
+            matlab_executable = os.path.normpath(os.path.join(compiled_dir, "linux_parapower_matlab_api"))
+            matlab_runner = os.path.normpath(os.path.join(compiled_dir, "run_linux_parapower_matlab_api.sh"))
+        else:
+            raise OSError("Unsupported operating system")
 
         # Create a temporary file to hold the JSON output
         output_file = tempfile.NamedTemporaryFile(delete=False)
@@ -39,7 +46,12 @@ class ParaPowerPythonApi:
 
         # Call the compiled MATLAB executable with the JSON strings
         logging.info("Starting subprocess...")
-        command = [matlab_executable, input_data, compiled_dir, output_file_path]
+
+        if system == 'Windows':
+            command = [matlab_executable, input_data, compiled_dir, output_file_path]
+        elif system == 'Linux':
+            command = [matlab_runner, matlab_executable, input_data, compiled_dir, output_file_path]
+
         self.process = subprocess.Popen(command, stderr=subprocess.PIPE, text=True)
         _, stderr = self.process.communicate()
 
@@ -74,4 +86,3 @@ class ParaPowerPythonApi:
         else:
             logging.warning("No subprocess to terminate")
             return False
-
