@@ -1,12 +1,13 @@
 FROM --platform=linux/x86_64 ubuntu:22.04
 
 ARG DEBIAN_FRONTEND=noninteractive
+ARG RUN_TESTS=false
 
 ENV ENERGYPLUS_LINK=https://github.com/NREL/EnergyPlus/releases/download/v23.2.0/EnergyPlus-23.2.0-7636e6b3e9-Linux-Ubuntu22.04-x86_64.tar.gz
 
 # Install system dependencies
-RUN  apt-get update && apt-get install -y \
-    wget=1.21.*\
+RUN apt-get update && apt-get install -y \
+    wget=1.21.* \
     unzip=6.0-* \
     git \
     python3=3.10.* \
@@ -26,7 +27,7 @@ RUN wget -O ParaView-5.12.0-MPI-Linux-Python3.10-x86_64.tar.gz "https://www.para
     && mv ParaView-5.12.0-MPI-Linux-Python3.10-x86_64 Paraview
 
 # Install Paraview dependencies
-RUN apt-get install ffmpeg libsm6 libxext6 libxcb-icccm4 libxcb-image0 libxcb-keysyms1 libxcb-render-util0 libxcb-xinerama0 libxcb-xinput0 libxcb-xfixes0 libxkbcommon-x11-0 -y
+RUN apt-get install -y ffmpeg libsm6 libxext6 libxcb-icccm4 libxcb-image0 libxcb-keysyms1 libxcb-render-util0 libxcb-xinerama0 libxcb-xinput0 libxcb-xfixes0 libxkbcommon-x11-0
 
 # Copy directory into /app/
 COPY . /app/
@@ -34,8 +35,8 @@ COPY . /app/
 # Install Python dependencies from requirements.txt file
 RUN pip install --no-cache-dir -r /app/requirements.txt
 
-# Install the mostcool package
-RUN pip install /app/
+# Install the mostcool package conditionally
+RUN if [ "${RUN_TESTS}" = "true" ]; then pip install /app/[test]; else pip install /app/; fi
 
 RUN ln -s /EnergyPlus/energyplus /usr/local/bin/energyplus
 
