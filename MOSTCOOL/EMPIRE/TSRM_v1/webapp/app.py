@@ -1,15 +1,14 @@
-import threading
-import json
-import shutil
+import sys
 import os
-import time
-from PIL import Image, ImageTk
+parent_directory = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+sys.path.append(parent_directory)
 from src.communication.tsrm_api import TSRMApi
 from src.utils.simData_util import SimData
 import logging
-from flask import Flask, render_template, request, redirect, url_for, jsonify, send_from_directory, send_file
+import shutil
+import atexit
+from flask import Flask, render_template, request, jsonify, send_file
 from werkzeug.utils import secure_filename
-
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -104,7 +103,7 @@ def index():
 @app.route('/download_results', methods=['POST'])
 def download_results():
     if request.method == 'POST':
-        filepath = os.path.join(app.config['UPLOAD_FOLDER'], "output.json")
+        filepath = os.path.join(parent_directory, app.config['UPLOAD_FOLDER'], "output.json")
         return send_file(filepath, as_attachment=True)
 
 @app.route('/run_simulation', methods=['POST'])
@@ -112,67 +111,59 @@ def run_simulation():
     global stop_simulation_flag
     stop_simulation_flag = False  # Reset the flag before starting
     user_file_path = None
-    if 'input_file' in request.files:
-        input_file = request.files['input_file']
+    if 'input-file' in request.files:
+        input_file = request.files['input-file']
         if input_file.filename != '':
             filename = secure_filename(input_file.filename)
-            user_file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+            user_file_path = os.path.join(parent_directory, app.config['UPLOAD_FOLDER'], filename)
             input_file.save(user_file_path)
     logging.info("Starting simulation thread...")
-    simulation_output_path = run_simulation_thread(request.form, user_file_path)
-    shutil.move(simulation_output_path, os.path.join(app.config['UPLOAD_FOLDER'], "output.json"))
-    simulation_output_path = os.path.join(app.config['UPLOAD_FOLDER'], "output.json")
+    simulation_output_data = run_simulation_thread(request.form, user_file_path)
+    output_path = os.path.join(parent_directory, app.config['UPLOAD_FOLDER'], "output.json")
+    with open(output_path, 'w') as file:
+        file.write(simulation_output_data)
     return jsonify({
-        'status': 'Simulation started',
-        'output': simulation_output_path
+        'status': 'Simulation completed!'
     })
 
 def run_simulation_thread(form_data, user_file_path):
     global stop_simulation_flag
-    countdown = 5
-    simulation_output_path = None
+    simulation_output_data = None
 
-    input_option = form_data.get('input_option')
+    input_option = form_data.get('input-option')
     if input_option == 'file':
         if user_file_path:
-            simulation_output_path = wrapper.run_simulation(user_file_path=user_file_path)
+            simulation_output_data = wrapper.run_simulation(user_file_path=user_file_path)
     else:
         try:
-            simulation_output_path = wrapper.run_simulation(
+            simulation_output_data = wrapper.run_simulation(
                 None,
-                form_data['cooling_method'],
-                form_data['processor_type'],
-                int(form_data['heat_transfer_coefficient']),
-                int(form_data['ambient_temperature']),
-                int(form_data['processor_temperature']),
-                int(form_data['initial_temperature'])
+                form_data['cooling-method'],
+                form_data['processor-type'],
+                int(form_data['heat-transfer-coefficient']),
+                int(form_data['ambient-temperature']),
+                int(form_data['processor-temperature']),
+                int(form_data['initial-temperature'])
             )
         except KeyError as e:
             logging.error(f"Simulation failed due to missing key: {e}")
-            
-    while countdown > 0:
-        if stop_simulation_flag:
-            logging.info("Simulation stopped.")
-            return None  # Simulation stopped early
-        countdown -= 1
-        time.sleep(1)  # Simulate work by waiting for 1 second
 
     if stop_simulation_flag:
         logging.info("Simulation stopped.")
         return None
     
-    if simulation_output_path:
+    if simulation_output_data:
         logging.info("Simulation completed!")
     else:
         logging.info("Simulation failed.")
 
-    return simulation_output_path
+    return simulation_output_data
 
 @app.route('/view_results', methods=['GET'])
 def view_results():
     try:
         # Assuming the output file is named 'output.json' and located in the uploads folder
-        output_file_path = os.path.join(app.config['UPLOAD_FOLDER'], 'output.json')
+        output_file_path = os.path.join(parent_directory, app.config['UPLOAD_FOLDER'], 'output.json')
         # Return the JSON file
         return send_file(output_file_path, mimetype='application/json')
     except Exception as e:
@@ -187,6 +178,16 @@ def stop_simulation():
     wrapper.stop_simulation()  # Stop the simulation via the API
     return jsonify({'status': 'Simulation stopped.'}), 200
 
+def cleanup_upload_folder():
+    upload_path = os.path.join(parent_directory, app.config['UPLOAD_FOLDER'])
+    try:
+        if os.path.exists(upload_path):
+            shutil.rmtree(upload_path)
+            logging.info(f"Deleted upload folder: {upload_path}")
+    except Exception as e:
+        logging.error(f"Error deleting upload folder: {e}")
+
+atexit.register(cleanup_upload_folder)
 
 if __name__ == "__main__":
     if not os.path.exists(UPLOAD_FOLDER):

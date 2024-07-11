@@ -3,7 +3,7 @@ Module: user_interface.py
 Authors:
 - Najee Stubbs {nistubbs@uark.edu}, University of Arkansas, Mechanical Engineering Dept.
 - Tyler Kuper {tdkuper@uark.edu}, University of Arkansas, Computer Science Dept. 
-Date: June 20, 2024
+Date: July 10, 2024
 
 Description:
 user_interface.py initializes a graphical user interface (GUI) for interacting with the
@@ -16,41 +16,37 @@ import tkinter as tk
 from tkinter import filedialog, messagebox, ttk
 import threading
 import json
-import shutil
 import os
 from PIL import Image, ImageTk
 from src.communication.tsrm_api import TSRMApi
-from src.utils.simData_util import SimData
 import logging
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 class AppState:
-    def __init__(self, base_directory, file_mapping, cooling_types, processor_types):
+    def __init__(self, file_mapping, cooling_types, processor_types):
         self.selected_input_path = None
-        self.base_directory = base_directory
+        self.base_directory = os.path.dirname(__file__)
         self.file_mapping = file_mapping
         self.cooling_types = cooling_types
         self.processor_types = processor_types
 
     @classmethod
-    def set_values_from_api(cls, simdata, wrapper):
+    def set_values_from_api(cls, wrapper):
         """
         Class method setting the class variables
 
         Args:
-            simdata (SimData): Instance of the sim data utility class
             wrapper (TSRMAPIWrapper): Instance of the api wrapper class
 
         Returns:
             AppState: Instance of the app state class with the newly set values
         """
-        base_directory = simdata.find_base_dir("TSRM_v1")
         file_mapping, _ = wrapper.get_file_mapping()
         cooling_types = list(set([key[0] for key in file_mapping.keys()]))
         processor_types = list(set([key[1] for key in file_mapping.keys()]))
-        return cls(base_directory, file_mapping, cooling_types, processor_types)
+        return cls(file_mapping, cooling_types, processor_types)
     
 class TSRMApiWrapper:
     def __init__(self, api):
@@ -79,7 +75,6 @@ class TSRMApiWrapper:
         Returns:
             string: Path of resulting simulation output 
         """
-        # Add error handling
         try:
             if user_file_path:
                 return self.api.gen_and_run_sim(user_file_path)
@@ -102,8 +97,7 @@ class UserInterface:
     def __init__(self, root):
         api = TSRMApi()
         self.wrapper = TSRMApiWrapper(api)
-        self.simdata = SimData()
-        self.state = AppState.set_values_from_api(self.simdata, self.wrapper)
+        self.state = AppState.set_values_from_api(self.wrapper)
         # GUI setup
         self.root = root
         self.root.title("Simulation Interface")
@@ -292,17 +286,16 @@ class UserInterface:
         self.root.update_idletasks()
         self.root.geometry("")  # Adjust window size dynamically
 
-    # Modified
-    def __handle_simulation_completion(self, simulation_output_json_str):
+    def __handle_simulation_completion(self, simulation_output_data):
         """
         Updates the UI upon simulation completion. It enables the buttons to view,
         save, and open the result JSON string, and updates the status label.
 
         Args:
-            simulation_output_json_str (string): JSON string of the simulation output
+            simulation_output_data (string): JSON string of the simulation output
         """
-        if simulation_output_json_str:
-            self.simulation_output_json_str = simulation_output_json_str
+        if simulation_output_data:
+            self.simulation_output_data = simulation_output_data
             self.label_selected_output.config(text="Simulation completed successfully.")
             self.button_save_result.config(state=tk.NORMAL, command=lambda: self.save_result_file())
             self.button_open_result.config(state=tk.NORMAL, command=lambda: self.open_result_file())
@@ -313,7 +306,6 @@ class UserInterface:
             logging.info("Simulation failed.")
         self.stop_simulation_button.config(state=tk.DISABLED)
 
-    # Modified
     def __run_simulation_thread(self):
         """
         Calls the API wrapper to run the simulation based on user input, either 
@@ -322,12 +314,12 @@ class UserInterface:
         Args:
             input_option (IntVar): User's input method choice
         """
-        simulation_output_json_str = None
+        simulation_output_data = None
         if self.input_option.get() == 1 and self.state.selected_input_path:  # User-provided JSON file
-            simulation_output_json_str = self.wrapper.run_simulation(user_file_path=self.state.selected_input_path)
+            simulation_output_data = self.wrapper.run_simulation(user_file_path=self.state.selected_input_path)
         else:  # Manual inputs
             try:
-                simulation_output_json_str = self.wrapper.run_simulation(
+                simulation_output_data = self.wrapper.run_simulation(
                     None,
                     self.method_variable.get(),
                     self.component_variable.get(),
@@ -341,7 +333,7 @@ class UserInterface:
                 logging.error(f"Simulation failed due to missing key: {e}")
         self.progress_bar.stop()
         self.progress_bar.grid_forget()
-        self.status_label.after(0, self.__handle_simulation_completion, simulation_output_json_str)
+        self.status_label.after(0, self.__handle_simulation_completion, simulation_output_data)
 
     def select_input_file(self):
         """
@@ -380,7 +372,6 @@ class UserInterface:
             self.progress_bar.grid_forget()
             self.status_label.config(text="Simulation stopped before completion")
 
-    # Modified
     def save_result_file(self):
         """
         Saves the simulation result to a user-specified location. Opens a save
@@ -389,17 +380,16 @@ class UserInterface:
         file_path = filedialog.asksaveasfilename(title="Save Output File As", defaultextension=".json", filetypes=[("JSON files", "*.json")])
         if file_path:
             with open(file_path, 'w') as file:
-                file.write(self.simulation_output_json_str)
+                file.write(self.simulation_output_data)
             self.label_selected_output.config(text=f"Output file saved as: {file_path}")
             logging.info("File successfully saved!")
-
 
     def open_result_file(self):
         """
         Opens and displays the content of the result JSON string in a new window.
         """
         try:
-            result_data = json.loads(self.simulation_output_json_str)
+            result_data = json.loads(self.simulation_output_data)
             self.result_window = tk.Toplevel(self.root)
             self.result_window.title("Simulation Results")
             tk.Label(self.result_window, text=json.dumps(result_data, indent=4), justify="left").pack(padx=10, pady=10)

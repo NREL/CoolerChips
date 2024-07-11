@@ -3,7 +3,7 @@ Module: tsrm_api.py
 Authors:
 - Najee Stubbs {nistubbs@uark.edu}, University of Arkansas, Mechanical Engineering Dept.
 - Tyler Kuper {tdkuper@uark.edu}, University of Arkansas, Computer Science Dept. 
-Date: July 9, 2024
+Date: July 10, 2024
 
 Description:
 tsrm_api.py gives the user an interface for managing the thermal stack reliability simulations. This module
@@ -13,15 +13,12 @@ the parapower simulation using ParaPowerPythonAPI and ReliabilityCalc.
 
 import os
 import json
-# import logging
 import argparse
-from src.utils.simData_util import SimData
 from src.communication.parapower_python_api import ParaPowerPythonApi
 from src.reliability.reliability_calc import ReliabilityCalc
 
 class TSRMApi:
     def __init__(self):
-        self.simdata = SimData()
         self.ppa = ParaPowerPythonApi()
         self.rel = ReliabilityCalc()
 
@@ -91,13 +88,13 @@ class TSRMApi:
         # Return the modified input data as JSON string
         return json.dumps(input_data, indent=2)
 
-    def __run_sim_with_modified_template(self, therm_mech_input_json_str):
+    def __run_sim_with_modified_template(self, therm_mech_input_data):
         """
         Runs the simulation and performs reliability calculations using
         the modified thermal stack template generated
 
         Args:
-            therm_mech_input_json_str (string): JSON string of the generated input data
+            therm_mech_input_data (string): JSON string of the generated input data
 
         Returns:
             string: JSON string of the reliability calculations output
@@ -105,12 +102,12 @@ class TSRMApi:
         
         try:
             # Run the MATLAB Simulation
-            sim_output_json_str = self.ppa.run_matlab_sim(therm_mech_input_json_str)
+            sim_output_data = self.ppa.run_matlab_sim(therm_mech_input_data)
             
             # Perform reliability calculations using the output path from the simulation
-            reliability_output_json_str = self.rel.generate_calculation(sim_output_json_str)
+            reliability_output_data = self.rel.generate_calculation(sim_output_data)
             
-            return reliability_output_json_str
+            return reliability_output_data
         except Exception as e:
             print(f"An error occurred during simulation: {e}")
             return None
@@ -125,7 +122,7 @@ class TSRMApi:
             Dictionary: File mapping for cooling and processor types
             string: Path directory to the input template json file
         """
-        base_directory = self.simdata.find_base_dir("TSRM_v1")
+        base_directory = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
         template_dir = os.path.normpath(os.path.join(base_directory, "libs", "thermal-stack-config"))
         
         file_mapping = {}
@@ -154,8 +151,8 @@ class TSRMApi:
         """
         if user_file_path:
             params = self.__extract_parameters(user_file_path)
-        therm_mech_input_json_str = self.__modify_thermal_stack_template(*params)
-        return self.__run_sim_with_modified_template(therm_mech_input_json_str)
+        therm_mech_input_data = self.__modify_thermal_stack_template(*params)
+        return self.__run_sim_with_modified_template(therm_mech_input_data)
     
     def stop_simulation(self):
         """

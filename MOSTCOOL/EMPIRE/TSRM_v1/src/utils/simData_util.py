@@ -3,7 +3,7 @@ Module: simdata_util.py
 Authors:
 - Najee Stubbs {nistubbs@uark.edu}, University of Arkansas, Mechanical Engineering Dept.
 - Tyler Kuper {tdkuper@uark.edu}, University of Arkansas, Computer Science Dept. 
-Date: June 20, 2024
+Date: July 10, 2024
 
 Description:
 simData_util.py provides utility function for managing simulation data paths. The module finds the

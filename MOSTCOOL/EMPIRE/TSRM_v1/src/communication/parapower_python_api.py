@@ -3,7 +3,7 @@ Module: parapower_python_api.py
 Authors:
 - Najee Stubbs {nistubbs@uark.edu}, University of Arkansas, Mechanical Engineering Dept.
 - Tyler Kuper {tdkuper@uark.edu}, University of Arkansas, Computer Science Dept.
-Date: July 9, 2024
+Date: July 10, 2024
 
 Description:
 This module provides an interface to run ParaPower simulations using a compiled MATLAB executable.
@@ -16,17 +16,15 @@ import os
 import subprocess
 import logging
 import tempfile
-from src.utils.simData_util import SimData
 
 class ParaPowerPythonApi:
     def __init__(self):
-        self.simdata = SimData()
         self.process = None
 
-    def run_matlab_sim(self, input_json_str):
+    def run_matlab_sim(self, input_data):
         
         # Find the base directory for the TSRM_v1 project
-        base_dir = self.simdata.find_base_dir('TSRM_v1')
+        base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
 
         # Path to the directory containing the compiled MATLAB executable
         compiled_dir = os.path.normpath(os.path.join(base_dir, "src", "therm_mech", "TSRM_ParaPower"))
@@ -41,7 +39,7 @@ class ParaPowerPythonApi:
 
         # Call the compiled MATLAB executable with the JSON strings
         logging.info("Starting subprocess...")
-        command = [matlab_executable, input_json_str, compiled_dir, output_file_path]
+        command = [matlab_executable, input_data, compiled_dir, output_file_path]
         self.process = subprocess.Popen(command, stderr=subprocess.PIPE, text=True)
         _, stderr = self.process.communicate()
 
@@ -54,17 +52,17 @@ class ParaPowerPythonApi:
 
         # Read the output JSON from the temporary file
         with open(output_file_path, 'r') as file:
-            output_json_str = file.read().strip()
+            output_data = file.read().strip()
 
         # Clean up the temporary file
         os.remove(output_file_path)
 
-        if not output_json_str:
+        if not output_data:
             logging.error("No JSON output received from MATLAB")
             raise ValueError("No JSON output received from MATLAB")
 
-        #logging.info(f"Output JSON from MATLAB: {output_json_str}")
-        return output_json_str
+        #logging.info(f"Output JSON from MATLAB: {output_data}")
+        return output_data
 
     def stop_matlab_sim(self):
         if self.process:

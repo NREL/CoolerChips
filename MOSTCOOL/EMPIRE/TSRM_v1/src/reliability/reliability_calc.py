@@ -3,7 +3,7 @@ Module: reliability_calc.py
 Authors:
 - Najee Stubbs {nistubbs@uark.edu}, University of Arkansas, Mechanical Engineering Dept.
 - Tyler Kuper {tdkuper@uark.edu}, University of Arkansas, Computer Science Dept. 
-Date: June 20, 2024
+Date: July 10, 2024
 
 Description:
 reliability_calc.py calculates the reliability of various componenets based on temperature data extracted
@@ -11,7 +11,6 @@ from ParaPower simulation results and builds an output path for the reliability 
 """
 
 import json
-# import logging
 from libs.reliability_lib import (
     processor_calc,
     tim_calc,
@@ -35,18 +34,18 @@ class ReliabilityCalc:
     def __init__(self):
         self.simdata = SimData()
 
-    def __extract_data(self, parapower_results_json_str):
+    def __extract_data(self, parapower_results_data):
         """
         Extracts features and temperatures from the parapower data for
         reliability calculations
 
         Args:
-            parapower_results_json_str (string): JSON string of the parapower results
+            parapower_results_data (string): JSON string of the parapower results
 
         Returns:
             list: Extracted data that contains features and temperature values
         """
-        input_data = json.loads(parapower_results_json_str)
+        input_data = json.loads(parapower_results_data)
         
         extracted_data = []
         for data_item in input_data:
@@ -102,20 +101,20 @@ class ReliabilityCalc:
             output_json.append(calc_result)
         return output_json
 
-    def generate_calculation(self, parapower_results_json_str):
+    def generate_calculation(self, parapower_results_data):
         """
         Main function for extracting features, performing calculations and 
         saving results.
 
         Args:
-            parapower_results_json_str (string): JSON string of the parapower results
+            parapower_results_data (string): JSON string of the parapower results
 
         Returns:
             string: JSON string of the reliability calculation results
         """
 
         # Extract data based on the parapower results 
-        extracted_data = self.__extract_data(parapower_results_json_str)
+        extracted_data = self.__extract_data(parapower_results_data)
 
         # Calculate reliability based on the extracted data
         calc_results = self.__calc_reliability(extracted_data)
@@ -123,10 +122,7 @@ class ReliabilityCalc:
         # Construct the output JSON structure
         output_json_data = self.__build_output_json(calc_results)
 
-        # Generate the output file path
-        output_file_path = self.simdata.create_output_path("TSRM_v1", "reliability_results", "ReliabilityResults")
-
         # Output results to an in-memory JSON string
-        output_json_str = json.dumps(output_json_data, indent=4)
+        output_data = json.dumps(output_json_data, indent=4)
 
-        return output_json_str
+        return output_data

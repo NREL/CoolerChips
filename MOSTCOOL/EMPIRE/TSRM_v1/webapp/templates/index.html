@@ -1,80 +1,75 @@
 <html>
 <head>
-	<meta charset="UTF-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>TSRM Web App</title>
-	<link rel="stylesheet" href="{{ url_for('static', filename='style.css')}}">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TSRM Web App</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css')}}">
 </head>
 <body>
-    <header>
-	    <h1>Thermal Stack Reliability Module</h1>
-    </header>
-    <div class="container">
-        <form action="{{ url_for('run_simulation') }}" method="post" enctype="multipart/form-data" id="simulationForm">
-            <div>
-                <h3>Options to Provide Inputs</h2>
-                <input type="radio" name="input_option" value="file" id="input_file" checked>
-                <label for="input_file">Import JSON File</label><br>
-                <div id="user_inputs">
-                    <input type="file" name="input_file"><br>
-                </div>
-                <input type="radio" name="input_option" value="manual" id="manual_input">
-                <label for="manual_input">Manually Input Values</label><br>
-            </div>
-
-            <div id="manual_inputs" style="display:none;">
-                <h3>Cooling System Parameters (Environmental Conditions)</h3>
-                <label for="cooling_method">Cooling Method:</label>
-                <select name="cooling_method" id="cooling_method">
-                    {% for cooling in cooling_types %}
-                    <option value="LiquidCooled">{{ cooling }}</option>
-                    {% endfor %}
-                </select><br>
-                <label for="heat_transfer_coefficient">Heat Transfer Coefficient (W/m²·K):</label>
-                <input type="number" name="heat_transfer_coefficient" value=0><br>
-                <label for="ambient_temperature">Ambient Temperature (°C):</label>
-                <input type="number" name="ambient_temperature" value=0><br>
-
-                <h3>Processor Conditions</h3>
-                <label for="processor_type">Processor Type:</label>
-                <select name="processor_type" id="processor_type">
-                    {% for processor in processor_types %}
-                    <option value="{{ processor }}">{{ processor }}</option>
-                    {% endfor %}
-                </select><br>
-                <label for="processor_temperature">Processing Temperature (°C):</label>
-                <input type="number" name="processor_temperature" value=0><br>
-                <label for="initial_temperature">Initial Temperature (°C):</label>
-                <input type="number" name="initial_temperature" value=0><br>
-            </div>
-            <div id="simulation-button-container">
-                <button type="submit" id="run-simulation-button">Run Simulation</button>
-                <button type="button" id="stop-simulation-button" onclick=stopSimulation() disabled>Stop Simulation</button>
-            </div>
-        </form>
-        <div id="progress-container">
-            <div class="status-label" id="status-label">Ready to start simulation.</div>
-            <progress id="progress-bar" style="display:none;"></progress>
+  <header>
+    <img src="/static/logo.png" alt="Header Image" style="width:800px;height:70px">
+  </header>
+  <div class="container">
+    <form action="{{ url_for('run_simulation') }}" method="post" enctype="multipart/form-data" id="simulationForm">
+      <div>
+        <h3>Options to Provide Inputs</h2>
+        <input type="radio" name="input-option" value="file" id="input-file" checked>
+        <label for="input-file">Import JSON File</label><br>
+        <div id="user-inputs">
+          <input type="file" name="input-file" id="input-file" accept=".json"><br>
         </div>
-
-        <div id="results-container" style="display:none;">
-            <h3>Results Handling</h3>
-            <button id="save-result" class="btn btn-secondary" onclick=downloadFile() disabled>Save Results</button>
-            <button id="view-result" class="btn btn-secondary" onclick=showResults()>View Results</button>
-        </div>
-        <div id="view-results-container" style="display:none;">
-            <p id="display-results"></p>
-        </div>
-
+        <input type="radio" name="input-option" value="manual" id="manual-input">
+        <label for="manual-input">Manually Input Values</label><br>
+      </div>
+      <div id="manual-inputs" style="display:none;">
+        <h3>Cooling System Parameters (Environmental Conditions)</h3>
+        <label for="cooling-method">Cooling Method:</label>
+        <select name="cooling-method" id="cooling-method">
+          {% for cooling in cooling_types %}
+          <option value="LiquidCooled">{{ cooling }}</option>
+          {% endfor %}
+        </select><br>
+        <label for="heat-transfer-coefficient">Heat Transfer Coefficient (W/m²·K):</label>
+        <input type="number" name="heat-transfer-coefficient" value=0><br>
+        <label for="ambient-temperature">Ambient Temperature (°C):</label>
+        <input type="number" name="ambient-temperature" value=0><br>
+        <h3>Processor Conditions</h3>
+        <label for="processor-type">Processor Type:</label>
+        <select name="processor-type" id="processor-type">
+          {% for processor in processor_types %}
+          <option value="{{ processor }}">{{ processor }}</option>
+          {% endfor %}
+        </select><br>
+        <label for="processor-temperature">Processing Temperature (°C):</label>
+        <input type="number" name="processor-temperature" value=0><br>
+        <label for="initial-temperature">Initial Temperature (°C):</label>
+        <input type="number" name="initial-temperature" value=0><br>
+      </div>
+      <div id="simulation-button-container">
+        <button type="submit" id="run-simulation-button">Run Simulation</button>
+        <button type="button" id="stop-simulation-button" onclick=stopSimulation() disabled>Stop Simulation</button>
+      </div>
+    </form>
+    <div id="progress-container">
+      <div class="status-label" id="status-label">Ready to start simulation.</div>
+      <progress id="progress-bar" style="display:none;"></progress>
     </div>
-    <footer>
-        <p>© 2024 Thermal Stack Reliability Module. All rights reserved.</p>
-    </footer>
-
-    <script src="https://code.jquery.com/jquery-3.5.1.js"
+    <div id="results-container" style="display:none;">
+      <h3>Results Handling</h3>
+      <button id="save-result" class="btn btn-secondary" onclick=downloadFile() disabled>Save Results</button>
+      <button id="view-result" class="btn btn-secondary" onclick=showResults()>View Results</button>
+    </div>
+    <div id="view-results-container" style="display:none;">
+      <p id="display-results"></p>
+    </div>
+  </div>
+  <footer>
+    <p>© 2024 Thermal Stack Reliability Module. All rights reserved.</p>
+  </footer>
+  <script src="https://code.jquery.com/jquery-3.5.1.js"
           integrity="sha256-QWo7LDvxbWT2tbbQ97B53yJnYU3WhH/C8ycbRAkjPDc="
           crossorigin="anonymous"></script>
-    <script type="text/javascript">
+  <script type="text/javascript">
         $(document).on('submit','#simulationForm',function(e){
             let formData = new FormData(this);            
             e.preventDefault();
@@ -102,11 +97,12 @@
                     $("#run-simulation-button").prop('disabled', false);
                 },
                 error: function(xhr, status, error) {
-
+                    $("#progress-bar").hide();
+                    $("#stop-simulation-button").prop('disabled', true);
+                    $("#run-simulation-button").prop('disabled', false);
                 }
             })
         });
-
         function downloadFile() {
             let xhttp = new XMLHttpRequest();
             xhttp.onreadystatechange = function() {
@@ -115,7 +111,7 @@
                 let url = window.URL.createObjectURL(blob);
                 let link = document.createElement("a");
                 link.href = url;
-                link.download = "output.json";
+                link.download = "TSRM_ReliabilityResults.json";
                 link.style.display = "none";
                 document.body.appendChild(link);
                 link.click();
@@ -127,7 +123,6 @@
             xhttp.responseType = "blob";
             xhttp.send();
         }
-        
         function showResults() {
             $.ajax({
                 type:'GET',
@@ -142,7 +137,6 @@
                 }
             })
         }
-
         function stopSimulation() {
             $.ajax({
                 type: 'POST',
@@ -160,15 +154,14 @@
                 }
             });
         }
-
-        document.getElementById('manual_input').addEventListener('change', function() {
-            document.getElementById('manual_inputs').style.display = 'block';
-            document.getElementById('user_inputs').style.display = 'none';
+        document.getElementById('manual-input').addEventListener('change', function() {
+            document.getElementById('manual-inputs').style.display = 'block';
+            document.getElementById('user-inputs').style.display = 'none';
         });
-        document.getElementById('input_file').addEventListener('change', function() {
-            document.getElementById('manual_inputs').style.display = 'none';
-            document.getElementById('user_inputs').style.display = 'block';
+        document.getElementById('input-file').addEventListener('change', function() {
+            document.getElementById('manual-inputs').style.display = 'none';
+            document.getElementById('user-inputs').style.display = 'block';
         });
-    </script>
+  </script>
 </body>
 </html>
