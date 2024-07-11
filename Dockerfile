@@ -8,15 +8,12 @@ ENV ENERGYPLUS_LINK=https://github.com/NREL/EnergyPlus/releases/download/v23.2.0
 RUN  apt-get update && apt-get install -y \
     wget=1.21.*\
     unzip=6.0-* \
-#    cmake \
-#    git \
+    git \
     python3=3.10.* \
     python3-pip=22.0.* \
-    python-is-python3
-
-# Install system dependencies
-RUN  apt-get update && apt-get install -y \
-    python3-tk=3.10.* 
+    python3-tk=3.10.* \
+    python-is-python3 && \
+    apt-get clean
 
 # Download and install EnergyPlus    
 RUN wget $ENERGYPLUS_LINK \
@@ -31,14 +28,17 @@ RUN wget -O ParaView-5.12.0-MPI-Linux-Python3.10-x86_64.tar.gz "https://www.para
 # Install Paraview dependencies
 RUN apt-get install ffmpeg libsm6 libxext6 libxcb-icccm4 libxcb-image0 libxcb-keysyms1 libxcb-render-util0 libxcb-xinerama0 libxcb-xinput0 libxcb-xfixes0 libxkbcommon-x11-0 -y
 
-# Copy requirements.txt to the docker image
-COPY requirements.txt /app/requirements.txt
+# Copy directory into /app/
+COPY . /app/
 
 # Install Python dependencies from requirements.txt file
 RUN pip install --no-cache-dir -r /app/requirements.txt
 
+# Install the mostcool package
+RUN pip install /app/
+
 RUN ln -s /EnergyPlus/energyplus /usr/local/bin/energyplus
 
-WORKDIR /app
+WORKDIR /app/mostcool
 
-CMD ["python", "main.py"]
+CMD ["python", "./core/main.py"]

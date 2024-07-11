@@ -1,3 +1,4 @@
+import os
 from time import sleep
 from typing import Optional, Callable
 import subprocess
@@ -7,7 +8,7 @@ import pandas as pd
 
 # Add commands that should be run to this list
 commands = [
-    ["helics", "run", "--path=runner.json"],
+    ["helics", "run", "--path=/app/mostcool/core/runner.json"],
     # ["python", "cost_model.py"], # Future work: The postprocessing stuff can be here
     # Add more as needed
 ]
@@ -17,9 +18,12 @@ def run_command(command):
 
     for line in iter(process.stdout.readline, ''):
         print(line, end='')
+        last_line = (line)
 
     process.wait()
     print(f"Command '{' '.join(command)}' finished with exit code {process.returncode}")
+    if process.returncode != 0:
+        raise Exception(f"Error code: {process.returncode}\nError:{last_line}")
 
 # Function to fix the datetime string and convert it to the correct format
 def fix_datetime(dt_str):
@@ -45,13 +49,13 @@ def fix_results(results):
     results.set_index('Date/Time', inplace=True)
     # Replace '(TimeStep)' with an empty string in each column name
     results.columns = results.columns.str.replace(r'\(TimeStep\)', '', regex=True)
-    if Path("Output/time_series_data.csv").exists():
-        time_series = pd.read_csv("Output/time_series_data.csv")#.drop(index=0)
+    if Path("/app/Output/time_series_data.csv").exists():
+        time_series = pd.read_csv("/app/Output/time_series_data.csv")#.drop(index=0)
         time_series = time_series.drop(time_series.index[:1])
 
         results["Maximum CPU Temperature [C]"] = time_series["Value"].values #(.values) to ignore index
     else:
-        print(f"Thermal model CSV output not found at Output/time_series_data.csv")
+        print(f"Thermal model CSV output not found at /Output/time_series_data.csv")
     return results
 
 
@@ -66,17 +70,20 @@ class Simulator:
         self.increment_callback: Optional[Callable] = None
         self.all_done_callback: Optional[Callable] = None
         self.cancel_callback: Optional[Callable] = None
+        self.error_callback: Optional[Callable] = None
 
     def add_callbacks(self, print_callback,
                       sim_starting_callback,
                       increment_callback,
                       all_done_callback,
-                      cancel_callback):
+                      cancel_callback,
+                      error_callback):
         self.print_callback = print_callback
         self.sim_starting_callback = sim_starting_callback
         self.increment_callback = increment_callback
         self.all_done_callback = all_done_callback
         self.cancel_callback = cancel_callback
+        self.error_callback = error_callback
         
     def write_options_to_file(self):
         config_dir = "Output/run_config/"
@@ -87,14 +94,16 @@ class Simulator:
     def run(self) -> None:
         self.print_callback("Hey I am starting")
         sleep(0.5)
-        self.sim_starting_callback(len(commands))
-        self.write_options_to_file()
-        for cmd in commands:
-            print(f"Running command: {' '.join(cmd)}")
-            run_command(cmd)
-            print("-" * 50)  # Separator between command outputs
-            self.increment_callback(f"Finished with iteration {commands.index(cmd)}")
-        ep_results = pd.read_csv("Output/eplusout.csv")
-        ep_results = ep_results.drop(ep_results.index[:1]) # initial values look strange
-        self.all_done_callback(fix_results(ep_results))
-        
+        try:
+            self.sim_starting_callback(len(commands))
+            self.write_options_to_file()
+            for cmd in commands:
+                print(f"Running command: {' '.join(cmd)}")
+                run_command(cmd)
+                print("-" * 50)  # Separator between command outputs
+                self.increment_callback(f"Finished with iteration {commands.index(cmd)}")
+                ep_results = pd.read_csv("/app/Output/eplusout.csv")
+                ep_results = ep_results.drop(ep_results.index[:1]) # initial values look strange
+                self.all_done_callback(fix_results(ep_results))
+        except Exception as e:
+                self.error_callback(e)

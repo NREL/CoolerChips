@@ -15,13 +15,11 @@ import webbrowser
 from matplotlib import pyplot as plt
 from matplotlib.figure import Figure
 import matplotlib.dates as mdates
-import pandas as pd
-from plan_tools.runtime import fixup_taskbar_icon_on_windows
 from pubsub import pub
 from typing import Union
 import definitions
 import simulator
-import paraview
+import mostcool.thermal.paraview as paraview
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from PIL import ImageTk, Image
 
@@ -36,6 +34,7 @@ class PubSubMessageTypes:
     DIFF_COMPLETE = '50'
     ALL_DONE = '60'
     CANCELLED = '70'
+    ERROR = '80'
     
 class ImageViewer:
     def __init__(self, main, image_folder):
@@ -122,20 +121,20 @@ class MyApp(Frame):
 
         # add the taskbar icon, but its having issues reading the png on Mac, not sure.
         if system() == 'Darwin':
-            self.icon_path = Path(__file__).resolve().parent / 'icons' / 'icon.icns'
+            self.icon_path = Path(__file__).resolve().parent.parent /'assets' / 'icons' / 'icon.icns'
             if self.icon_path.exists():
                 self.root.iconbitmap(str(self.icon_path))
             else:
                 print(f"Could not set icon for Mac, expecting to find it at {self.icon_path}")
         elif system() == 'Windows':
-            self.icon_path = Path(__file__).resolve().parent / 'icons' / 'icon.png'
+            self.icon_path = Path(__file__).resolve().parent.parent /'assets' / 'icons' / 'icon.png'
             img = PhotoImage(file=str(self.icon_path))
             if self.icon_path.exists():
                 self.root.iconphoto(False, img)
             else:
                 print(f"Could not set icon for Windows, expecting to find it at {self.icon_path}")
         else:  # Linux
-            self.icon_path = Path(__file__).resolve().parent / 'icons' / 'icon.png'
+            self.icon_path = Path(__file__).resolve().parent.parent /'assets' / 'icons' / 'icon.png'
             img = PhotoImage(file=str(self.icon_path))
             if self.icon_path.exists():
                 self.root.iconphoto(False, img)
@@ -194,6 +193,7 @@ class MyApp(Frame):
         pub.subscribe(self.increment_handler, PubSubMessageTypes.CASE_COMPLETE)
         pub.subscribe(self.done_handler, PubSubMessageTypes.ALL_DONE)
         pub.subscribe(self.cancelled_handler, PubSubMessageTypes.CANCELLED)
+        pub.subscribe(self.error_handler, PubSubMessageTypes.ERROR)
 
         # on Linux, initialize the notification class instance
         self.notification = None
@@ -237,7 +237,7 @@ class MyApp(Frame):
         pane_intro.pack(fill='both', expand=True)  # Ensure pane_intro fills notebook
         self.main_notebook.add(pane_intro, text='Introduction')
         
-        app = ImageViewer(pane_intro, '/app/v1_slide_images/')  # Update this path
+        app = ImageViewer(pane_intro, '/app/mostcool/assets/images/v1_slide_images')  # Update this path
 
         
         # run configuration
@@ -248,7 +248,7 @@ class MyApp(Frame):
         # Map Image
         map_image_frame = LabelFrame(pane_run)  # Adjust text as needed with text="Map Image"
         map_image_frame.pack(fill='x', padx=5, pady=5)
-        img = Image.open("/app/Resources/map.png")
+        img = Image.open("/app/mostcool/assets/images/map.png")
         self.img = ImageTk.PhotoImage(img)
         panel = Label(map_image_frame, image=self.img)
         panel.pack(side="top", fill="both", expand="yes")
@@ -547,7 +547,8 @@ class MyApp(Frame):
                                                sim_starting_callback=MyApp.starting_listener,
                                                increment_callback=MyApp.increment_listener,
                                                all_done_callback=MyApp.done_listener,
-                                               cancel_callback=MyApp.cancelled_listener)
+                                               cancel_callback=MyApp.cancelled_listener,
+                                               error_callback=MyApp.error_listener)
         # self.background_operator_plotter = plotter.Plotter(y_axis_variable=self.y_axis_variable.get())
         # self.background_operator_plotter.add_callbacks(all_done_callback=MyApp.done_listener)
         self.set_gui_status_for_run(True)
@@ -575,7 +576,7 @@ class MyApp(Frame):
         num_progress_steps = definitions.TOTAL_SECONDS
         self.progress['maximum'] = num_progress_steps
         self.progress['value'] = 0
-        server_log = 'Server_federate.log'
+        server_log = '/app/mostcool/core/Server_federate.log'
         pattern = re.compile(r'at time (\d+\.?\d*)')
 
         def update_progress(value):
@@ -645,6 +646,16 @@ class MyApp(Frame):
     @staticmethod
     def cancelled_listener():
         pub.sendMessage(PubSubMessageTypes.CANCELLED)
+
+    @staticmethod
+    def error_listener(error_message):
+        pub.sendMessage(PubSubMessageTypes.ERROR, error_message=error_message)
+
+    def error_handler(self, error_message):
+        self.add_to_log("Hit Error!")
+        messagebox.showerror("Error", f"Last error: {error_message}")
+        self.label_status.set("Aborted because of error.")
+        self.client_done()
 
     def cancelled_handler(self):
         self.add_to_log("Cancelled!")

@@ -20,7 +20,7 @@ upper_CPU_frac = 1
 # Example usage:
 # In the case of air temperature close to the server being 30°C (Assuming a supply temperature of 20°C and supply approach temperture difference of 10°C)
 # Example usage:
-solution_path = "/app/ThermalModel_datacenter/PythonPOD_Solid.cgns"  # Update with the actual path to your solution file
+solution_path = "/app/mostcool/thermal/data/PythonPOD_Solid.cgns"  # Update with the actual path to your solution file
 paraview_path = "/Paraview/bin/paraview"  # Ensure this matches your ParaView installation path
 
 
@@ -39,8 +39,8 @@ def build_and_scale_rbf_models(kernel_function='multiquadric'):
     - param_scaler: Fitted scaler for parameters.
     - coeff_scaler: Fitted scaler for coefficients.
     """
-    coefficients = np.loadtxt('/app/ThermalModel_datacenter/coeff.csv', delimiter=',')
-    parameter_array=np.loadtxt('/app/ThermalModel_datacenter/parameter_array.csv', delimiter=',')
+    coefficients = np.loadtxt('/app/mostcool/thermal/data/coeff.csv', delimiter=',')
+    parameter_array=np.loadtxt('/app/mostcool/thermal/data/parameter_array.csv', delimiter=',')
     # Initialize and fit scalers
     param_scaler = MinMaxScaler().fit(parameter_array)
     coeff_scaler = MinMaxScaler().fit(coefficients)
@@ -90,7 +90,7 @@ def predict_temperature(velocity, CPU_load_fraction=0.73, inlet_server_temperatu
     """
     
     #----------------------------------Need to be excuted only once---------------------------
-    modes = np.loadtxt('/app/ThermalModel_datacenter/modes.csv', delimiter=',')
+    modes = np.loadtxt('/app/mostcool/thermal/data/modes.csv', delimiter=',')
     #-----------------------------------------------------------------------------------------
     # Create a 2D array from the input parameters
     new_parameters = np.array([[velocity, CPU_load_fraction]])

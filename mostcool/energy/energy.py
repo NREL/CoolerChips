@@ -2,8 +2,8 @@
 from dataclasses import dataclass
 import os
 from pathlib import Path
-import federate as federate
-import definitions
+import mostcool.core.federate as federate
+import mostcool.core.definitions as definitions
 import sys
 
 
@@ -157,7 +157,7 @@ class energyplus_runner:
                 self.idf_path,
             ],
         )
-        print(f"EnergyPlus exited with code: {exit_code}, at HELICS time {self.ep_federate.granted_time}.")
+        print(f"EnergyPlus exited with code: {exit_code}, at HELICS time {self.ep_federate.granted_time}. Outputs at {self.output_dir}")
         self.ep_federate.destroy_federate()
 
 

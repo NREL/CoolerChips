@@ -11,8 +11,8 @@ class CONTROL_OPTIONS(IntEnum):
     
 # TODO: select a control option
 
-if os.path.exists('Output/run_config/config.json'):
-    with open('Output/run_config/config.json', 'r') as f:
+if os.path.exists('/app/Output/run_config/config.json'):
+    with open('/app/Output/run_config/config.json', 'r') as f:
         data = json.load(f)
         control_option_name = data["control_option"]
         try:
@@ -23,12 +23,12 @@ else:
     CONTROL_OPTION = CONTROL_OPTIONS.CHANGE_IT_LOAD
     
 if CONTROL_OPTION == CONTROL_OPTIONS.CHANGE_LIQUID_COOLING:
-    IDF_PATH = "Resources/energyplus_files/2ZoneDataCenterCRAHandplant.idf"
+    IDF_PATH = "/app/mostcool/energy/data/2ZoneDataCenterCRAHandplant.idf"
 else:
-    IDF_PATH = "Resources/energyplus_files/2ZoneDataCenterCRAHandplant_aircoolingonly.idf"
+    IDF_PATH = "/app/mostcool/energy/data/2ZoneDataCenterCRAHandplant_aircoolingonly.idf"
 
-OUTPUT_DIR = "./Output"
-ENERGYPLUS_INSTALL_PATH = "../EnergyPlus"
+OUTPUT_DIR = "/app/Output"
+ENERGYPLUS_INSTALL_PATH = "/EnergyPlus"
 LOCATION_MAP = {
     "Chicago, IL" : "USA_IL_Chicago-OHare.Intl.AP.725300_TMY3.epw",
     "San Francisco, CA" : "USA_CA_San.Francisco.Intl.AP.724940_TMY3.epw",
@@ -36,8 +36,8 @@ LOCATION_MAP = {
     "Tampa, FL": "USA_FL_Tampa.Intl.AP.722110_TMY3.epw"
 }
 
-if os.path.exists('Output/run_config/config.json'):
-    with open('Output/run_config/config.json', 'r') as f:
+if os.path.exists('/app/Output/run_config/config.json'):
+    with open('/app/Output/run_config/config.json', 'r') as f:
         data = json.load(f)
         datacenter_location_name = data["datacenter_location"]
         EPW_FILE = LOCATION_MAP[datacenter_location_name]
