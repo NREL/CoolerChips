@@ -17,6 +17,7 @@ import subprocess
 import logging
 import tempfile
 import platform
+import stat
 
 class ParaPowerPythonApi:
     def __init__(self):
@@ -36,6 +37,9 @@ class ParaPowerPythonApi:
         elif system == 'Linux':
             matlab_executable = os.path.normpath(os.path.join(compiled_dir, "linux_parapower_matlab_api"))
             matlab_runner = os.path.normpath(os.path.join(compiled_dir, "run_linux_parapower_matlab_api.sh"))
+
+            # Ensure the shell script has execute permissions (Remove if it give issues?)
+            os.chmod(matlab_runner, os.stat(matlab_runner).st_mode | stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH)
         else:
             raise OSError("Unsupported operating system")
 
@@ -50,7 +54,7 @@ class ParaPowerPythonApi:
         if system == 'Windows':
             command = [matlab_executable, input_data, compiled_dir, output_file_path]
         elif system == 'Linux':
-            command = [matlab_runner, matlab_executable, input_data, compiled_dir, output_file_path]
+            command = [matlab_runner, "/path/to/mcr_directory", input_data, compiled_dir, output_file_path]
 
         self.process = subprocess.Popen(command, stderr=subprocess.PIPE, text=True)
         _, stderr = self.process.communicate()
