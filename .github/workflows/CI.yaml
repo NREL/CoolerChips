@@ -37,6 +37,10 @@ jobs:
           tags: mostcool:latest
           build-args: |
             RUN_TESTS=true
+          
+      - name: Pull Docker image
+        run: |
+          docker pull jermythomasv/mostcool-test:latest
 
       - name: Remove existing Docker container
         run: |
@@ -44,12 +48,12 @@ jobs:
 
       - name: Verify pytest installation
         run: |
-          docker run --name mostcool-container-verify mostcool:latest pytest --version
+          docker run jermythomasv/mostcool-test:latest pytest --version
         continue-on-error: true
 
       - name: List contents of /app/mostcool/tests/ inside Docker container
         run: |
-          docker run --name mostcool-container-list mostcool:latest ls -la /app/mostcool/
+          docker run --name mostcool-container-list jermythomasv/mostcool-test:latest ls -la /app/mostcool/
       
       - name: Stop and remove Docker container after listing contents
         run: |
@@ -58,8 +62,7 @@ jobs:
 
       - name: Run tests inside Docker container
         run: |
-          docker rm mostcool-container-test
-          docker run --name mostcool-container-test mostcool:latest pytest --cov=mostcool --cov-report=xml /app/mostcool/tests/
+          docker run --name mostcool-container-test jermythomasv/mostcool-test:latest pytest --cov=mostcool --cov-report=xml /app/mostcool/tests/
         continue-on-error: true
 
       - name: Copy coverage report from Docker container
