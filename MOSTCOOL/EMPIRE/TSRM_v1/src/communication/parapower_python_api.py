@@ -54,7 +54,7 @@ class ParaPowerPythonApi:
         if system == 'Windows':
             command = [matlab_executable, input_data, compiled_dir, output_file_path]
         elif system == 'Linux':
-            command = [matlab_runner, "/path/to/mcr_directory", input_data, compiled_dir, output_file_path]
+            command = [matlab_runner, '/usr/local/MATLAB/MATLAB_Runtime/R2023b', input_data, compiled_dir, output_file_path]
 
         self.process = subprocess.Popen(command, stderr=subprocess.PIPE, text=True)
         _, stderr = self.process.communicate()
