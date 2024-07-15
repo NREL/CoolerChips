@@ -39,7 +39,7 @@ class TSRMApi:
             string: Extracted initial temperature value
         """
         if user_file_path:
-            with open(user_file_path, 'r') as json_file:
+            with open(user_file_path, 'r', encoding='utf-8') as json_file:
                 input_data = json.load(json_file)
                 # Extract values from JSON and set them in the GUI variables
                 return input_data["cooling_type"], input_data["processor_type"], input_data["heat_transfer_coef"], input_data["ambient_temp"], input_data["proc_temp"], input_data["initial_temp"]
@@ -66,7 +66,7 @@ class TSRMApi:
         
         template_path = os.path.normpath(os.path.join(template_dir, file_mapping[(cooling_type, processor_type)]))
 
-        with open(template_path, 'r') as json_file:
+        with open(template_path, 'r', encoding='utf-8') as json_file:
             input_data = json.load(json_file)
 
         # Modify the input data with provided parameters
