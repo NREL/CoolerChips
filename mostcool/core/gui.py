@@ -17,8 +17,8 @@ from matplotlib.figure import Figure
 import matplotlib.dates as mdates
 from pubsub import pub
 from typing import Union
-import definitions
-import simulator
+import mostcool.core.definitions as definitions
+import mostcool.core.simulator as simulator
 import mostcool.thermal.paraview as paraview
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from PIL import ImageTk, Image
