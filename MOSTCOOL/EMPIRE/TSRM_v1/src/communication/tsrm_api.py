@@ -85,8 +85,7 @@ class TSRMApi:
         input_data['ExternalConditions']['Tproc'] = proc_temp
         input_data['Params']['Tinit'] = initial_temp
 
-        # Return the modified input data as JSON string
-        return json.dumps(input_data, indent=2)
+        return json.dumps(input_data)
 
     def __run_sim_with_modified_template(self, therm_mech_input_data):
         """
