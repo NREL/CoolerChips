@@ -41,4 +41,4 @@ markupsafe==2.1.5
 requests==2.32.2 
 urllib3==2.2.1 
 werkzeug==3.0.3 
-bs4==4.12.3
+bs4

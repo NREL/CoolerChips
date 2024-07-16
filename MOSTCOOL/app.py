@@ -122,7 +122,7 @@ for rule in CostModelGuiV1_1.app.url_map.iter_rules():
     cost_bp.add_url_rule(rule.rule, endpoint, view_func=CostModelGuiV1_1.app.view_functions[rule.endpoint])
 
 # Register the Blueprint with the '/cost' prefix
-app.register_blueprint(cost_bp, url_prefix='/cost')
+app.register_blueprint(cost_bp, url_prefix='/results/cost')
 
 
 @app.after_request
@@ -130,7 +130,7 @@ def after_request(response):
     """
     This function modifies the response HTML content to prepend /cost to all relative URLs.
     """
-    if request.path.startswith('/cost') and response.content_type == 'text/html; charset=utf-8':
+    if request.path.startswith('/results/cost') and response.content_type == 'text/html; charset=utf-8':
         response.set_data(re.sub(r'href="/', 'href="/cost/', response.get_data(as_text=True)))
         response.set_data(re.sub(r'src="/', 'src="/cost/', response.get_data(as_text=True)))
         response.set_data(re.sub(r'action="/', 'action="/cost/', response.get_data(as_text=True)))
