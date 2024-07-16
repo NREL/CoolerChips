@@ -10,5 +10,4 @@ modes.csv
 .venv/
 build/
 *.egg-info/
-MOSTCOOL
 */weather.epw

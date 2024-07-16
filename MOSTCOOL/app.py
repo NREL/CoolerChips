@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request, jsonify, Blueprint
 import subprocess
 import definitions
 import os
@@ -9,6 +9,15 @@ from pathlib import Path
 import plotly.express as px
 import re
 from time import sleep
+
+# Import the sub-module functions and classes
+import sys
+sys.path.append('/app/Cost')
+import CostModelGuiV1_1
+from CostModelFileCalculationsV1_1 import variables, Cooling_System_Details, update_cooling_system_details, get_cooling_system_details, get_redundancy_multiplier, calculate_total_cooling_cost, calculate_irr, format_currency
+from CostModelFileProcessingV1_1 import table_lookup, process_html_content
+
+
 
 app = Flask(__name__)
 
@@ -97,6 +106,35 @@ class Simulator:
         ep_results = pd.read_csv("Output/eplusout.csv")
         ep_results = ep_results.drop(ep_results.index[:1])  # Drop the initial strange values
         self.results = fix_results(ep_results)
+
+
+# Create a Blueprint for the sub-module
+cost_bp = Blueprint('cost', __name__, template_folder='/app/Cost/CostTemplates')
+
+# Dynamically add routes from the sub-module to the blueprint
+for rule in CostModelGuiV1_1.app.url_map.iter_rules():
+    print(rule)
+    # Skip rules for static files
+    if 'static' in rule.endpoint:
+        continue
+    # Create a new rule with the '/cost' prefix
+    endpoint = 'cost_' + rule.endpoint.replace('.', '_')
+    cost_bp.add_url_rule(rule.rule, endpoint, view_func=CostModelGuiV1_1.app.view_functions[rule.endpoint])
+
+# Register the Blueprint with the '/cost' prefix
+app.register_blueprint(cost_bp, url_prefix='/cost')
+
+
+@app.after_request
+def after_request(response):
+    """
+    This function modifies the response HTML content to prepend /cost to all relative URLs.
+    """
+    if request.path.startswith('/cost') and response.content_type == 'text/html; charset=utf-8':
+        response.set_data(re.sub(r'href="/', 'href="/cost/', response.get_data(as_text=True)))
+        response.set_data(re.sub(r'src="/', 'src="/cost/', response.get_data(as_text=True)))
+        response.set_data(re.sub(r'action="/', 'action="/cost/', response.get_data(as_text=True)))
+    return response
 
 @app.route("/")
 def home():
