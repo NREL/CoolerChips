@@ -1,9 +1,30 @@
 services:
   main:
-    build: EnergyPlusExample
-    network_mode: host
+    build: MOSTCOOL
+    ports:
+      - "5000:5000"
+      - "5001:5001"
+      - "1234:1234"
     environment:
       - DISPLAY
     volumes:
       - /tmp/.X11-unix:/tmp/.X11-unix
-      - ./EnergyPlusExample:/app
+      - ./MOSTCOOL:/app
+  main-gpu:
+    build: MOSTCOOL
+    ports:
+      - "5000:5000"
+      - "5001:5001"
+      - "1234:1234"
+    environment:
+      - DISPLAY
+    volumes:
+      - /tmp/.X11-unix:/tmp/.X11-unix
+      - ./MOSTCOOL:/app
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
