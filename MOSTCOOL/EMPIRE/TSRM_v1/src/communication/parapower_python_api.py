@@ -54,6 +54,7 @@ class ParaPowerPythonApi:
         if system == 'Windows':
             command = [matlab_executable, input_data, compiled_dir, output_file_path]
         elif system == 'Linux':
+            input_data = input_data.replace('"',"'") # Needed for Linux because Linux hates windows... take my word for it
             command = [matlab_runner, '/usr/local/MATLAB/MATLAB_Runtime/R2023b', input_data, compiled_dir, output_file_path]
 
         self.process = subprocess.Popen(command, stderr=subprocess.PIPE, text=True)
