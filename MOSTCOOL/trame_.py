@@ -437,7 +437,15 @@ def load_data(**kwargs):
     solution_PythonPOD_SolidcgnsDisplay.PolarAxes.Use2DMode = 0
     solution_PythonPOD_SolidcgnsDisplay.PolarAxes.UseLogAxis = 0
     # reset view to fit data
-    renderView1.ResetCamera(False, 0.9)
+    # get the bounds of the object
+    bounds = solution_PythonPOD_Solidcgns.GetDataInformation().GetBounds()
+    center = [(bounds[1] + bounds[0]) / 2.0, (bounds[3] + bounds[2]) / 2.0, (bounds[5] + bounds[4]) / 2.0]
+
+    # set the center of rotation to the center of the object
+    renderView1.CenterOfRotation = center
+
+    # reset the camera to the new center
+    renderView1.ResetCamera()
     # get the material library
     materialLibrary1 = GetMaterialLibrary()
     # update the view to ensure updated data information
@@ -482,7 +490,7 @@ def load_data(**kwargs):
 
         with layout.content:
             with vuetify.VContainer(fluid=True, classes="pa-0 fill-height"):
-                html_view = paraview.VtkRemoteView(renderView1)
+                html_view = paraview.VtkLocalView(renderView1)
                 ctrl.view_reset_camera = html_view.reset_camera
                 ctrl.view_update = html_view.update
 

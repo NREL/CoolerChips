@@ -1,3 +1,5 @@
+import update_cgns
+import trame_
 from flask import Flask, render_template, request, jsonify, Blueprint, url_for
 import subprocess
 import definitions
@@ -323,24 +325,32 @@ def get_progress():
 def get_progress_max():
     return jsonify({'progress_max': progress_max})
 
-@app.route('/run-command', methods=['POST'])
-def run_command():
+@app.route('/server-thermal-profiles')
+def server_thermal_profiles():
+    return render_template('server_thermal_profiles.html')
+
+@app.route('/run-paraview', methods=['POST'])
+def run_paraview():
     data = request.json
-    command = data.get('command')
+    velocity = int(data['velocity'])
+    server_temp = int(data['server_temp'])
+    cpu_load = float(data['cpu_load'])
     
-    if command == 'server_thermal_profiles':
-        try:
-            subprocess.Popen(['python', 'trame_.py', '--host', '0.0.0.0', '--port', '1234'])
-            return jsonify({'status': 'success'})
-        except OSError as e:
-            if e.errno == 98:  # Address already in use
-                return jsonify({'status': 'warning', 'message': 'Address already in use'})
-            else:
-                return jsonify({'status': 'error', 'error': str(e)})
-        except Exception as e:
+    try:
+        print("updating cgns")
+        update_cgns.predict_temperature(velocity=velocity, CPU_load_fraction=cpu_load, inlet_server_temperature=server_temp)
+        print("updated cgns")
+        subprocess.Popen(['python', 'trame_.py', 
+                          '--host', '0.0.0.0', 
+                          '--port', '1234'])
+        return jsonify({'status': 'success'})
+    except OSError as e:
+        if e.errno == 98:  # Address already in use
+            return jsonify({'status': 'warning', 'message': 'Address already in use'})
+        else:
             return jsonify({'status': 'error', 'error': str(e)})
-    else:
-        return jsonify({'status': 'error', 'error': 'Unknown command'})
+    except Exception as e:
+        return jsonify({'status': 'error', 'error': str(e)})
 
 if __name__ == "__main__":
     app.run("0.0.0.0", port=5000, debug=False)

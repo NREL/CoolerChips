@@ -1,30 +1,16 @@
-
-
-  
-
-  
-
 # MOSTCOOL
-
-  
 
 ## Requirements/Tested on:
 
-  
-
-1. Ubuntu 22.04 with administrator access (Also works on Virtual Machines).
+1. At least Quad Core CPU
 
   
 
-2. At least Quad Core CPU
+2. At least 16 GB RAM
 
   
 
-3. At least 16 GB RAM
-
-  
-
-4. At least 4 GB hard disk space
+3. At least 10 GB storage space
 
   
 
@@ -32,7 +18,7 @@
 
 ## How to run:
 
-  
+Note: You may be able to skip some of these steps (Step 4, 5) but the app will not function correctly. 
 
   
 
@@ -46,7 +32,7 @@ https://docs.docker.com/engine/install/
 
   
 
-2. Clone this repo:
+2. Clone this repo by typing this in the terminal:
 
   
 
@@ -58,9 +44,10 @@ https://docs.docker.com/engine/install/
 
 3. cd into the cloned directory.
 
+4. Checkout the `web_app` branch : `git checkout web_app`
   
 
-4. Download required dependencies and place them in these paths:
+5. Download the files below (required dependencies) and place them in these paths:
 
   
 
@@ -77,19 +64,13 @@ https://docs.docker.com/engine/install/
 
   
 
-5. Build the container:
+6. Build the container:
 
   
 
 `docker compose build`
 
-  
-  
-  
 
-6. Give docker permission to display it's GUI app on host. This step must be repeated each time the computer/virtual machine is restarted: `xhost +local:docker`
-
-  
 
 7. Run the container:
 
@@ -99,40 +80,24 @@ https://docs.docker.com/engine/install/
 
   
 
-  
-
-8. You should see the app pop up:
-
-  
-
-![image](https://github.com/NREL/CoolerChips/assets/45446967/9189f34e-5b97-486d-8387-c5049401e23b)
+ 8.  The terminal will tell you on which address the app is running:
+  ![image](https://github.com/NREL/CoolerChips/assets/45446967/9485ce73-2f61-4de3-a249-673838180668)
 
 
-  
+ 
 
+10. Copy-paste the address in a browser window and the application should come up:
+![image](https://github.com/NREL/CoolerChips/assets/45446967/903a037f-08f6-4b89-a93d-b10b88752531)
   
 
 ## Sample results:
-
-  
-
+Results from Paraview:
+![image](https://github.com/NREL/CoolerChips/assets/45446967/01bdd7a6-07bd-499e-a3d2-85aeeaf80799)
   
 
 Simulation outputs:
+![image](https://github.com/NREL/CoolerChips/assets/45446967/e966443c-c551-48b0-8902-b78f1a3862e2)
 
-  
-
-![image](https://github.com/NREL/CoolerChips/assets/45446967/9dc5e93b-0303-4de4-87fd-588b7e70efc9)
-
-  
-
-  
-
-Results from Paraview:
-
-  
-
-![image](https://github.com/NREL/CoolerChips/assets/45446967/f607abac-d3b3-4069-8778-86b1e5648a14)
 
 
 ## Individual Model Documentation:

@@ -18,12 +18,12 @@ RUN  apt-get update && apt-get install -y \
     python3-tk=3.10.* 
 
 # Download and install EnergyPlus    
-RUN wget $ENERGYPLUS_LINK \
+RUN wget --no-check-certificate  $ENERGYPLUS_LINK \
     && tar -xzf EnergyPlus-23.2.0-7636e6b3e9-Linux-Ubuntu22.04-x86_64.tar.gz \
     && mv EnergyPlus-23.2.0-7636e6b3e9-Linux-Ubuntu22.04-x86_64 EnergyPlus
 
 # Download and install Paraview
-RUN wget -O ParaView-5.12.0-egl-MPI-Linux-Python3.10-x86_64.tar.gz "https://www.paraview.org/paraview-downloads/download.php?submit=Download&version=v5.12&type=binary&os=Linux&downloadFile=ParaView-5.12.0-egl-MPI-Linux-Python3.10-x86_64.tar.gz" \
+RUN wget --no-check-certificate  -O ParaView-5.12.0-egl-MPI-Linux-Python3.10-x86_64.tar.gz "https://www.paraview.org/paraview-downloads/download.php?submit=Download&version=v5.12&type=binary&os=Linux&downloadFile=ParaView-5.12.0-egl-MPI-Linux-Python3.10-x86_64.tar.gz" \
     && tar -xzf ParaView-5.12.0-egl-MPI-Linux-Python3.10-x86_64.tar.gz \
     && mv ParaView-5.12.0-egl-MPI-Linux-Python3.10-x86_64 Paraview
 
@@ -46,6 +46,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 # Create symbolic link for EnergyPlus
 RUN ln -s /EnergyPlus/energyplus /usr/local/bin/energyplus
+
+# Paraview env variable
+ARG TRAME_DEFAULT_HOST=127.0.0.1
 
 # Set working directory
 WORKDIR /app
