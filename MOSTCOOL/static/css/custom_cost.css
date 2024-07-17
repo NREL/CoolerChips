@@ -1,0 +1,19 @@
+/* static/css/custom_cost.css */
+.table-container {
+    overflow-x: auto;
+    margin-top: 20px;
+}
+.table thead th {
+    vertical-align: middle;
+}
+.form-control {
+    padding: 0.375rem 0.75rem;
+    height: auto;
+}
+.graph-container {
+    margin-top: 20px;
+    text-align: center;
+}
+.editable {
+    background-color: #f9f9f9;
+}

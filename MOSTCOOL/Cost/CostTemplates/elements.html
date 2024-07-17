@@ -1,16 +1,30 @@
-<!doctype html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cost Elements</title>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-</head>
-<body>
-    <div class="container">
-        <h1 class="mt-4">Cost Elements</h1>
-        <!-- Add content for cost elements menu -->
-        <a href="/" class="btn btn-secondary mt-3">Back</a>
-    </div>
-</body>
-</html>
+<!-- Cost/CostTemplates/settings.html -->
+{% extends "base_template.html" %}
+
+{% block title %}Cost Elements{% endblock %}
+
+{% block sidebar %}
+<li class="nav-item">
+  <a href="/results/cost/" class="nav-link">Cost Model Home</a>
+</li>
+<li class="nav-item">
+  <a href="/results/cost/settings" class="nav-link">Settings</a>
+</li>
+<li class="nav-item">
+  <a href="/results/cost/elements.html" class="nav-link active">Cost Elements Menu</a>
+</li>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1 class="mt-4">Cost Elements</h1>
+    <!-- Add content for cost elements menu -->
+    <a href="/results/cost/" class="btn btn-secondary mt-3">Back</a>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+{% endblock %}
