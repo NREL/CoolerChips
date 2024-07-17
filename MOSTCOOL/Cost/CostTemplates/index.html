@@ -31,13 +31,13 @@
         <h1 class="mt-4">Cost Model Demonstration V1.1</h1>
 
         <div class="mt-3">
-            <a href="/settings" class="btn btn-secondary" onclick="saveState()">Settings</a>
-            <a href="/elements.html" class="btn btn-secondary" onclick="saveState()">Cost Elements Menu</a>
+            <a href="/results/cost/settings" class="btn btn-secondary" onclick="saveState()">Settings</a>
+            <a href="/results/cost/elements.html" class="btn btn-secondary" onclick="saveState()">Cost Elements Menu</a>
             <button class="btn btn-secondary" id="saveBtn" onclick="saveState()">Save</button>
             <button class="btn btn-secondary" id="loadBtn">Load</button>
         </div>
 
-        <form id="fileForm" method="post" action="/process_file" onsubmit="return handleFormSubmit(event);">
+        <form id="fileForm" method="post" action="/results/cost/process_file" onsubmit="return handleFormSubmit(event);">
             <div class="form-group" id="file1-group">
                 <label for="file1">Add the first HTM/SQL file:</label>
                 <input type="file" class="form-control" id="file1" name="file1" onchange="showModal(this, 'file1')">
@@ -258,7 +258,7 @@
                     formData.append('eta', eta.trim());
                     formData.append('costPerMaintenanceEvent', costPerMaintenanceEvent.trim());
 
-                    fetch('/process_file', {
+                    fetch('/results/cost/process_file', {
                         method: 'POST',
                         body: formData
                     })
@@ -304,7 +304,7 @@
             const form = event.target;
             const formData = new FormData(form);
 
-            fetch('/process_file', {
+            fetch('/results/cost/process_file', {
                 method: 'POST',
                 body: formData
             })
@@ -390,7 +390,7 @@
             const cellIndex = Array.prototype.indexOf.call(row.children, cell);
 
             // Send an AJAX request to update the cell data on the server
-            fetch('/update_cell', {
+            fetch('/results/cost/update_cell', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'

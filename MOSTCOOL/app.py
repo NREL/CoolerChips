@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, jsonify, Blueprint
+from flask import Flask, render_template, request, jsonify, Blueprint, url_for
 import subprocess
 import definitions
 import os
@@ -20,6 +20,9 @@ from CostModelFileProcessingV1_1 import table_lookup, process_html_content
 
 
 app = Flask(__name__)
+
+# Set the secret key for session management
+app.secret_key = 'your_main_secret_key'
 
 # Directory to save the downloaded files
 DOWNLOAD_DIRECTORY = os.path.join(os.getcwd(), 'Resources')
@@ -113,28 +116,32 @@ cost_bp = Blueprint('cost', __name__, template_folder='/app/Cost/CostTemplates')
 
 # Dynamically add routes from the sub-module to the blueprint
 for rule in CostModelGuiV1_1.app.url_map.iter_rules():
-    print(rule)
     # Skip rules for static files
     if 'static' in rule.endpoint:
         continue
-    # Create a new rule with the '/cost' prefix
+    # Create a new rule with the '/results/cost' prefix
     endpoint = 'cost_' + rule.endpoint.replace('.', '_')
-    cost_bp.add_url_rule(rule.rule, endpoint, view_func=CostModelGuiV1_1.app.view_functions[rule.endpoint])
-
-# Register the Blueprint with the '/cost' prefix
-app.register_blueprint(cost_bp, url_prefix='/results/cost')
+    cost_bp.add_url_rule(rule.rule, endpoint, view_func=CostModelGuiV1_1.app.view_functions[rule.endpoint], methods=rule.methods)
 
 
-@app.after_request
-def after_request(response):
-    """
-    This function modifies the response HTML content to prepend /cost to all relative URLs.
-    """
-    if request.path.startswith('/results/cost') and response.content_type == 'text/html; charset=utf-8':
-        response.set_data(re.sub(r'href="/', 'href="/cost/', response.get_data(as_text=True)))
-        response.set_data(re.sub(r'src="/', 'src="/cost/', response.get_data(as_text=True)))
-        response.set_data(re.sub(r'action="/', 'action="/cost/', response.get_data(as_text=True)))
-    return response
+# Register the Blueprint
+app.register_blueprint(cost_bp)
+
+@app.route('/routes')
+def show_routes():
+    import urllib
+    output = []
+    for rule in app.url_map.iter_rules():
+        options = {}
+        for arg in rule.arguments:
+            options[arg] = f"[{arg}]"
+        
+        methods = ','.join(rule.methods)
+        url = url_for(rule.endpoint, **options)
+        line = urllib.parse.unquote(f"{rule.endpoint:50s} {methods:20s} {url}")
+        output.append(line)
+    
+    return '<br>'.join(sorted(output))
 
 @app.route("/")
 def home():

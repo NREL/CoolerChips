@@ -10,7 +10,7 @@ from CostModelFileProcessingV1_1 import table_lookup, process_html_content
 app = Flask(__name__, template_folder='CostTemplates')
 app.secret_key = 'your_secret_key'  # Set a secret key for sessions
 
-@app.route('/')
+@app.route('/results/cost/')
 def index():
     # Restore session data if available
     if 'table_data' in session:
@@ -27,7 +27,7 @@ def index():
     
     return render_template('index.html', table_data=table_data, roi_image=roi_image, irr_image=irr_image, npv_image=npv_image)
 
-@app.route('/settings', methods=['GET', 'POST'])
+@app.route('/results/cost/settings', methods=['GET', 'POST'])
 def settings():
     if request.method == 'POST':
         # Process form submission
@@ -37,11 +37,11 @@ def settings():
         return redirect(url_for('index'))
     return render_template('settings.html', variables=variables)
 
-@app.route('/elements.html')
+@app.route('/results/cost/elements.html')
 def elements():
     return render_template('elements.html')
 
-@app.route('/process_file', methods=['POST'])
+@app.route('/results/cost/process_file', methods=['POST'])
 def process_file():
     try:
         file_content = request.form.get('fileContent')
@@ -76,9 +76,10 @@ def process_file():
             "npv_image": npv_image
         })
     except Exception as e:
+        print(e)
         return jsonify({"error": str(e)}), 400
 
-@app.route('/update_redundancy', methods=['POST'])
+@app.route('/results/cost/update_redundancy', methods=['POST'])
 def update_redundancy():
     try:
         index = int(request.form.get('index'))
@@ -119,7 +120,7 @@ def update_redundancy():
     except Exception as e:
         return jsonify({"error": str(e)}), 400
 
-@app.route('/update_cell', methods=['POST'])
+@app.route('/results/cost/update_cell', methods=['POST'])
 def update_cell():
     try:
         data = request.json
