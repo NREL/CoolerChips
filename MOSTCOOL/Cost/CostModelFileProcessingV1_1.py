@@ -1,7 +1,7 @@
-# CostModelFileProcessingV1_1.py
 from bs4 import BeautifulSoup
 import pandas as pd
 from io import StringIO
+import sqlite3
 
 table_lookup = {
     "chiller": {
@@ -62,3 +62,24 @@ def process_html_content(content):
             extract_value(df, key)
 
     return {key: table_lookup[key]['value'] for key in table_lookup}
+
+def process_sqlite_content(file_path):
+    try:
+        conn = sqlite3.connect(file_path)
+        cursor = conn.cursor()
+        
+        # Assuming you have a specific table you want to read from
+        table_name = "YourTable"
+        cursor.execute(f"SELECT * FROM {table_name}")
+        rows = cursor.fetchall()
+        columns = [description[0] for description in cursor.description]
+        
+        df = pd.DataFrame(rows, columns=columns)
+
+        for key in table_lookup:
+            extract_value(df, key)
+
+        conn.close()
+        return {key: table_lookup[key]['value'] for key in table_lookup}
+    except Exception as e:
+        return {"error": str(e)}

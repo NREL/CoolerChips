@@ -1,106 +1,12 @@
-import matplotlib
-matplotlib.use('Agg')  # Use the non-interactive backend
-
 import numpy as np
 import matplotlib.pyplot as plt
-import io
-import base64
-from CostModelFileProcessingV1_1 import table_lookup
-
-Cooling_System_Details = {
-    "chiller": {
-        "Name": 'Chiller',
-        "Cost_per_equipment": 0.0,
-        "Redundancy": 'N',
-        "MTBF": '',
-        "Gamma": '',
-        "Beta": '',
-        "Eta": '',
-        "Cost_per_maintenance_event": '',
-        "Total_cost_of_cooling_system": 0.0
-    },
-    "coolingTower": {
-        "Name": 'Cooling Tower',
-        "Cost_per_equipment": 0.0,
-        "Redundancy": 'N',
-        "MTBF": '',
-        "Gamma": '',
-        "Beta": '',
-        "Eta": '',
-        "Cost_per_maintenance_event": '',
-        "Total_cost_of_cooling_system": 0.0
-    },
-    "pump": {
-        "Name": 'Pump',
-        "Cost_per_equipment": 0.0,
-        "Redundancy": 'N',
-        "MTBF": '',
-        "Gamma": '',
-        "Beta": '',
-        "Eta": '',
-        "Cost_per_maintenance_event": '',
-        "Total_cost_of_cooling_system": 0.0
-    },
-    "fluid": {
-        "Name": 'Fluid',
-        "Cost_per_equipment": 0.0,
-        "Redundancy": 'N',
-        "MTBF": '',
-        "Gamma": '',
-        "Beta": '',
-        "Eta": '',
-        "Cost_per_maintenance_event": '',
-        "Total_cost_of_cooling_system": 0.0
-    },
-    "ducting": {
-        "Name": 'Ducting',
-        "Cost_per_equipment": 0.0,
-        "Redundancy": 'N',
-        "MTBF": '',
-        "Gamma": '',
-        "Beta": '',
-        "Eta": '',
-        "Cost_per_maintenance_event": '',
-        "Total_cost_of_cooling_system": 0.0
-    },
-    "piping": {
-        "Name": 'Piping',
-        "Cost_per_equipment": 0.0,
-        "Redundancy": 'N',
-        "MTBF": '',
-        "Gamma": '',
-        "Beta": '',
-        "Eta": '',
-        "Cost_per_maintenance_event": '',
-        "Total_cost_of_cooling_system": 0.0
-    },
-    "CRAH": {
-        "Name": 'Computer Room Air Handler',
-        "Cost_per_equipment": 0.0,
-        "Redundancy": 'N',
-        "MTBF": '',
-        "Gamma": '',
-        "Beta": '',
-        "Eta": '',
-        "Cost_per_maintenance_event": '',
-        "Total_cost_of_cooling_system": 0.0
-    },
-    "air_Economizer": {
-        "Name": 'Air Economizer',
-        "Cost_per_equipment": 0.0,
-        "Redundancy": 'N',
-        "MTBF": '',
-        "Gamma": '',
-        "Beta": '',
-        "Eta": '',
-        "Cost_per_maintenance_event": '',
-        "Total_cost_of_cooling_system": 0.0
-    }
-}
+from scipy.special import gamma
+from CostModelFileProcessingV1_1 import table_lookup  # Ensure this import is correct
 
 variables = {
     "Duration of Simulation (seconds)": "631152000",
-    "Electricity Cost ($/Wh)": "0.000145",
+    "Duration of Simulation (years)": "20",  # Added this line for years duration
+    "Electricity Cost ($/kWh)": "0.000145",
     "Energy Inflation (per year)": "0.0224",
     "Inflation (per year)": "0.035",
     "Discount Rate (per year)": "0.06",
@@ -113,6 +19,105 @@ variables = {
     "Recovered Heat (fraction of energy cost)": "31600000",
     "Piping Size (Diameter meters)": "0.1016",
     "Duct Size (sq m.)": "0.3741612"
+}
+
+Cooling_System_Details = {
+    "chiller": {
+        "Name": 'Chiller',
+        "Cost_per_equipment": 0.0,
+        "Redundancy": 'N',
+        "MTBF": '',
+        "Gamma": '',
+        "Beta": '',
+        "Eta": '',
+        "Cost_per_maintenance_event": '',
+        "Maintenance_type": 'Cost per maintenance',
+        "Total_cost_of_cooling_system": 0.0
+    },
+    "coolingTower": {
+        "Name": 'Cooling Tower',
+        "Cost_per_equipment": 0.0,
+        "Redundancy": 'N',
+        "MTBF": '',
+        "Gamma": '',
+        "Beta": '',
+        "Eta": '',
+        "Cost_per_maintenance_event": '',
+        "Maintenance_type": 'Cost per maintenance',
+        "Total_cost_of_cooling_system": 0.0
+    },
+    "pump": {
+        "Name": 'Pump',
+        "Cost_per_equipment": 0.0,
+        "Redundancy": 'N',
+        "MTBF": '',
+        "Gamma": '',
+        "Beta": '',
+        "Eta": '',
+        "Cost_per_maintenance_event": '',
+        "Maintenance_type": 'Cost per maintenance',
+        "Total_cost_of_cooling_system": 0.0
+    },
+    "fluid": {
+        "Name": 'Fluid',
+        "Cost_per_equipment": 0.0,
+        "Redundancy": 'N',
+        "MTBF": '',
+        "Gamma": '',
+        "Beta": '',
+        "Eta": '',
+        "Cost_per_maintenance_event": '',
+        "Maintenance_type": 'Cost per maintenance',
+        "Total_cost_of_cooling_system": 0.0
+    },
+    "ducting": {
+        "Name": 'Ducting',
+        "Cost_per_equipment": 0.0,
+        "Redundancy": 'N',
+        "MTBF": '',
+        "Gamma": '',
+        "Beta": '',
+        "Eta": '',
+        "Cost_per_maintenance_event": '',
+        "Maintenance_type": 'Cost per maintenance',
+        "Total_cost_of_cooling_system": 0.0
+    },
+    "piping": {
+        "Name": 'Piping',
+        "Cost_per_equipment": 0.0,
+        "Redundancy": 'N',
+        "MTBF": '',
+        "Gamma": '',
+        "Beta": '',
+        "Eta": '',
+        "Cost_per_maintenance_event": '',
+        "Maintenance_type": 'Cost per maintenance',
+        "Total_cost_of_cooling_system": 0.0
+    },
+    "CRAH": {
+        "Name": 'Computer Room Air Handler',
+        "Cost_per_equipment": 0.0,
+        "Redundancy": 'N',
+        "MTBF": '',
+        "Gamma": '',
+        "Beta": '',
+        "Eta": '',
+        "Cost_per_maintenance_event": '',
+        "Maintenance_type": 'Cost per maintenance',
+        "Total_cost_of_cooling_system": 0.0
+    },
+    "air_Economizer": {
+        "Name": 'Air Economizer',
+        "Cost_per_equipment": 0.0,
+        "Redundancy": 'N',
+        "MTBF": '',
+        "Gamma": '',
+        "Beta": '',
+        "Eta": '',
+        "Cost_per_maintenance_event": '',
+        "Maintenance_type": 'Cost per maintenance',
+        "Total_cost_of_cooling_system": 0.0
+    }
 }
 
 def chiller_calculator(capacity_value):
@@ -232,10 +237,11 @@ def update_cooling_system_details(mtbf, gamma, beta, eta, cost_per_maintenance_e
         component["Total_cost_of_cooling_system"] = float(component["Cost_per_equipment"]) * get_redundancy_multiplier(component["Redundancy"])
 
 def get_cooling_system_details():
-    details = [["Name", "Cost per Equipment", "Redundancy", "MTBF", "Gamma (hours)", "Beta", "Eta (hours)", "Cost per Maintenance Event", "Total Cost"]]
+    details = [["Name", "Units", "Cost per Equipment", "Redundancy", "MTBF", "Gamma (hours)", "Beta", "Eta (hours)", "Cost per Maintenance Event", "Maintenance Type", "Total Cost"]]
     for component, data in Cooling_System_Details.items():
         details.append([
             data['Name'],
+            'per_datacenter',  # Default units
             format_currency(data.get('Cost_per_equipment', 0.0)),
             data.get('Redundancy', 'N'),
             data.get('MTBF', ''),
@@ -243,23 +249,7 @@ def get_cooling_system_details():
             data.get('Beta', ''),
             format_currency(data.get('Eta', 0.0)),
             format_currency(data.get('Cost_per_maintenance_event', 0.0)),
-            format_currency(data.get('Total_cost_of_cooling_system', 0.0))
-        ])
-    return details
-
-
-def get_cooling_system_details():
-    details = [["Name", "Cost per Equipment", "Redundancy", "MTBF", "Gamma (hours)", "Beta", "Eta (hours)", "Cost per Maintenance Event", "Total Cost"]]
-    for component, data in Cooling_System_Details.items():
-        details.append([
-            data['Name'],
-            format_currency(data.get('Cost_per_equipment', 0.0)),
-            data.get('Redundancy', 'N'),
-            data.get('MTBF', ''),
-            data.get('Gamma', ''),
-            data.get('Beta', ''),
-            data.get('Eta', ''),
-            format_currency(data.get('Cost_per_maintenance_event', 0.0)),
+            data.get('Maintenance_type', 'Cost per maintenance'),
             format_currency(data.get('Total_cost_of_cooling_system', 0.0))
         ])
     return details
@@ -364,237 +354,214 @@ class MonteCarloMaintenance:
 
     @staticmethod
     def _gamma(x):
-        from scipy.special import gamma
         return gamma(x)
 
-def calculate_irr():
-    # Update variables from the settings window (if applicable)
-    # self.update_variables_from_settings()
+class CostModelCalculations:
+    def __init__(self, variables, cooling_system_details):
+        self.variables = variables
+        self.cooling_system_details = cooling_system_details
+        self.MTBF1 = None
+        self.CostPerMaintenanceEvent1 = None
+        self.MTBF2 = None
+        self.CostPerMaintenanceEvent2 = None
+        self.canvas_ROI = None
+        self.canvas_IRR = None
+        self.canvas_NPV = None
 
-    # Inputs
-    SimulationDuration = float(variables["Duration of Simulation (seconds)"]) / (60 * 60 * 24 * 365)  # convert to years
-    TimeStepMultiplier = 1  # 12 for every month/4 for every quarter/1 for every year
-    
-    # Default Inputs
-    ElectricityCost = float(variables["Electricity Cost ($/Wh)"]) * 1000  # convert to $/kWh
-    EnergyInflation = float(variables["Energy Inflation (per year)"])
-    Inflation = float(variables["Inflation (per year)"])
-    DiscountRate = float(variables["Discount Rate (per year)"])
-    ITMaintenanceCost = float(variables["IT Maintenance Cost (per event)"])
-    RecoveredHeatValue = float(variables["Recovered Heat (fraction of energy cost)"])
+    def calculate_irr(self):
+        # Update variables from the settings window
+        self.update_variables_from_settings()
 
-    # Adjust time step
-    SimulationDuration = SimulationDuration * TimeStepMultiplier
-    
-    # Baseline Inputs
-    B_CapitolCost = float(calculate_total_cooling_cost()) / 1000000  # million dollars
-    B_Life = 9  # 9
-    B_MTBF = 18000000  # self.MTBF1
-    CoolingMaintenanceCost = 250000  # self.CostPerMaintenanceEvent1
-    B_IT_MTBF = float(variables["IT MTBF for the Analysis Cooling System (seconds)"]) / (60 * 60)  # convert to hours
-    B_EnergyUsage = 250  # million kWh
-    B_AvoidedITFailures = 0
-    B_AnnualRecoveredHeat = 1200  # million kWh
+        # Inputs that will need to later be read as an input somehow
+        SimulationDuration = float(self.variables["Duration of Simulation (years)"])
+        TimeStepMultiplier = 1  # 12 for every month/4 for every quarter/1 for every year
 
-    # New Inputs
-    N_CapitolCost = B_CapitolCost * 1.1  # assume 10% more for new system
-    N_Life = 12  # 12
-    N_MTBF = 6000  # self.MTBF2
-    CoolingMaintenanceCost2 = 300000  # self.CostPerMaintenanceEvent2
-    N_IT_MTBF = float(variables["IT MTBF for the Analysis Cooling System (seconds)"]) / (60 * 60)  # convert to hours
-    N_EnergyUsage = 262.8  # million kWh
-    N_AvoidedITFailures = 0.5
-    N_AnnualRecoveredHeat = 1314  # million kWh
+        # Default Inputs
+        ElectricityCost = float(self.variables["Electricity Cost ($/kWh)"])
+        EnergyInflation = float(self.variables["Energy Inflation (per year)"])
+        Inflation = float(self.variables["Inflation (per year)"])
+        DiscountRate = float(self.variables["Discount Rate (per year)"])
+        ITMaintenanceCost = float(self.variables["IT Maintenance Cost (per event)"])
+        RecoveredHeatValue = float(self.variables["Recovered Heat (fraction of energy cost)"])
 
-    print(N_CapitolCost)
-    print(B_CapitolCost)
+        # Calculations to adjust time step
+        SimulationDuration = SimulationDuration * TimeStepMultiplier
 
-    # Individual Expenses and Revenue Calculations for baseline
-    B_Time = []
-    B_Capitol = []
-    B_EnergyCost = []
-    B_CoolingMaintenance = []
-    B_ITMaintenance = []
-    B_HeatRevenue = []
-    B_Net = []
-    B_NPV = []
-    B_CumNPV = []
+        # Inputs for Baseline
+        B_CapitolCost = float(self.cooling_system_details[1][2].replace('$', '').replace(',', '')) / 1000000  # million dollars
+        B_Life = 9  # 9
+        B_MTBF = self.MTBF1
+        CoolingMaintenanceCost = self.CostPerMaintenanceEvent1
+        B_IT_MTBF = float(self.variables["IT MTBF for the Analysis Cooling System (seconds)"])
+        B_EnergyUsage = 250  # million kWh get from E+ excel file
+        B_AvoidedITFailures = 0
+        B_AnnualRecoveredHeat = 1200  # million kWh Needs to calculated from E+ data
 
-    i = 0
-    while i <= SimulationDuration:
-        B_Time.append(i)
+        # Inputs for New
+        N_CapitolCost = float(self.cooling_system_details[1][2].replace('$', '').replace(',', '')) / 1000000  # million dollars
+        N_Life = 12  # 12
+        N_MTBF = self.MTBF2
+        CoolingMaintenanceCost2 = self.CostPerMaintenanceEvent2
+        N_IT_MTBF = float(self.variables["IT MTBF for the Analysis Cooling System (seconds)"])
+        N_EnergyUsage = 262.8  # million kWh
+        N_AvoidedITFailures = .5
+        N_AnnualRecoveredHeat = 1314  # million kWh Needs to calculated from E+ data
 
-        # Capitol Costs
-        if i % B_Life == 0:
-            B_Capitol.append(B_CapitolCost * (1 + Inflation) ** i)
-        else:
-            B_Capitol.append(0)
+        print(N_CapitolCost)
+        print(B_CapitolCost)
 
-        # Energy Costs
-        if i > 0:
-            B_EnergyCost.append(ElectricityCost * B_EnergyUsage * (1 + EnergyInflation) ** (i - 1))
-        else:
-            B_EnergyCost.append(0)
+        # Individual Expenses and Revenue Calculations for baseline
+        B_Time, B_Capitol, B_EnergyCost, B_CoolingMaintenance, B_ITMaintenance, B_HeatRevenue, B_Net, B_NPV = self._calculate_individual_expenses_and_revenues(
+            SimulationDuration, B_CapitolCost, B_Life, B_EnergyUsage, ElectricityCost, EnergyInflation, B_MTBF,
+            CoolingMaintenanceCost, Inflation, B_IT_MTBF, ITMaintenanceCost, B_AvoidedITFailures, B_AnnualRecoveredHeat,
+            RecoveredHeatValue, DiscountRate)
 
-        # Cooling Maintenance
-        if i > 0:
-            B_CoolingMaintenance.append(((B_MTBF / 8760) * CoolingMaintenanceCost * (1 + Inflation) ** i) / 1000000)
-        else:
-            B_CoolingMaintenance.append(0)
-
-        # IT Maintenance
-        if i > 0:
-            B_ITMaintenance.append((-B_AvoidedITFailures * ITMaintenanceCost * (1 + Inflation) ** i) / 1000000)
-        else:
-            B_ITMaintenance.append(0)
-
-        # Heat Revenue
-        if i > 0:
-            B_HeatRevenue.append(-B_AnnualRecoveredHeat * RecoveredHeatValue * ElectricityCost * (1 + EnergyInflation) ** (i - 1))
-        else:
-            B_HeatRevenue.append(0)
-
-        # Net
-        B_Net.append(B_Capitol[i] + B_EnergyCost[i] + B_CoolingMaintenance[i] + B_ITMaintenance[i] + B_HeatRevenue[i])
-
-        # NPV
-        B_NPV.append(B_Capitol[i] / (1 + DiscountRate) ** i + B_EnergyCost[i] / (1 + DiscountRate) ** i + B_CoolingMaintenance[i] / (1 + DiscountRate) ** i + B_ITMaintenance[i] / (1 + DiscountRate) ** i + B_HeatRevenue[i] / (1 + DiscountRate) ** i)
-
-        # Cum NPV
         B_CumNPV = np.cumsum(B_NPV)
-
-        # IO (PV)
         IO = B_CapitolCost
 
-        i = i + 1
+        # Individual Expenses and Revenue Calculations for New
+        N_Time, N_Capitol, N_EnergyCost, N_CoolingMaintenance, N_ITMaintenance, N_HeatRevenue, N_Net, N_NPV = self._calculate_individual_expenses_and_revenues(
+            SimulationDuration, N_CapitolCost, N_Life, N_EnergyUsage, ElectricityCost, EnergyInflation, N_MTBF,
+            CoolingMaintenanceCost2, Inflation, N_IT_MTBF, ITMaintenanceCost, N_AvoidedITFailures, N_AnnualRecoveredHeat,
+            RecoveredHeatValue, DiscountRate)
 
-    # Individual Expenses and Revenue Calculations for New
-    N_Time = []
-    N_Capitol = []
-    N_EnergyCost = []
-    N_CoolingMaintenance = []
-    N_ITMaintenance = []
-    N_HeatRevenue = []
-    N_Net = []
-    N_NPV = []
-    N_CumNPV = []
-
-    i = 0
-    while i <= SimulationDuration:
-        N_Time.append(i)
-
-        # Capitol Costs
-        if i % N_Life == 0:
-            N_Capitol.append(N_CapitolCost * (1 + Inflation) ** i)
-        else:
-            N_Capitol.append(0)
-
-        # Energy Costs
-        if i > 0:
-            N_EnergyCost.append(ElectricityCost * N_EnergyUsage * (1 + EnergyInflation) ** (i - 1))
-        else:
-            N_EnergyCost.append(0)
-
-        # Cooling Maintenance
-        if i > 0:
-            N_CoolingMaintenance.append(((N_MTBF / 8760) * CoolingMaintenanceCost2 * (1 + Inflation) ** i) / 1000000)
-        else:
-            N_CoolingMaintenance.append(0)
-
-        # IT Maintenance
-        if i > 0:
-            N_ITMaintenance.append((-N_AvoidedITFailures * ITMaintenanceCost * (1 + Inflation) ** i) / 1000000)
-        else:
-            N_ITMaintenance.append(0)
-
-        # Heat Revenue
-        if i > 0:
-            N_HeatRevenue.append(-N_AnnualRecoveredHeat * RecoveredHeatValue * ElectricityCost * (1 + EnergyInflation) ** (i - 1))
-        else:
-            N_HeatRevenue.append(0)
-
-        # Net
-        N_Net.append(N_Capitol[i] + N_EnergyCost[i] + N_CoolingMaintenance[i] + N_ITMaintenance[i] + N_HeatRevenue[i])
-
-        # NPV
-        N_NPV.append(N_Capitol[i] / (1 + DiscountRate) ** i + N_EnergyCost[i] / (1 + DiscountRate) ** i + N_CoolingMaintenance[i] / (1 + DiscountRate) ** i + N_ITMaintenance[i] / (1 + DiscountRate) ** i + N_HeatRevenue[i] / (1 + DiscountRate) ** i)
-
-        # Cum NPV
         N_CumNPV = np.cumsum(N_NPV)
-
-        # Inew (PV)
         Inew = N_CapitolCost
 
-        i = i + 1
+        # ROI and IRR Calculations
+        ROI, IRR, Net_NPV, BreakevenYear = self._calculate_roi_irr(SimulationDuration, B_CumNPV, N_CumNPV, Inew, IO, N_NPV, B_NPV)
 
-    # ROI and IRR Calculations
-    i = 0
-    ROI = []
-    IRR = []
-    Net_NPV = []
-    
-    while i <= SimulationDuration:
-        # ROI Calc
-        if Inew - IO > 0:
-            ROI.append((B_CumNPV[i] - N_CumNPV[i]) / (Inew - IO))
+        # Plot results
+        self.plot_results(N_Time, ROI, IRR, Net_NPV)
+
+        print("IRR:", IRR)
+        print("ROI:", ROI)
+        print("B_cumNPV:", B_CumNPV)
+        print("N_cumNPV:", N_CumNPV)
+        print("Net_NPV:", Net_NPV)
+
+        # Finding the breakeven year
+        if BreakevenYear is not None:
+            print('The first breakeven year is at', BreakevenYear)
         else:
-            ROI.append(0)
-        # IRR Calc
-        if i > 0:
-            IRR.append((1 + ROI[i]) ** (1 / i) - 1)
-        else:
-            IRR.append(0)
-            
-        Net_NPV.append(B_NPV[i] - N_NPV[i])
-        i = i + 1      
+            print('No breakeven year found within the simulation duration.')
 
-    # Create Matplotlib figures and axes for both ROI and IRR plots
-    fig_ROI, ax_ROI = plt.subplots(figsize=(7, 5))  # Set a fixed figsize for ROI plot
-    fig_IRR, ax_IRR = plt.subplots(figsize=(7, 5))  # Set a fixed figsize for IRR plot
-    fig_NPV, ax_NPV = plt.subplots(figsize=(7, 5))  # Set a fixed figsize for NPV plot
+    def _calculate_individual_expenses_and_revenues(self, SimulationDuration, CapitolCost, Life, EnergyUsage, ElectricityCost,
+                                                    EnergyInflation, MTBF, CoolingMaintenanceCost, Inflation, IT_MTBF,
+                                                    ITMaintenanceCost, AvoidedITFailures, AnnualRecoveredHeat, RecoveredHeatValue,
+                                                    DiscountRate):
+        Time = []
+        Capitol = []
+        EnergyCost = []
+        CoolingMaintenance = []
+        ITMaintenance = []
+        HeatRevenue = []
+        Net = []
+        NPV = []
 
-    # Plot ROI
-    ax_ROI.scatter(N_Time, ROI)
-    ax_ROI.grid()
-    ax_ROI.set_xlabel('Year')
-    ax_ROI.set_ylabel('ROI')
-    ax_ROI.set_title('ROI')
+        i = 0
+        while i <= SimulationDuration:
+            Time.append(i)
 
-    # Save ROI plot to buffer
-    roi_buf = io.BytesIO()
-    plt.savefig(roi_buf, format='png')
-    roi_buf.seek(0)
-    roi_image = base64.b64encode(roi_buf.getvalue()).decode('utf-8')
-    plt.close(fig_ROI)
+            # Capitol Costs
+            if i % Life == 0:
+                Capitol.append(CapitolCost * (1 + Inflation) ** i)
+            else:
+                Capitol.append(0)
 
-    # Plot IRR
-    ax_IRR.scatter(N_Time, IRR)
-    ax_IRR.plot([0, 20], [0.1, 0.1], 'r-')
-    ax_IRR.grid()
-    ax_IRR.set_xlabel('Year')
-    ax_IRR.set_ylabel('IRR')
-    ax_IRR.set_title('IRR')
+            # Energy Costs
+            if i > 0:
+                EnergyCost.append(ElectricityCost * EnergyUsage * (1 + EnergyInflation) ** (i - 1))
+            else:
+                EnergyCost.append(0)
 
-    # Save IRR plot to buffer
-    irr_buf = io.BytesIO()
-    plt.savefig(irr_buf, format='png')
-    irr_buf.seek(0)
-    irr_image = base64.b64encode(irr_buf.getvalue()).decode('utf-8')
-    plt.close(fig_IRR)
+            # Cooling Maintenance
+            if i > 0:
+                CoolingMaintenance.append(((MTBF / 8760) * CoolingMaintenanceCost * (1 + Inflation) ** i) / 1000000)
+            else:
+                CoolingMaintenance.append(0)
 
-    # Plot NPV
-    ax_NPV.scatter(N_Time, Net_NPV, label='NPV Difference')
-    ax_NPV.grid()
-    ax_NPV.set_xlabel('Year')
-    ax_NPV.set_ylabel('NPV Difference ($ in Millions)')
-    ax_NPV.set_title('NPV Difference')
-    ax_NPV.legend(loc="upper left")
+            # IT Maintenance
+            if i > 0:
+                ITMaintenance.append((-AvoidedITFailures * ITMaintenanceCost * (1 + Inflation) ** i) / 1000000)
+            else:
+                ITMaintenance.append(0)
 
-    # Save NPV plot to buffer
-    npv_buf = io.BytesIO()
-    plt.savefig(npv_buf, format='png')
-    npv_buf.seek(0)
-    npv_image = base64.b64encode(npv_buf.getvalue()).decode('utf-8')
-    plt.close(fig_NPV)
+            # Heat Revenue
+            if i > 0:
+                HeatRevenue.append(-AnnualRecoveredHeat * RecoveredHeatValue * ElectricityCost * (1 + EnergyInflation) ** (i - 1))
+            else:
+                HeatRevenue.append(0)
 
-    return roi_image, irr_image, npv_image
+            # Net
+            Net.append(Capitol[i] + EnergyCost[i] + CoolingMaintenance[i] + ITMaintenance[i] + HeatRevenue[i])
+
+            # NPV
+            NPV.append(Capitol[i] / (1 + DiscountRate) ** i + EnergyCost[i] / (1 + DiscountRate) ** i + CoolingMaintenance[i] / (1 + DiscountRate) ** i + ITMaintenance[i] / (1 + DiscountRate) ** i + HeatRevenue[i] / (1 + DiscountRate) ** i)
+
+            i = i + 1
+
+        return Time, Capitol, EnergyCost, CoolingMaintenance, ITMaintenance, HeatRevenue, Net, NPV
+
+    def _calculate_roi_irr(SimulationDuration, B_CumNPV, N_CumNPV, Inew, IO, N_NPV, B_NPV):
+        ROI = []
+        IRR = []
+        Net_NPV = []
+        BreakevenYear = None
+
+        i = 0
+        while i <= SimulationDuration:
+            # ROI Calc
+            if Inew - IO > 0:
+                ROI.append((B_CumNPV[i] - N_CumNPV[i]) / (Inew - IO))
+            else:
+                ROI.append(0)
+            # IRR Calc
+            if i > 0:
+                IRR.append((1 + ROI[i]) ** (1 / i) - 1)
+            else:
+                IRR.append(0)
+
+            Net_NPV.append(B_NPV[i] - N_NPV[i])
+
+            if BreakevenYear is None and IRR[i] > 0:
+                BreakevenYear = i
+
+            i = i + 1
+
+        return ROI, IRR, Net_NPV, BreakevenYear
+
+    def plot_results(self, N_Time, ROI, IRR, Net_NPV):
+        # Create Matplotlib figures and axes for both ROI and IRR plots
+        fig_ROI, ax_ROI = plt.subplots(figsize=(7, 5))  # Set a fixed figsize for ROI plot
+        fig_IRR, ax_IRR = plt.subplots(figsize=(7, 5))  # Set a fixed figsize for IRR plot
+        fig_NPV, ax_NPV = plt.subplots(figsize=(7, 5))  # Set a fixed figsize for NPV plot
+
+        # Plot ROI
+        ax_ROI.scatter(N_Time, ROI)
+        ax_ROI.grid()
+        ax_ROI.set_xlabel('Year')
+        ax_ROI.set_ylabel('ROI')
+        ax_ROI.set_title('ROI')
+
+        # Plot IRR
+        ax_IRR.scatter(N_Time, IRR)
+        ax_IRR.plot([0, 20], [.1, .1], 'r-')
+        ax_IRR.grid()
+        ax_IRR.set_xlabel('Year')
+        ax_IRR.set_ylabel('IRR')
+        ax_IRR.set_title('IRR')
+
+        # Plot NPV
+        ax_NPV.scatter(N_Time, Net_NPV, label='NPV Difference')
+        ax_NPV.grid()
+        ax_NPV.set_xlabel('Year')
+        ax_NPV.set_ylabel('NPV Difference ($ in Millions)')
+        ax_NPV.set_title('NPV Difference')
+        ax_NPV.legend(loc="upper left")
+
+        plt.show()
+
+    def update_variables_from_settings(self):
+        # This function should be implemented to update variables from the settings window
+        pass
