@@ -1,0 +1,50 @@
+.App {
+  display: flex;
+  flex-direction: column;
+  height: 100vh; /* Make the app fill the full viewport height */
+
+}
+
+.App-header {
+  background-color: #282c34;
+  /* height:auto; */
+  /* max-height: fit-content; */
+  /* padding: 2%; */
+  color: white;
+  text-align: center;  
+}
+
+.App-body {
+  display: flex;
+  flex-grow: 1; /* Allow the body to take up all remaining space */
+}
+
+.button-panel {
+  padding: 1vh;
+  width: fit-content;
+  background-color: TEAL;
+  justify-content: center;
+}
+
+.button-panel button {
+  display: block;
+  width:stretch;
+  max-height: fit-content;
+  margin: 5px;
+  font-size: large;
+  border-radius: 10px;
+  background-color: white;
+  color: black
+}
+
+.flow-chart {
+  flex-grow: 1;
+  background: #f0f0f0;
+  
+}
+/* .react-flow__handle {
+  width: 10px; 
+  height: 10px; 
+  background-color: black; 
+  border-radius: 10%; 
+} */
