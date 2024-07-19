@@ -74,9 +74,8 @@ jobs:
           docker stop mostcool-container-test
           docker rm mostcool-container-test
 
-      - name: Upload coverage to CodeCov
-        uses: codecov/codecov-action@v1
+      - name: Upload coverage reports to Codecov
+        uses: codecov/codecov-action@v4.0.1
         with:
-          file: ./coverage.xml
           flags: unittests
-          name: codecov-ubuntu-py3.10
+          token: ${{ secrets.CODECOV_TOKEN }}
