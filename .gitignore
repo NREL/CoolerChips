@@ -11,4 +11,5 @@ modes.csv
 build/
 *.egg-info/
 MOSTcool
-.myenv/ #"Roshith virtual environment"
+myenv/ #"Roshith virtual environment"
+myenv/ 
