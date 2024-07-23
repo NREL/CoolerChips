@@ -23,7 +23,4 @@ Please download the required files from the following link:
 2. **Place Files**:
     - After downloading, place all four files into the same directory where this `README.txt` file is located.
 
-## Example Directory Structure
-
-After placing the files, your directory should look like this:
 
