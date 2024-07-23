@@ -2,6 +2,7 @@ import numpy as np
 import pandas as pd
 from sklearn.preprocessing import MinMaxScaler
 from scipy.interpolate import Rbf
+import h5py
 
 def build_and_scale_rbf_models(training_parameters, training_coefficients, kernel_function='multiquadric'):
     """
@@ -83,3 +84,27 @@ def online_prediction_DC_ROM(tot_vol_flow_rate_crah, rack_flow_rate1, rack_heat_
     adjusted_predicted_state = predicted_state - (12 - supply_temperature) - 273.15  
     predicted_state = adjusted_predicted_state.flatten()
     return predicted_state
+
+
+def update_temperature_data_cgns(solution_path, predicted_state_flat):
+    """
+    Updates the temperature data in a CGNS file with the provided predicted values
+    whihc can be used for visualiztion in paraview web/ paraview
+    Args:
+        solution_path (str): Path to the CGNS file.
+        predicted_state_flat (np.array): Flattened array of predicted temperature values.
+
+    Raises:
+        KeyError: If the temperature data path is not found in the CGNS file.
+        Exception: If any other error occurs during the file operation.
+    """
+    try:
+        with h5py.File(solution_path, 'r+') as f:
+            temperature_path = 'Base/Zone/FlowSolution.N:1/Temperature/ data'  # Corrected the path format
+            if temperature_path in f:
+                f[temperature_path][:] = predicted_state_flat
+                print(f"Temperature data successfully updated in {solution_path}.")
+            else:
+                raise KeyError(f"Path {temperature_path} not found in the file.")
+    except Exception as e:
+        print(f"Failed to update temperature data: {e}")

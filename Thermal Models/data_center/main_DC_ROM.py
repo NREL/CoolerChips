@@ -3,6 +3,8 @@ import pandas as pd
 from DC_rbf_models import build_and_scale_rbf_models, online_prediction_DC_ROM
 from surface_isolation_DC import DataCenterCGNS
 
+# This is the script that needs to be modified for intergration with EnergyPlus after discussion 
+
 # Load necessary data
 modes = np.loadtxt(r'Thermal Models\data_center\data\modes.csv', delimiter=',')
 coefficients = np.loadtxt(r'Thermal Models\data_center\data\coefficients.csv', delimiter=',')
