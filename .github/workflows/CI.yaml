@@ -30,7 +30,7 @@ jobs:
 
       - name: Downcase REPO
         run: |
-          echo "REPO_OWNER=${${{ github.repository_owner }}@L}" >> "${GITHUB_ENV}"
+          echo "REPO_OWNER=${GITHUB_REPOSITORY_OWNER@L}" >> "${GITHUB_ENV}"
 
       - name: Log in to GitHub Container Registry
         run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
