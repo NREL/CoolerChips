@@ -28,19 +28,22 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
 
-      - name: Build Docker image
+      - name: Log in to GitHub Container Registry
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+
+      - name: Build and push Docker image
         uses: docker/build-push-action@v5
         with:
           context: .
           file: ./Dockerfile
-          push: false
-          tags: mostcool:latest
+          push: true
+          tags: ghcr.io/${{ github.repository_owner }}/mostcool:latest_main
           build-args: |
             RUN_TESTS=true
           
       - name: Pull Docker image
         run: |
-          docker pull jermythomasv/mostcool-test:latest
+          docker pull ghcr.io/${{ github.repository_owner }}/mostcool:latest_main
 
       - name: Remove existing Docker container
         run: |
@@ -48,12 +51,12 @@ jobs:
 
       - name: Verify pytest installation
         run: |
-          docker run jermythomasv/mostcool-test:latest pytest --version
+          docker run ghcr.io/${{ github.repository_owner }}/mostcool:latest_main pytest --version
         continue-on-error: true
 
       - name: List contents of /app/mostcool/tests/ inside Docker container
         run: |
-          docker run --name mostcool-container-list jermythomasv/mostcool-test:latest ls -la /app/mostcool/
+          docker run --name mostcool-container-list ghcr.io/${{ github.repository_owner }}/mostcool:latest_main ls -la /app/mostcool/
       
       - name: Stop and remove Docker container after listing contents
         run: |
@@ -62,7 +65,7 @@ jobs:
 
       - name: Run tests inside Docker container
         run: |
-          docker run --name mostcool-container-test jermythomasv/mostcool-test:latest pytest --cov=mostcool --cov-report=xml /app/mostcool/tests/
+          docker run --name mostcool-container-test ghcr.io/${{ github.repository_owner }}/mostcool:latest_main pytest --cov=mostcool --cov-report=xml /app/mostcool/tests/
         continue-on-error: true
 
       - name: Copy coverage report from Docker container
