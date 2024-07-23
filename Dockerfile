@@ -1,6 +1,7 @@
 FROM --platform=linux/x86_64 ubuntu:22.04
 
 ARG DEBIAN_FRONTEND=noninteractive
+
 ARG RUN_TESTS=false
 
 ENV ENERGYPLUS_LINK=https://github.com/NREL/EnergyPlus/releases/download/v23.2.0/EnergyPlus-23.2.0-7636e6b3e9-Linux-Ubuntu22.04-x86_64.tar.gz
@@ -16,7 +17,7 @@ RUN apt-get update && apt-get install -y \
     python-is-python3 && \
     apt-get clean
 
-# Download and install EnergyPlus    
+# Download and install EnergyPlus
 RUN wget $ENERGYPLUS_LINK \
     && tar -xzf EnergyPlus-23.2.0-7636e6b3e9-Linux-Ubuntu22.04-x86_64.tar.gz \
     && mv EnergyPlus-23.2.0-7636e6b3e9-Linux-Ubuntu22.04-x86_64 EnergyPlus
@@ -29,8 +30,15 @@ RUN wget -O ParaView-5.12.0-MPI-Linux-Python3.10-x86_64.tar.gz "https://www.para
 # Install Paraview dependencies
 RUN apt-get install -y ffmpeg libsm6 libxext6 libxcb-icccm4 libxcb-image0 libxcb-keysyms1 libxcb-render-util0 libxcb-xinerama0 libxcb-xinput0 libxcb-xfixes0 libxkbcommon-x11-0
 
-# Copy directory into /app/
-COPY . /app/
+# Clone the repository
+RUN git clone --branch cookiecutter https://github.com/jmythms/CoolerChips_fork.git /app
+
+# Install gdown
+RUN pip install gdown
+
+# Download files using gdown
+RUN gdown "https://drive.google.com/uc?id=19Ed_tRQhcz2zkdxL1GT-yD_eb6NXPUdn" -O "/app/mostcool/thermal/data/modes.csv" && \
+    gdown "https://drive.google.com/uc?id=19H1HXCjzYx6ymz6PY_3xEAhDZdyza7D0" -O "/app/mostcool/thermal/data/PythonPOD_Solid.cgns"
 
 # Install Python dependencies from requirements.txt file
 RUN pip install --no-cache-dir -r /app/requirements.txt
