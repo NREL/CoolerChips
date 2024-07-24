@@ -16,30 +16,15 @@
 
 https://docs.docker.com/engine/install/
 
-2. Clone this repo:
+2. Pull our latest stable image:
 
-`git clone https://github.com/NREL/CoolerChips.git`
+`docker pull ghcr.io/nrel/mostcool:latest`
 
-3. cd into the cloned directory.
-
-4. Download required dependencies and place them in these paths:
-
-  
-| File Name            | Link                                                                                          | Place in this path in local directory                          |
-|----------------------|-----------------------------------------------------------------------------------------------|----------------------------------------------------------------|
-| modes.csv            | [link](https://drive.google.com/file/d/19Ed_tRQhcz2zkdxL1GT-yD_eb6NXPUdn/view?usp=drive_link)    | EnergyPlusExample/ThermalModel_datacenter/modes.csv            |
-| PythonPOD_Solid.cgns | [link](https://drive.google.com/file/d/19H1HXCjzYx6ymz6PY_3xEAhDZdyza7D0/view?usp=sharing) | EnergyPlusExample/ThermalModel_datacenter/PythonPOD_Solid.cgns |
-  
-
-5. Build the container:
-
-`docker compose build`
-
-6. Give docker permission to display it's GUI app on host. This step must be repeated each time the computer/virtual machine is restarted: `xhost +local:docker`
+3. Give docker permission to display it's GUI app on host. This step must be repeated each time the computer/virtual machine is restarted: `xhost +local:docker`
 
 7. Run the container:
 
-`docker compose up`
+`docker run --network host --env="DISPLAY=${DISPLAY}" --volume="/tmp/.X11-unix:/tmp/.X11-unix:rw" mostcool`
 
 8. You should see the app pop up:
 
