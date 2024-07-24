@@ -23,9 +23,8 @@ import mostcool
 # -- Project information -----------------------------------------------------
 
 project = 'MOSTCOOL'
-copyright = ("2024, Jermy Thomas. Project structure based on the "
-             "Computational Molecular Science Python Cookiecutter version 1.1")
-author = 'Jermy Thomas'
+copyright = ("2024, MOSTCOOL Team.")
+author = 'MOSTCOOL Team'
 
 # The short X.Y version
 version = ''
@@ -43,15 +42,11 @@ release = ''
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [
-    'sphinx.ext.autosummary',
+    'sphinx.ext.duration',
+    'sphinx.ext.doctest',
     'sphinx.ext.autodoc',
-    'sphinx.ext.mathjax',
-    'sphinx.ext.viewcode',
-    'sphinx.ext.napoleon',
+    'sphinx.ext.autosummary',
     'sphinx.ext.intersphinx',
-    'sphinx.ext.extlinks',
-    'sphinx_design',
-    'sphinx_copybutton',    
 ]
 
 
@@ -93,7 +88,7 @@ pygments_style = 'default'
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 #
-html_theme = 'pydata_sphinx_theme'
+html_theme = 'sphinx_rtd_theme'
 
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the
