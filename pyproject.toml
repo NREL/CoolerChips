@@ -8,7 +8,7 @@ description = "The MOSTCOOL repo."
 dynamic = ["version"]
 readme = "README.md"
 authors = [
-    { name = "Jermy Thomas", email = "Jermy.Thomas@nrel.gov" }
+    { name = "MOSTCOOL Team", email = "Jermy.Thomas@nrel.gov" }
 ]
 license = { text = "Not Open Source" }
 classifiers = [
