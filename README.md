@@ -20,7 +20,8 @@ https://docs.docker.com/engine/install/
 
 `docker pull ghcr.io/nrel/mostcool:v1.1.0`
 
-3. Give docker permission to display it's GUI app on host. This step must be repeated each time the computer/virtual machine is restarted: `xhost +local:docker`
+3. Give docker permission to display it's GUI app on host. This step must be repeated each time the computer/virtual machine is restarted: 
+`xhost +local:docker`
 
 4. Run the container:
 
@@ -28,19 +29,19 @@ https://docs.docker.com/engine/install/
 
 5. You should see the app pop up:
 
-![image](CoolerChips/mostcool/assets/images/map.png)
+![image](mostcool/assets/images/map.png)
 
 ## Sample results:
 
 Simulation outputs:
 
 
-![image](CoolerChips/mostcool/assets/images/simulation_outputs.png)
+![image](mostcool/assets/images/simulation_outputs.png)
 
 
 Results from Paraview:
 
-![image](CoolerChips/mostcool/assets/images/paraview_results.png)
+![image](mostcool/assets/images/paraview_results.png)
 
 ## Individual Model Documentation:
 
