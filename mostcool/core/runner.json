@@ -4,7 +4,7 @@
     "federates": [
       {
         "directory": ".",
-        "exec": "python -u energyPlusAPI_Example.py",
+        "exec": "python -u /app/mostcool/energy/energy.py",
         "host": "localhost",
         "name": "EnergyPlus_federate"
       },
@@ -16,7 +16,7 @@
       },
       {
         "directory": ".",
-        "exec": "python -u server_federate.py",
+        "exec": "python -u /app/mostcool/thermal/server_federate.py",
         "host": "localhost",
         "name": "Server_federate"
       }

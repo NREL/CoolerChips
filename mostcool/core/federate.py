@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-import definitions
+from mostcool.core import definitions
 import logging
 
 

@@ -1,12 +1,12 @@
 """Datacenter Thermal Model Federate"""
 
 import pandas as pd
-import federate
+import mostcool.core.federate as federate
 import numpy as np
 from scipy.interpolate import Rbf
 from sklearn.preprocessing import MinMaxScaler
 import numpy as np
-import definitions
+import mostcool.core.definitions as definitions
 import logging
 
 
@@ -42,9 +42,9 @@ server_inlet_velocity=5#in m/s
 class Server_thermal_federate:
     def __init__(self) -> None:
         self.total_time = definitions.TOTAL_SECONDS  # get this from IDF
-        self.modes = np.loadtxt('ThermalModel_datacenter/modes.csv', delimiter=',')
-        self.coefficients = np.loadtxt('ThermalModel_datacenter/coeff.csv', delimiter=',')
-        self.parameter_array=np.loadtxt('ThermalModel_datacenter/parameter_array.csv', delimiter=',')
+        self.modes = np.loadtxt('/app/mostcool/thermal/data/modes.csv', delimiter=',')
+        self.coefficients = np.loadtxt('/app/mostcool/thermal/data/coeff.csv', delimiter=',')
+        self.parameter_array=np.loadtxt('/app/mostcool/thermal/data/parameter_array.csv', delimiter=',')
         
         self.rbf_models, self.param_scaler, self.coeff_scaler = self.build_and_scale_rbf_models(self.parameter_array, self.coefficients, kernel_function='multiquadric')
         
@@ -238,7 +238,7 @@ class Server_thermal_federate:
             self.server_federate.update_pubs()
             self.server_federate.request_time()
         # Export the DataFrame to a CSV file
-        CPU_temp_max_log.to_csv('Output/time_series_data.csv')
+        CPU_temp_max_log.to_csv('/app/Output/time_series_data.csv')
         self.server_federate.destroy_federate()
     
     
