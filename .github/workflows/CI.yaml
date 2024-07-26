@@ -53,20 +53,6 @@ jobs:
         run: |
           docker rm -f mostcool-container || true
 
-      - name: Verify pytest installation
-        run: |
-          docker run ghcr.io/${{ env.REPO_OWNER }}/mostcool:latest pytest --version
-        continue-on-error: true
-
-      - name: List contents of /app/mostcool/tests/ inside Docker container
-        run: |
-          docker run --name mostcool-container-list ghcr.io/${{ env.REPO_OWNER }}/mostcool:latest ls -la /app/mostcool/
-      
-      - name: Stop and remove Docker container after listing contents
-        run: |
-          docker stop mostcool-container-list
-          docker rm mostcool-container-list
-
       - name: Run tests inside Docker container
         run: |
           docker run --name mostcool-container-test ghcr.io/${{ env.REPO_OWNER }}/mostcool:latest pytest --cov=mostcool --cov-report=xml /app/mostcool/tests/
