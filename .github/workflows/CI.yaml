@@ -35,27 +35,28 @@ jobs:
       - name: Log in to GitHub Container Registry
         run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
 
-      - name: Build and push Docker image
+      - name: Build Docker image
         uses: docker/build-push-action@v5
         with:
           context: .
           file: ./Dockerfile
-          push: true
+          push: false
           tags: ghcr.io/${{ env.REPO_OWNER }}/mostcool:latest
           build-args: |
             RUN_TESTS=true
-          
-      - name: Pull Docker image
-        run: |
-          docker pull ghcr.io/${{ env.REPO_OWNER }}/mostcool:latest
 
-      - name: Remove existing Docker container
+      # Remove xvfb after we start using web-apps. xvfb is for TK apps.  
+      - name: Install Xvfb
+        run: sudo apt-get install -y xvfb
+
+      - name: Start Xvfb
         run: |
-          docker rm -f mostcool-container || true
+          Xvfb :99 -screen 0 1024x768x16 &
+          export DISPLAY=:99
 
       - name: Run tests inside Docker container
         run: |
-          docker run --name mostcool-container-test --network host --env="DISPLAY=${DISPLAY}" --volume="/tmp/.X11-unix:/tmp/.X11-unix:rw" ghcr.io/${{ env.REPO_OWNER }}/mostcool:latest pytest --cov=mostcool --cov-report=xml /app/mostcool/tests/
+          docker run --name mostcool-container-test --network host --env="DISPLAY=:99" --volume="/tmp/.X11-unix:/tmp/.X11-unix:rw" ghcr.io/${{ env.REPO_OWNER }}/mostcool:latest pytest --cov=mostcool --cov-report=xml /app/mostcool/tests/
 
       - name: Copy coverage report from Docker container
         run: |
@@ -63,11 +64,15 @@ jobs:
 
       - name: Stop and remove Docker container after running tests
         run: |
-          docker stop mostcool-container-test
-          docker rm mostcool-container-test
+          docker rm -f mostcool-container-test
 
       - name: Upload coverage reports to Codecov
         uses: codecov/codecov-action@v4.0.1
         with:
           flags: unittests
           token: ${{ secrets.CODECOV_TOKEN }}
+
+      - name: Push Docker image if tests pass
+        if: success()
+        run: |
+          docker push ghcr.io/${{ env.REPO_OWNER }}/mostcool:latest
