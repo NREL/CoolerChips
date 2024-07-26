@@ -55,8 +55,7 @@ jobs:
 
       - name: Run tests inside Docker container
         run: |
-          docker run --name mostcool-container-test ghcr.io/${{ env.REPO_OWNER }}/mostcool:latest pytest --cov=mostcool --cov-report=xml /app/mostcool/tests/
-        continue-on-error: true
+          docker run --name mostcool-container-test --network host -it --env="DISPLAY=${DISPLAY}" --volume="/tmp/.X11-unix:/tmp/.X11-unix:rw" ghcr.io/${{ env.REPO_OWNER }}/mostcool:latest pytest --cov=mostcool --cov-report=xml /app/mostcool/tests/
 
       - name: Copy coverage report from Docker container
         run: |
