@@ -3,7 +3,7 @@ Module: reliability_calc.py
 Authors:
 - Najee Stubbs {nistubbs@uark.edu}, University of Arkansas, Mechanical Engineering Dept.
 - Tyler Kuper {tdkuper@uark.edu}, University of Arkansas, Computer Science Dept. 
-Date: July 10, 2024
+Date: July 24, 2024
 
 Description:
 reliability_calc.py calculates the reliability of various componenets based on temperature data extracted
@@ -11,6 +11,7 @@ from ParaPower simulation results and builds an output path for the reliability 
 """
 
 import json
+from typing import Any, Callable, Dict, List, Tuple
 from libs.reliability_lib import (
     processor_calc,
     tim_calc,
@@ -18,23 +19,32 @@ from libs.reliability_lib import (
     heatspreader_calc,
     heatsink_calc
 )
-from src.utils.simData_util import SimData
+
+# Type alias for readability
+ExtractedData = List[Tuple[str, float]]
 
 class ReliabilityCalc:
-    # Map keywords to their respective functions
-    keyword_to_function = {
-        "GPU": processor_calc.calculate_reliability,
-        "CPU": processor_calc.calculate_reliability,
-        "TIM": tim_calc.calculate_reliability,
-        "Solder": solder_calc.calculate_reliability,
-        "HeatSpreader": heatspreader_calc.calculate_reliability,
-        "HeatSink": heatsink_calc.calculate_reliability
-    }
+    """
+    A class to calculate the reliability of various components based on temperature data.
 
-    def __init__(self):
-        self.simdata = SimData()
+    Attributes:
+        keyword_to_function (Dict[str, Callable]): Mapping of keywords to their respective reliability calculation functions.
+    """
 
-    def __extract_data(self, parapower_results_data):
+    def __init__(self) -> None:
+        """
+        Initializes the ReliabilityCalc class
+        """
+        self.keyword_to_function = {
+            "GPU": processor_calc.calculate_reliability,
+            "CPU": processor_calc.calculate_reliability,
+            "TIM": tim_calc.calculate_reliability,
+            "Solder": solder_calc.calculate_reliability,
+            "HeatSpreader": heatspreader_calc.calculate_reliability,
+            "HeatSink": heatsink_calc.calculate_reliability
+        }
+
+    def __extract_data(self, parapower_results_data: str) -> ExtractedData:
         """
         Extracts features and temperatures from the parapower data for
         reliability calculations
@@ -55,7 +65,7 @@ class ReliabilityCalc:
         
         return extracted_data
 
-    def __calc_reliability(self, extracted_data):
+    def __calc_reliability(self, extracted_data: ExtractedData) -> Dict[str, Any]:
         """
         Calculates reliability based on extracted temperature features. Maps
         features to their respective reliability calculation functions and 
@@ -65,7 +75,7 @@ class ReliabilityCalc:
             extracted_data (list): List of tuples containing feature names and temperature values
 
         Returns:
-            Dictionary: Dictionary containing features and their reliability results
+            Dict[str, Any]: Dictionary containing features and their reliability results
         """  
         reliability_results = {}
         for feature, temperature in extracted_data:
@@ -86,7 +96,7 @@ class ReliabilityCalc:
                 #print(f"Feature '{feature}' was skipped because it did not match any known categories.")
         return reliability_results
 
-    def __build_output_json(self, calc_results):
+    def __build_output_json(self, calc_results: Dict[str, Any]) -> List[Any]:
         """
         Builds the output JSON structure from the reliability calculation results.
 
@@ -101,7 +111,7 @@ class ReliabilityCalc:
             output_json.append(calc_result)
         return output_json
 
-    def generate_calculation(self, parapower_results_data):
+    def generate_calculation(self, parapower_results_data: str) -> str:
         """
         Main function for extracting features, performing calculations and 
         saving results.

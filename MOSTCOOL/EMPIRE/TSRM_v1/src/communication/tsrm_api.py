@@ -3,7 +3,7 @@ Module: tsrm_api.py
 Authors:
 - Najee Stubbs {nistubbs@uark.edu}, University of Arkansas, Mechanical Engineering Dept.
 - Tyler Kuper {tdkuper@uark.edu}, University of Arkansas, Computer Science Dept. 
-Date: July 10, 2024
+Date: July 24, 2024
 
 Description:
 tsrm_api.py gives the user an interface for managing the thermal stack reliability simulations. This module
@@ -14,80 +14,29 @@ the parapower simulation using ParaPowerPythonAPI and ReliabilityCalc.
 import os
 import json
 import argparse
+from typing import Dict, Optional, Tuple, Any
 from src.communication.parapower_python_api import ParaPowerPythonApi
 from src.reliability.reliability_calc import ReliabilityCalc
+from src.utils.data_handler_util import DataHandler
 
 class TSRMApi:
-    def __init__(self):
+    """
+    A class to interface with the thermal stack reliability simulations.
+
+    Attributes:
+        ppa (ParaPowerPythonApi): Instance of the ParaPowerPythonApi class.
+        rel (ReliabilityCalc): Instance of the ReliabilityCalc class.
+        data_handler (DataHandler): Instance of the DataHandler class.
+    """
+    def __init__(self) -> None:
+        """
+        Initializes the TSRMApi class with instances of ParaPowerPythonApi, ReliabilityCalc, and DataHandler.
+        """
         self.ppa = ParaPowerPythonApi()
         self.rel = ReliabilityCalc()
+        self.data_handler = DataHandler()
 
-    def __extract_parameters(self, user_file_path):
-        """
-        Extracts parameters from a user-provided JSON file for use in
-        simulations.
-
-        Args:
-            user_file_path (string): Path of the user-provided JSON file
-
-        Returns:
-            string: Extracted cooling type value
-            string: Extracted processor type value
-            string: Extracted heat transfer coefficient value
-            string: Extracted ambient temperature value
-            string: Extracted processor temperature value
-            string: Extracted initial temperature value
-        """
-        if user_file_path:
-            with open(user_file_path, 'r', encoding='utf-8') as json_file:
-                input_data = json.load(json_file)
-                # Extract values from JSON and set them in the GUI variables
-                return input_data["cooling_type"], input_data["processor_type"], input_data["heat_transfer_coef"], input_data["ambient_temp"], input_data["proc_temp"], input_data["initial_temp"]
-        else:
-            return None
-
-    def __modify_thermal_stack_template(self, cooling_type, processor_type, heat_transfer_coef, ambient_temp, proc_temp, initial_temp):
-        """
-        Creates an input file for the simulation using provided parameters and choosing
-        the appropriate thermal stack template and modifying it with the given parameters
-
-        Args:
-            cooling_type (string): Type of cooling system
-            processor_type (string): Type of processor
-            heat_transfer_coef (int): Heat transfer coefficient
-            ambient_temp (int): Ambient temperature
-            proc_temp (int): Processor temperature
-            initial_temp (int): Initial temperature
-
-        Returns:
-            string: Modified input JSON string
-        """
-        file_mapping, template_dir = self.get_dynamic_file_mapping()
-        
-        template_path = os.path.normpath(os.path.join(template_dir, file_mapping[(cooling_type, processor_type)]))
-
-        with open(template_path, 'r', encoding='utf-8') as json_file:
-            input_data = json.load(json_file)
-
-        # Modify the input data with provided parameters
-        input_data['ExternalConditions']['h_Xminus'] = heat_transfer_coef
-        input_data['ExternalConditions']['h_Xplus'] = heat_transfer_coef
-        input_data['ExternalConditions']['h_Yminus'] = heat_transfer_coef
-        input_data['ExternalConditions']['h_Yplus'] = heat_transfer_coef
-        input_data['ExternalConditions']['h_Zminus'] = heat_transfer_coef
-        input_data['ExternalConditions']['h_Zplus'] = heat_transfer_coef
-        input_data['ExternalConditions']['Ta_Xminus'] = ambient_temp
-        input_data['ExternalConditions']['Ta_Xplus'] = ambient_temp
-        input_data['ExternalConditions']['Ta_Yminus'] = ambient_temp
-        input_data['ExternalConditions']['Ta_Yplus'] = ambient_temp
-        input_data['ExternalConditions']['Ta_Zminus'] = ambient_temp
-        input_data['ExternalConditions']['Ta_Zplus'] = ambient_temp
-        input_data['ExternalConditions']['Tproc'] = proc_temp
-        input_data['Params']['Tinit'] = initial_temp
-
-        return json.dumps(input_data)
-
-    def __run_sim_with_modified_template(self, therm_mech_input_data):
+    def __run_sim_with_modified_template(self, therm_mech_input_data: str) -> Optional[str]:
         """
         Runs the simulation and performs reliability calculations using
         the modified thermal stack template generated
@@ -111,51 +60,35 @@ class TSRMApi:
             print(f"An error occurred during simulation: {e}")
             return None
 
-    def get_dynamic_file_mapping(self):
-        """
-        Reads JSON template files and maps cooling and processor types. Scans
-        a directory for JSON files and creates a mapping based on file naming
-        conventions.
-
-        Returns:
-            Dictionary: File mapping for cooling and processor types
-            string: Path directory to the input template json file
-        """
-        base_directory = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
-        template_dir = os.path.normpath(os.path.join(base_directory, "libs", "thermal-stack-config"))
-        
-        file_mapping = {}
-        for filename in os.listdir(template_dir):
-            if filename.endswith(".json"):
-                parts = filename.split('_')
-                if len(parts) >= 2:  # Assuming the format is like "CoolingType_ProcessorType.json"
-                    cooling_type = parts[0]
-                    processor_type = '_'.join(parts[1:]).replace(".json", "")
-                    file_mapping[(cooling_type, processor_type)] = filename
-        
-        return file_mapping, template_dir
-
-    def gen_and_run_sim(self, user_file_path=None, *params):
+    def gen_and_run_sim(self, user_file_path: Optional[str] = None, *params: Any) -> Optional[str]:
         """
         Generates customized input file using either a user-provided JSON file or
         manually input parameters and runs the simulation with the new input file.
 
         Args:
             user_file_path (string, optional): Path of the user-provided JSON file. Defaults to None.
-            *params (optional): Variables for cooling type, processor type, heat transfer coefficient,
-            ambient temperature, processor temperature, and initial temperature
+            *params (Any): Variables for cooling type, processor type, heat transfer coefficient,
+                           ambient temperature, processor temperature, and initial temperature
 
         Returns:
             string: JSON string of the reliability calculations output
         """
         if user_file_path:
-            params = self.__extract_parameters(user_file_path)
-        therm_mech_input_data = self.__modify_thermal_stack_template(*params)
+            with open(user_file_path, 'r', encoding='utf-8') as json_file:
+                input_data = json.load(json_file)
+            if input_data["type"] == "advanced":
+                return self.__run_sim_with_modified_template(json.dumps(input_data))
+            elif input_data["type"] == "basic":
+                params = self.data_handler.extract_parameters(user_file_path)
+        therm_mech_input_data = self.data_handler.modify_thermal_stack_template(*params)
         return self.__run_sim_with_modified_template(therm_mech_input_data)
     
-    def stop_simulation(self):
+    def stop_simulation(self) -> bool:
         """
         Stops the matlab simulation by terminating the subprocess.
+
+        Returns:
+            bool: True if the simulation was successfully stopped, False otherwise.
         """
         return self.ppa.stop_matlab_sim()
 
@@ -167,7 +100,7 @@ Run tsrm_api.py from the command line using:
 Note: This requires you to be inside the TSRM_V1 directory first.
 """
 
-def main(json_file_path):
+def main(json_file_path: str) -> None:
     # Normalize the file path to ensure compatibility with the OS
     json_file_path = os.path.normpath(json_file_path)
     

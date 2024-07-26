@@ -30,6 +30,15 @@ button, select {
     width: auto;
 }
 
+#logo-img {
+    width:800px;
+    padding: 30px;
+}
+
+#input-file {
+    padding: 10px;
+}
+
 #simulation-button-container {
 	display: block;
 	margin: auto;

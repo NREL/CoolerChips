@@ -1,0 +1,162 @@
+{
+	"type": "advanced",
+	"materials": [
+	  {
+		"type": "solid",
+		"name": "AMD_EPYC_Embedded_9004_Series_CPU",
+		"cte": 2.60e-06,
+		"E": 130000,
+		"nu": 0.18,
+		"k": 15.6,
+		"rho": 2.33e-09,
+		"cp": 702.9
+	  },
+	  {
+		"type": "solid",
+		"name": "FR_4_Substrate",
+		"cte": 16,
+		"E": 2.25e+10,
+		"nu": 0.127,
+		"k": 0.3,
+		"rho": 1900,
+		"cp": 1200
+	  },
+	  {
+		"type": "solid",
+		"name": "GAPPad_HC_5_0_TIM",
+		"cte": 250,
+		"E": 121000,
+		"nu": 0.1,
+		"k": 5,
+		"rho": 3200,
+		"cp": 1000
+	  },
+	  {
+		"type": "solid",
+		"name": "IHS_Copper",
+		"cte": 3.02e-05,
+		"E": 113000,
+		"nu": 0.34,
+		"k": 385,
+		"rho": 8960,
+		"cp": 384.9
+	  },
+	  {
+		"type": "solid",
+		"name": "Therm_A_Gap_Gel_T635",
+		"cte": 400,
+		"E": 100000,
+		"nu": 0.4,
+		"k": 1.7,
+		"rho": 2000,
+		"cp": 900
+	  },
+	  {
+		"type": "solid",
+		"name": "Heat_Sink_Aluminum",
+		"cte": 2.70e-09,
+		"E": 1.10e+07,
+		"nu": 0.33,
+		"k": 237,
+		"rho": 2700,
+		"cp": 897
+	  }
+	],
+	"features": [
+	  {
+		"Matl": "AMD_EPYC_Embedded_9004_Series_CPU",
+		"x": [0, 104.3],
+		"y": [0, 104.3],
+		"z": [11.446, 14.309],
+		"Q": 360,
+		"dx": 6,
+		"dy": 6,
+		"dz": 6,
+		"Desc": "AMD_EPYC_Embedded_9004_Series_CPU"
+	  },
+	  {
+		"Matl": "FR_4_Substrate",
+		"x": [-10, 114.3],
+		"y": [-10, 114.3],
+		"z": [14.309, 15.879],
+		"Q": 0,
+		"dx": 6,
+		"dy": 6,
+		"dz": 6,
+		"Desc": "FR_4_Substrate"
+	  },
+	  {
+		"Matl": "GAPPad_HC_5_0_TIM",
+		"x": [0, 104.3],
+		"y": [0, 104.3],
+		"z": [9.876, 11.446],
+		"Q": 0,
+		"dx": 6,
+		"dy": 6,
+		"dz": 6,
+		"Desc": "GAPPad_HC_5_0_TIM"
+	  },
+	  {
+		"Matl": "IHS_Copper",
+		"x": [-5, 109.3],
+		"y": [-5, 109.3],
+		"z": [4.15, 9.876],
+		"Q": 0,
+		"dx": 6,
+		"dy": 6,
+		"dz": 6,
+		"Desc": "HeatSpreader_IHS_Copper"
+	  },
+	  {
+		"Matl": "Therm_A_Gap_Gel_T635",
+		"x": [-5, 109.3],
+		"y": [-5, 109.3],
+		"z": [4, 4.15],
+		"Q": 0,
+		"dx": 6,
+		"dy": 6,
+		"dz": 6,
+		"Desc": "TIM_Therm_A_Gap_Gel_T635"
+	  },
+	  {
+		"Matl": "Heat_Sink_Aluminum",
+		"x": [-20, 124.3],
+		"y": [-20, 124.3],
+		"z": [0, 4],
+		"Q": 0,
+		"dx": 6,
+		"dy": 6,
+		"dz": 6,
+		"Desc": "HeatSink_Aluminum"
+	  }
+	],
+	"PottingMaterial": 0,
+	"ExternalConditions": {
+	  "h_Xminus": 0,
+	  "h_Xplus": 0,
+	  "h_Yminus": 0,
+	  "h_Yplus": 0,
+	  "h_Zminus": 0,
+	  "h_Zplus": 0,
+	  "Ta_Xminus": 0,
+	  "Ta_Xplus": 0,
+	  "Ta_Yminus": 0,
+	  "Ta_Yplus": 0,
+	  "Ta_Zminus": 0,
+	  "Ta_Zplus": 0,
+	  "Tproc": 0
+	},
+	"Params": {
+	  "Tinit": 300,
+	  "DeltaT": 1,
+	  "Tsteps": []
+	},
+	"analysis": {
+	  "type": "thermal",
+	  "mode": "static",
+	  "StressMode": "off"
+	},
+	"results": {
+	  "type": "individual"
+	}
+  }

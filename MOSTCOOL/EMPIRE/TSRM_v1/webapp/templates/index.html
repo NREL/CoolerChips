@@ -7,12 +7,12 @@
 </head>
 <body>
   <header>
-    <img src="/static/logo.png" alt="Header Image" style="width:800px;height:70px">
+    <img src="/static/logo.png" alt="Header Image" style="width:800px;height:70px" id="logo-img">
   </header>
   <div class="container">
     <form action="{{ url_for('run_simulation') }}" method="post" enctype="multipart/form-data" id="simulationForm">
       <div>
-        <h3>Options to Provide Inputs</h2>
+        <h3>Options to Provide Inputs <img src="/static/help.png" alt="Help Icon" style="width:20px;height:20px;cursor:pointer" title="Choose whether to import a JSON file or manually input values."></h3>
         <input type="radio" name="input-option" value="file" id="input-file" checked>
         <label for="input-file">Import JSON File</label><br>
         <div id="user-inputs">
@@ -22,7 +22,7 @@
         <label for="manual-input">Manually Input Values</label><br>
       </div>
       <div id="manual-inputs" style="display:none;">
-        <h3>Cooling System Parameters (Environmental Conditions)</h3>
+        <h3>Cooling System Parameters (Environmental Conditions) <img src="/static/help.png" alt="Help Icon" style="width:20px;height:20px;cursor:pointer" title="Choose whether to import a JSON file or manually input values."></h3>
         <label for="cooling-method">Cooling Method:</label>
         <select name="cooling-method" id="cooling-method">
           {% for cooling in cooling_types %}
@@ -33,7 +33,7 @@
         <input type="number" name="heat-transfer-coefficient" value=0><br>
         <label for="ambient-temperature">Ambient Temperature (°C):</label>
         <input type="number" name="ambient-temperature" value=0><br>
-        <h3>Processor Conditions</h3>
+        <h3>Processor Conditions <img src="/static/help.png" alt="Help Icon" style="width:20px;height:20px;cursor:pointer" title="Choose whether to import a JSON file or manually input values."></h3>
         <label for="processor-type">Processor Type:</label>
         <select name="processor-type" id="processor-type">
           {% for processor in processor_types %}
@@ -55,7 +55,7 @@
       <progress id="progress-bar" style="display:none;"></progress>
     </div>
     <div id="results-container" style="display:none;">
-      <h3>Results Handling</h3>
+      <h3>Results Handling <img src="/static/help.png" alt="Help Icon" style="width:20px;height:20px;cursor:pointer" title="Choose whether to import a JSON file or manually input values."></h3>
       <button id="save-result" class="btn btn-secondary" onclick=downloadFile() disabled>Save Results</button>
       <button id="view-result" class="btn btn-secondary" onclick=showResults()>View Results</button>
     </div>
@@ -111,7 +111,7 @@
                 let url = window.URL.createObjectURL(blob);
                 let link = document.createElement("a");
                 link.href = url;
-                link.download = "TSRM_ReliabilityResults.json";
+                link.download = "output.json";
                 link.style.display = "none";
                 document.body.appendChild(link);
                 link.click();

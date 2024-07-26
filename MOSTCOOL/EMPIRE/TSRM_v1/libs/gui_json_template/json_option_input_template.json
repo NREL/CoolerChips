@@ -1,4 +1,7 @@
 {
+  "type": "basic",
+  "Type Description": "set json file to basic or advanced depending on input file type or option",
+  
   "TSRM Template": "Thermal Stack Reliability Module, Input JSON File Template",
   "Template Description": "Used for submitting inputs directly into the tsrm_api.py file.",
 

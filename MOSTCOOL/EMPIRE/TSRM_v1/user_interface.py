@@ -3,7 +3,7 @@ Module: user_interface.py
 Authors:
 - Najee Stubbs {nistubbs@uark.edu}, University of Arkansas, Mechanical Engineering Dept.
 - Tyler Kuper {tdkuper@uark.edu}, University of Arkansas, Computer Science Dept. 
-Date: July 10, 2024
+Date: July 24, 2024
 
 Description:
 user_interface.py initializes a graphical user interface (GUI) for interacting with the
@@ -17,15 +17,39 @@ from tkinter import filedialog, messagebox, ttk
 import threading
 import json
 import os
+from typing import Any, Dict, List, Optional, Tuple, Type
 from PIL import Image, ImageTk
 from src.communication.tsrm_api import TSRMApi
+from src.utils.data_handler_util import DataHandler
 import logging
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
+# Type alias for readability
+FileMapping = Dict[Tuple[str,str], Any]
+
 class AppState:
-    def __init__(self, file_mapping, cooling_types, processor_types):
+    """
+    Class to represent the application state.
+
+    Attributes:
+        selected_input_path (str): Path of the selected input file.
+        base_directory (str): Base directory of the application.
+        file_mapping (FileMapping): Mapping of file types to their details.
+        cooling_types (List[str]): List of available cooling types.
+        processor_types (List[str]): List of available processor types.
+    """
+    def __init__(self, file_mapping: FileMapping, cooling_types: List[str], processor_types: List[str]) -> None:
+        """
+        Initializes the AppState class with the given file mapping, cooling types, 
+        and processor types.
+
+        Args:
+            file_mapping (FileMapping): 
+            cooling_types (List[str]): List of available cooling types
+            processor_types (List[str]): List of available processor types.
+        """
         self.selected_input_path = None
         self.base_directory = os.path.dirname(__file__)
         self.file_mapping = file_mapping
@@ -33,7 +57,7 @@ class AppState:
         self.processor_types = processor_types
 
     @classmethod
-    def set_values_from_api(cls, wrapper):
+    def set_values_from_api(cls: Type['AppState'], wrapper: 'TSRMApiWrapper') -> 'AppState':
         """
         Class method setting the class variables
 
@@ -49,20 +73,26 @@ class AppState:
         return cls(file_mapping, cooling_types, processor_types)
     
 class TSRMApiWrapper:
-    def __init__(self, api):
-        self.api = api
+    """
+    A wrapper class for the TSRMApi to handle API interactions.
 
-    def get_file_mapping(self):
+    Attributes:
+        api (TSRMApi): Instance of the TSRMApi class.
+    """
+    def __init__(self, api: TSRMApi)-> None:
+        self.api = api
+        self.data_handler = DataHandler()
+
+    def get_file_mapping(self) -> Tuple[FileMapping, str]:
         """
         Calls the dynamic file mapping function in TSRM API
 
         Returns:
-            Dictionary: File mapping for cooling and processor types
-            string: Path directory to the input template json file
+            Dictionary, string: File mapping for cooling and processor types
         """
-        return self.api.get_dynamic_file_mapping()
+        return self.data_handler.get_dynamic_file_mapping()
 
-    def run_simulation(self, user_file_path=None, *params):
+    def run_simulation(self, user_file_path: Optional[str] = None, *params: Any) -> Optional[str]:
         """
         Calls a TSRM API function to generate and run the simulation using either
         a user-provided JSON file or manually input values.
@@ -84,9 +114,12 @@ class TSRMApiWrapper:
             print(f"Error occurred in run_simulation: {e}")
             return None
         
-    def stop_simulation(self):
+    def stop_simulation(self) -> bool:
         """
         Calls the TSRM API function to quit the matlab engine and stop the simulation
+
+        Returns:
+            bool: Boolean if the simulation was successfully stopped
         """ 
         try:
             return self.api.stop_simulation()
@@ -94,24 +127,37 @@ class TSRMApiWrapper:
             print(f"Error occurred in stop_simulation: {e}")
 
 class UserInterface:
-    def __init__(self, root):
+    """
+    A class to initialize and manage the GUI for interacting with the TSRM_API.
+
+    Attributes:
+        root (tk.Tk): The root window of the Tkinter application.
+        wrapper (TSRMApiWrapper): Instance of the TSRMApiWrapper class.
+        state (AppState): Instance of the AppState class.
+    """
+    def __init__(self, root: tk.Tk) -> None:
+        """
+        Initializes the UserInterface with the given root window.
+
+        Args:
+            root (tk.Tk): The root window of the Tkinter application
+        """
         api = TSRMApi()
         self.wrapper = TSRMApiWrapper(api)
         self.state = AppState.set_values_from_api(self.wrapper)
         # GUI setup
         self.root = root
         self.root.title("Simulation Interface")
-        self.root.geometry("800x800")
+        self.root.geometry("850x800")
         self.root.columnconfigure([0, 1, 2], weight=1)
         self.__setup_ui()
 
-    def __setup_ui(self):
+    def __setup_ui(self) -> None:
         """
-        Private function that calls all other setup functions for the user
-        interface.
+        Private function to set up the entire user interface by calling individual setup functions.
         """
         self.__setup_canvas()
-        self.__setup_logo()
+        self.__setup_images()
         self.__setup_options_frame()
         self.__setup_cooling_frame()
         self.__setup_processor_frame()
@@ -119,12 +165,12 @@ class UserInterface:
         self.__setup_results_frame()
         logging.info("User interface successfully initialized")
 
-    def __setup_canvas(self):
+    def __setup_canvas(self) -> None:
         """
         Private setup function for the canvas frame so the scrollbar can function.
         """
         # Create a canvas and scrollbar
-        self.canvas = tk.Canvas(self.root, width=800, height=600)
+        self.canvas = tk.Canvas(self.root, width=850, height=600)
         self.canvas.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
         self.scrollbar = ttk.Scrollbar(self.root, orient=tk.VERTICAL, command=self.canvas.yview)
         self.scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
@@ -140,10 +186,9 @@ class UserInterface:
             self.canvas.yview_scroll(int(-1*(event.delta/120)), "units")
         self.canvas.bind_all("<MouseWheel>", on_mouse_wheel)
 
-    def __setup_logo(self):
+    def __setup_images(self) -> None:
         """
-        Private setup function that loads and displays the logo image at the top of 
-        the user interface
+        Private method to load and display images in the user interface.
         """
         # Load and display logo
         try:
@@ -157,9 +202,17 @@ class UserInterface:
         except Exception as e:
             messagebox.showerror("Error", f"An error ocurred while loading the logo image: {e}")
 
-    def __setup_options_frame(self):
+        # Help Button with Question Mark Icon
+        try:
+            self.help_image = Image.open("help.png")
+            self.resized_help_image = self.help_image.resize((20, 20), Image.LANCZOS)  # Adjust the size as needed
+            self.help_icon = ImageTk.PhotoImage(self.resized_help_image)
+        except Exception as e:
+            messagebox.showerror("Error", f"An error ocurred while loading the help icon: {e}")
+
+    def __setup_options_frame(self) -> None:
         """
-        Private setup function for the input option radio buttons and import file section
+        Private function for the input option radio buttons and import file section
         """
         # Input options
         self.options_frame = ttk.LabelFrame(self.frame, text="Options to Provide Inputs")
@@ -174,9 +227,15 @@ class UserInterface:
         self.label_selected_output.grid(row=2, column=0, pady=5, padx=10, sticky='w')
         ttk.Radiobutton(self.options_frame, text="Manually Input Values", value=2, variable=self.input_option, command=lambda: self.__handle_input_selection()).grid(row=3, column=0, pady=5, padx=10, sticky='w')
 
-    def __setup_cooling_frame(self):
+        # Options help button
+        help_message = "These are the options and here is how they work"
+        self.options_help_button = tk.Button(self.frame, image=self.help_icon, command=lambda: self.show_help(help_message))
+        self.options_help_button.image = self.help_icon  # Keep reference to avoid garbage collection
+        self.options_help_button.grid(row=1, column=3, padx=5, pady=5, sticky='nw')
+
+    def __setup_cooling_frame(self) -> None:
         """
-        Private setup function for the manual input frame
+        Private setup function for the manual input frame and cooling method frame
         """
         # Manual input frame
         self.input_frame = ttk.LabelFrame(self.frame, text="Simulation Inputs")
@@ -185,6 +244,11 @@ class UserInterface:
         tk.Label(self.cooling_frame, text="Cooling Method").grid(row=0, column=0, padx=5, pady=5, sticky='w')
         self.method_variable = tk.StringVar(value=self.state.cooling_types[0])
         ttk.Combobox(self.cooling_frame, textvariable=self.method_variable, values=self.state.cooling_types).grid(row=1, column=0, padx=5, pady=5, sticky='w')
+
+        # Manual input help button
+        help_message = "There's cooling methods and processor conditions and stuff"
+        self.manual_input_help_button = tk.Button(self.frame, image=self.help_icon, command=lambda: self.show_help(help_message))
+        self.manual_input_help_button.image = self.help_icon  # Keep reference to avoid garbage collection
 
         # Nested function to check if entry contains digits
         def callback(P):
@@ -206,7 +270,7 @@ class UserInterface:
         ambient_temp_entry = tk.Entry(self.cooling_frame, textvariable=self.ambient_temp_variable, validate='all', validatecommand=(vcmd, '%P'))
         ambient_temp_entry.grid(row=3, column=1, padx=5, pady=5, sticky='w')
 
-    def __setup_processor_frame(self):
+    def __setup_processor_frame(self) -> None:
         """
         Private setup function for the processor conditions section
         """
@@ -237,7 +301,7 @@ class UserInterface:
         initial_temp_entry = tk.Entry(self.processor_frame, textvariable=self.initial_temp_variable, validate='all', validatecommand=(vcmd, '%P'))
         initial_temp_entry.grid(row=3, column=1, padx=5, pady=5, sticky='w')
 
-    def __setup_run_simulation_frame(self):
+    def __setup_run_simulation_frame(self) -> None:
         """
         Private setup function for the run simulation section
         """
@@ -251,7 +315,13 @@ class UserInterface:
         self.progress_bar = ttk.Progressbar(self.run_frame, length=200, mode='indeterminate')
         self.status_label = tk.Label(self.run_frame, text="Ready to start simulation.") 
 
-    def __setup_results_frame(self):
+        # Run simulation help button
+        help_message = "You run the simulation here"
+        self.run_simulation_help_button = tk.Button(self.frame, image=self.help_icon, command=lambda: self.show_help(help_message))
+        self.run_simulation_help_button.image = self.help_icon  # Keep reference to avoid garbage collection
+        self.run_simulation_help_button.grid(row=6, column=3, padx=5, pady=5, sticky='nw')
+
+    def __setup_results_frame(self) -> None:
         """
         Private setup function for the results section
         """
@@ -263,33 +333,36 @@ class UserInterface:
         self.button_open_result = tk.Button(self.results_frame, text="Open Result", state=tk.DISABLED)
         self.button_open_result.grid(row=0, column=1, padx=10, pady=10)
 
-    def __handle_input_selection(self):
-        """
-        Handles the user's choice between file input and manual input,
-        adjusting the UI accordingly.
+        # Results help button
+        help_message = "You save results to your computer and stuff"
+        self.results_help_button = tk.Button(self.frame, image=self.help_icon, command=lambda: self.show_help(help_message))
+        self.results_help_button.image = self.help_icon  # Keep reference to avoid garbage collection
+        self.results_help_button.grid(row=7, column=3, padx=5, pady=5, sticky='nw')
 
-        Args:
-            input_option (IntVar): User's input method choice
+    def __handle_input_selection(self) -> None:
+        """
+        Handles the user's choice between file input and manual input, adjusting the UI accordingly.
         """
         if self.input_option.get() == 1: # Input file
             self.button_select_file.grid()
             self.label_selected_output.grid()
             self.input_frame.grid_forget()
+            self.manual_input_help_button.grid_forget()
             if not self.state.selected_input_path:
                 self.run_simulation_button.config(state=tk.DISABLED)
         else: # Manual Entry
             self.button_select_file.grid_remove()
             self.label_selected_output.grid_remove()
             self.input_frame.grid(row=2, column=0, columnspan=3, padx=10, pady=10, sticky="ew")
+            self.manual_input_help_button.grid(row=2, column=3, padx=5, pady=5, sticky='nw')
             self.run_simulation_button.config(state=tk.NORMAL)
 
         self.root.update_idletasks()
         self.root.geometry("")  # Adjust window size dynamically
 
-    def __handle_simulation_completion(self, simulation_output_data):
+    def __handle_simulation_completion(self, simulation_output_data: str) -> None:
         """
-        Updates the UI upon simulation completion. It enables the buttons to view,
-        save, and open the result JSON string, and updates the status label.
+        Updates the UI upon simulation completion.
 
         Args:
             simulation_output_data (string): JSON string of the simulation output
@@ -306,13 +379,10 @@ class UserInterface:
             logging.info("Simulation failed.")
         self.stop_simulation_button.config(state=tk.DISABLED)
 
-    def __run_simulation_thread(self):
+    def __run_simulation_thread(self) -> None:
         """
         Calls the API wrapper to run the simulation based on user input, either 
         from a JSON file or manual input, and updates the UI upon completion.
-
-        Args:
-            input_option (IntVar): User's input method choice
         """
         simulation_output_data = None
         if self.input_option.get() == 1 and self.state.selected_input_path:  # User-provided JSON file
@@ -335,17 +405,16 @@ class UserInterface:
         self.progress_bar.grid_forget()
         self.status_label.after(0, self.__handle_simulation_completion, simulation_output_data)
 
-    def select_input_file(self):
+    def select_input_file(self) -> None:
         """
-        Opens a file dialog to select an input JSON file and updates
-        the state and UI accordingly.
+        Opens a file dialog to select an input JSON file and updates the state and UI accordingly.
         """
         self.state.selected_input_path = filedialog.askopenfilename(title="Select input JSON file", filetypes=[("JSON files", "*.json")])
         if self.state.selected_input_path:
             self.label_selected_output.config(text=f"Input File Selected: {self.state.selected_input_path}")
             self.run_simulation_button.config(state=tk.NORMAL)
 
-    def run_simulation(self):
+    def run_simulation(self) -> None:
         """
         Sets up the UI and starts the simulation in a new thread. Initializes 
         progress bar and status label, and starts the simulation thread.
@@ -362,7 +431,7 @@ class UserInterface:
         logging.info("Starting simulation thread...")
         threading.Thread(target=self.__run_simulation_thread).start()
 
-    def stop_simulation(self):
+    def stop_simulation(self) -> None:
         """
         Updates the user interface and status label while calling the api wrapper function
         to stop the matlab engine
@@ -372,7 +441,7 @@ class UserInterface:
             self.progress_bar.grid_forget()
             self.status_label.config(text="Simulation stopped before completion")
 
-    def save_result_file(self):
+    def save_result_file(self) -> None:
         """
         Saves the simulation result to a user-specified location. Opens a save
         dialog and writes the JSON string to the chosen path.
@@ -384,7 +453,7 @@ class UserInterface:
             self.label_selected_output.config(text=f"Output file saved as: {file_path}")
             logging.info("File successfully saved!")
 
-    def open_result_file(self):
+    def open_result_file(self) -> None:
         """
         Opens and displays the content of the result JSON string in a new window.
         """
@@ -398,7 +467,14 @@ class UserInterface:
             messagebox.showerror("Error", f"Failed to read the results: {e}")
             logging.error(f"Failed to read the results: {e}")
 
+    def show_help(self, message) -> None:
+        """
+        Displays a help message in a message box.
 
+        Args:
+            message (str): The help message to display.
+        """
+        messagebox.showinfo("Help", message)
 
 def main():
     root = tk.Tk()

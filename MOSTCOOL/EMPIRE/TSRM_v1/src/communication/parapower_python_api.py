@@ -3,7 +3,7 @@ Module: parapower_python_api.py
 Authors:
 - Najee Stubbs {nistubbs@uark.edu}, University of Arkansas, Mechanical Engineering Dept.
 - Tyler Kuper {tdkuper@uark.edu}, University of Arkansas, Computer Science Dept.
-Date: July 10, 2024
+Date: July 24, 2024
 
 Description:
 This module provides an interface to run ParaPower simulations using a compiled MATLAB executable.
@@ -20,10 +20,34 @@ import platform
 import stat
 
 class ParaPowerPythonApi:
-    def __init__(self):
+    """
+    A class to interface with the ParaPower simulation by running a compiled MATLAB executable.
+
+    Attributes:
+        process (subprocess.Popen): Subprocess instance to run the MATLAB executable.
+    """
+    def __init__(self) -> None:
+        """
+        Initializes the ParaPowerPythonApi class.
+        """
         self.process = None
 
-    def run_matlab_sim(self, input_data):
+    def run_matlab_sim(self, input_data: str) -> str:
+        """
+        Runs the matlab executable through a subprocess and returns the results from the
+        simulation.
+
+        Args:
+            input_data (string): JSON string of the input data
+
+        Raises:
+            subprocess.CalledProcessError: If the MATLAB subprocess fails.
+            ValueError: If no JSON output is recieved from MATLAB.
+
+        Returns:
+            string: JSON string of the output data from the simulation
+        """
+        
         # Find the base directory for the TSRM_v1 project
         base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
 
@@ -81,7 +105,13 @@ class ParaPowerPythonApi:
         #logging.info(f"Output JSON from MATLAB: {output_data}")
         return output_data
 
-    def stop_matlab_sim(self):
+    def stop_matlab_sim(self) -> bool:
+        """
+        Terminates the MATLAB simulation if there is a subprocess.
+        
+        Returns:
+            bool: result of if the MATLAB simulation was stopped
+        """
         if self.process:
             self.process.terminate()
             self.process.wait()
