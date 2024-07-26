@@ -31,7 +31,7 @@ RUN wget -O ParaView-5.12.0-MPI-Linux-Python3.10-x86_64.tar.gz "https://www.para
 RUN apt-get install -y ffmpeg libsm6 libxext6 libxcb-icccm4 libxcb-image0 libxcb-keysyms1 libxcb-render-util0 libxcb-xinerama0 libxcb-xinput0 libxcb-xfixes0 libxkbcommon-x11-0
 
 # Clone the repository
-RUN git clone --branch cookiecutter https://github.com/NREL/CoolerChips.git /app
+RUN git clone --branch main https://github.com/NREL/CoolerChips.git /app
 
 # Install gdown
 RUN pip install gdown
