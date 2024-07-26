@@ -18,15 +18,15 @@ https://docs.docker.com/engine/install/
 
 2. Pull our latest stable image:
 
-`docker pull ghcr.io/nrel/mostcool:latest`
+`docker pull ghcr.io/nrel/mostcool:v1.1.0`
 
 3. Give docker permission to display it's GUI app on host. This step must be repeated each time the computer/virtual machine is restarted: `xhost +local:docker`
 
-7. Run the container:
+4. Run the container:
 
 `docker run --network host --env="DISPLAY=${DISPLAY}" --volume="/tmp/.X11-unix:/tmp/.X11-unix:rw" mostcool`
 
-8. You should see the app pop up:
+5. You should see the app pop up:
 
 ![image](CoolerChips/mostcool/assets/images/map.png)
 
