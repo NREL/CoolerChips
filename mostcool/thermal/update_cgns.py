@@ -21,7 +21,6 @@ upper_CPU_frac = 1
 # In the case of air temperature close to the server being 30°C (Assuming a supply temperature of 20°C and supply approach temperture difference of 10°C)
 # Example usage:
 solution_path = "/app/mostcool/thermal/data/PythonPOD_Solid.cgns"  # Update with the actual path to your solution file
-paraview_path = "/Paraview/bin/paraview"  # Ensure this matches your ParaView installation path
 
 
 # This function "build_and_scale_rbf_models" has to be run once to run the online_prediction function multiple time inside Helics

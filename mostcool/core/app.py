@@ -98,7 +98,7 @@ class Simulator:
                 progress = progress_value
             sleep(2)  # Simulate some processing time
         print("Simulation completed.")
-        ep_results = pd.read_csv("Output/eplusout.csv")
+        ep_results = pd.read_csv("/app/Output/eplusout.csv")
         ep_results = ep_results.drop(ep_results.index[:1])  # Drop the initial strange values
         self.results = fix_results(ep_results)
 
@@ -142,7 +142,7 @@ def results_building_energy():
 def get_results():
     try:
         # Load the simulation results
-        ep_results = pd.read_csv("Output/eplusout.csv")
+        ep_results = pd.read_csv("/app/Output/eplusout.csv")
         ep_results = ep_results.drop(ep_results.index[:1])  # Drop the initial strange values
         results = fix_results(ep_results)
         
@@ -154,7 +154,7 @@ def get_results():
 @app.route('/get_available_variables')
 def get_available_variables():
     try:
-        ep_results = pd.read_csv("Output/eplusout.csv")
+        ep_results = pd.read_csv("/app/Output/eplusout.csv")
         ep_results = ep_results.drop(ep_results.index[:1])  # Drop the initial strange values
         results = fix_results(ep_results)
         variables = results.columns.tolist()
@@ -168,7 +168,7 @@ def get_building_energy_results():
         left_variable = request.args.get('left_variable', 'Cooling:Electricity [J]')  # Default to a specific variable
         right_variable = request.args.get('right_variable', 'Maximum CPU Temperature [C]')  # Default to a specific variable
 
-        ep_results = pd.read_csv("Output/eplusout.csv")
+        ep_results = pd.read_csv("/app/Output/eplusout.csv")
         ep_results = ep_results.drop(ep_results.index[:1])  # Drop the initial strange values
         results = fix_results(ep_results)
         

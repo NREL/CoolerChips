@@ -3,10 +3,10 @@ name: CI
 on:
   push:
     branches:
-      - "main"
+      - "**"
   pull_request:
     branches:
-      - "main"
+      - "**"
   schedule:
     - cron: "0 0 * * 0"
 
@@ -44,6 +44,7 @@ jobs:
           tags: ghcr.io/${{ env.REPO_OWNER }}/mostcool:latest
           build-args: |
             RUN_TESTS=true
+            BRANCH=${{ github.ref_name }}
 
       # Remove xvfb after we start using web-apps. xvfb is for TK apps.  
       - name: Install Xvfb
