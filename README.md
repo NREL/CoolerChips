@@ -2,7 +2,7 @@
 
 ## Requirements/Tested on:
 
-1. Ubuntu 22.04 with administrator access (Also works on Virtual Machines). If you are using Windows and need to install a Virtual Machine, please follow these instructions ([link](https://github.com/NREL/CoolerChips/blob/main/MOSTCOOL%20Windows%20Instructions.docx)).
+1. Ubuntu 22.04 with administrator access (Also works on Virtual Machines). If you are using Windows and need to install a Virtual Machine, please follow these instructions ([link](https://github.com/NREL/CoolerChips/blob/main/Resources/MOSTCOOL%20Windows%20Instructions.docx)).
 
 2. At least Quad Core CPU
 
