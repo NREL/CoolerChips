@@ -2,8 +2,8 @@
 FROM --platform=linux/x86_64 nvidia/opengl:1.2-glvnd-runtime-ubuntu22.04 
 
 ARG DEBIAN_FRONTEND=noninteractive
-
 ARG RUN_TESTS=false
+ARG BRANCH=main
 
 ENV ENERGYPLUS_LINK=https://github.com/NREL/EnergyPlus/releases/download/v23.2.0/EnergyPlus-23.2.0-7636e6b3e9-Linux-Ubuntu22.04-x86_64.tar.gz
 
@@ -29,7 +29,7 @@ RUN wget -O ParaView-5.12.0-egl-MPI-Linux-Python3.10-x86_64.tar.gz "https://www.
     && mv ParaView-5.12.0-egl-MPI-Linux-Python3.10-x86_64 Paraview
 
 # Clone the repository
-RUN git clone --branch main https://github.com/NREL/CoolerChips.git /app
+RUN git clone --branch $BRANCH https://github.com/NREL/CoolerChips.git /app
 
 # Install gdown
 RUN pip install gdown
