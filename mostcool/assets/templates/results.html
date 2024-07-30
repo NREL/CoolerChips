@@ -1,0 +1,56 @@
+<!-- templates/results.html -->
+{% extends "base_template.html" %}
+
+{% block title %}Results - mostcool{% endblock %}
+
+{% block sidebar %}
+<li class="nav-item">
+        <a href="/simulation-setup" class="nav-link text-white">
+          Simulation Setup
+  </a>
+</li>
+<li class="nav-item">
+        <a href="/simulation" class="nav-link text-white">Simulation</a>
+</li>
+<li class="nav-item">
+  <a href="/results" class="nav-link text-white active">
+    Results
+  </a>
+</li>
+{% endblock %}
+
+{% block content %}
+<div class="pt-3 pb-2 container">
+  <h2>Simulation Results</h2>
+  <div class="card-container">
+    <div class="card" style="background-image: url('{{ url_for('static', filename='images/card_backgrounds/server_visualization.jpg') }}');">
+      <a href="/server-thermal-profiles">
+        <div class="card-overlay">
+          <h2 class="text-center">Server Thermal Profiles</h2>
+        </div>
+      </a>
+    </div>
+    <!-- <div class="card" style="background-image: url('{{ url_for('static', filename='images/card_backgrounds/datacenter_visualization.png') }}');">
+      <a href="/results/datacenter_visualization">
+        <div class="card-overlay">
+          <h2 class="text-center">Data Center Thermal Profiles</h2>
+        </div>
+      </a>
+    </div> -->
+    <div class="card" style="background-image: url('{{ url_for('static', filename='images/card_backgrounds/cash.jpg') }}');">
+      <a href="/results/cost">
+        <div class="card-overlay">
+          <h2 class="text-center">Cost Results</h2>
+        </div>
+      </a>
+    </div>
+    <div class="card" style="background-image: url('{{ url_for('static', filename='images/card_backgrounds/building_energy.jpg') }}');">
+      <a href="/results/building_energy">
+        <div class="card-overlay">
+          <h2 class="text-center">Building Energy Plots</h2>
+        </div>
+      </a>
+    </div>
+  </div>
+</div>
+{% endblock %}

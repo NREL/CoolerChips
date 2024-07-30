@@ -1,2 +1,2 @@
 NAME = "mostcool"
-VERSION = "0.1"
+VERSION = "1.1"

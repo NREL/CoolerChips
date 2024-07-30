@@ -1,0 +1,72 @@
+<!-- templates/home.html -->
+{% extends "base_template.html" %}
+
+{% block title %}Home - mostcool{% endblock %}
+
+{% block sidebar %}
+<li class="nav-item">
+  <a href="/" class="nav-link text-white active">
+    Home
+  </a>
+</li>
+<li class="nav-item">
+  <a href="{{ url_for('simulation_setup') }}" class="nav-link text-white">
+    Simulation
+  </a>
+</li>
+<li class="nav-item">
+  <a href="/results" class="nav-link text-white">
+    Preview Results
+  </a>
+</li>
+{% endblock %}
+
+{% block content %}
+<div class="carousel-container">
+  <div id="carouselExampleIndicators" class="carousel slide w-100" data-bs-ride="carousel" data-bs-interval="5000">
+    <div class="carousel-indicators">
+      <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="0" class="active" aria-current="true" aria-label="Slide 1"></button>
+      <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="1" aria-label="Slide 2"></button>
+      <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="2" aria-label="Slide 3"></button>
+    </div>
+    <div class="carousel-inner">
+      <div class="carousel-item active">
+        <img src="{{ url_for('static', filename='images/image1.png') }}" class="d-block w-100" alt="...">
+        <div class="carousel-caption d-none d-md-block">
+          <h5>Welcome to mostcool</h5>
+          <p>Welcome to the mostcool co-simulation application. Use the navigation on the left to get started.</p>
+        </div>
+      </div>
+      <div class="carousel-item">
+        <img src="{{ url_for('static', filename='images/image2.jpg') }}" class="d-block w-100" alt="...">
+        <div class="carousel-caption d-none d-md-block">
+          <h5>Custom data center HVAC</h5>
+          <p>Simulate multiple HVAC configurations, locations, schedules.</p>
+        </div>
+      </div>
+      <div class="carousel-item">
+        <img src="{{ url_for('static', filename='images/image3.jpg') }}" class="d-block w-100" alt="...">
+        <div class="carousel-caption d-none d-md-block">
+          <h5>Custom server components</h5>
+          <p>Ability to simulate multiple server cooling technologies.</p>
+        </div>
+      </div>
+    </div>
+    <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide="prev">
+      <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+      <span class="visually-hidden">Previous</span>
+    </button>
+    <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide="next">
+      <span class="carousel-control-next-icon" aria-hidden="true"></span>
+      <span class="visually-hidden">Next</span>
+    </button>
+  </div>
+</div>
+<div class="logo-container p-4">
+  <img src="{{ url_for('static', filename='images/logos/NREL.png') }}" alt="Logo 1" class="img-fluid">
+  <img src="{{ url_for('static', filename='images/logos/UMD.png') }}" alt="Logo 2" class="img-fluid">
+  <img src="{{ url_for('static', filename='images/logos/trane.png') }}" alt="Logo 3" class="img-fluid">
+  <img src="{{ url_for('static', filename='images/logos/LBL.png') }}" alt="Logo 4" class="img-fluid">
+  <img src="{{ url_for('static', filename='images/logos/UARK.png') }}" alt="Logo 5" class="img-fluid">
+</div>
+{% endblock %}
