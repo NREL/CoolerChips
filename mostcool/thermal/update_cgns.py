@@ -89,7 +89,9 @@ def predict_temperature(velocity, CPU_load_fraction=0.73, inlet_server_temperatu
     """
     
     #----------------------------------Need to be excuted only once---------------------------
-    modes = np.loadtxt('/app/mostcool/thermal/data/modes.csv', delimiter=',')
+    # modes = np.loadtxt('/app/mostcool/thermal/data/modes.csv', delimiter=',')
+    # np.save('/app/mostcool/thermal/data/modes.npy', modes)
+    modes = np.load('/app/mostcool/thermal/data/modes.npy')
     #-----------------------------------------------------------------------------------------
     # Create a 2D array from the input parameters
     new_parameters = np.array([[velocity, CPU_load_fraction]])
