@@ -11,8 +11,8 @@
             padding: 0;
         }
         .container-fluid {
-            margin-left: 10px;
-            margin-right: 10px;
+            margin: 10px;
+            padding: 10px;
         }
         .table-container {
             overflow-x: auto;
@@ -41,7 +41,7 @@
             justify-content: space-between;
         }
         .checkbox-column {
-            width: 30px; /* Adjust this value to make the checkbox column narrower */
+            width: 10px;
         }
     </style>
 </head>
@@ -50,58 +50,47 @@
         <h1 class="mt-4">Cost Model Demonstration V1.1</h1>
 
         <div class="mt-3">
-            <a href="/settings" class="btn btn-secondary" onclick="saveState()">Settings</a>
+            <a href="/settings" class="btn btn-secondary" onclick="saveState()">Default Parameters</a>
             <a href="/elements.html" class="btn btn-secondary" onclick="saveState()">Cost Elements Menu</a>
             <button class="btn btn-secondary" id="saveBtn" onclick="saveState()">Save</button>
             <button class="btn btn-secondary" id="loadBtn">Load</button>
         </div>
 
-        <form id="fileForm" method="post" action="/process_file" enctype="multipart/form-data" onsubmit="return handleFormSubmit(event);">
+        <form id="fileForm" method="post" action="/process_file" onsubmit="return handleFormSubmit(event);">
             <div class="form-group" id="file1-group">
                 <label for="file1">Add the first HTM/SQL file:</label>
-                <input type="file" class="form-control" id="file1" name="file1" onchange="showFileModal(this, 'file1')">
+                <input type="file" class="form-control" id="file1" name="file1" onchange="showModal(this, 'file1')">
                 <div class="mt-2 mb-2">
-                    <button type="button" class="btn btn-primary" onclick="showAddModal()">Add</button>
+                    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addModal">Add</button>
                     <button type="button" class="btn btn-danger" onclick="removeSelectedRows('file1')">Remove</button>
                     <button type="button" class="btn btn-warning" onclick="clearTable('file1')">Clear</button>
+                    <button type="button" class="btn btn-secondary" onclick="duplicateTable()">Duplicate Table</button>
                 </div>
                 <div class="table-container">
-                    <table class="table table-bordered table-wider" id="file1-table">
+                    <table class="table table-bordered" id="file1-table">
                         <thead>
                             <tr>
-                                <th class="checkbox-column"></th>
-                                <th rowspan="2">Name</th>
-                                <th rowspan="2">Units</th>
-                                <th rowspan="2">Cost per Equipment</th>
-                                <th rowspan="2">Redundancy</th>
-                                <th rowspan="2">MTBF</th>
-                                <th rowspan="2">Gamma (hours)</th>
-                                <th rowspan="2">Beta</th>
-                                <th rowspan="2">Eta (hours)</th>
-                                <th colspan="2">Cost per Maintenance Event</th>
-                                <th rowspan="2">Total Cost</th>
-                            </tr>
-                            <tr>
-                                <th><input type="checkbox" id="selectAllFile1"></th>
-                                <th>Original Cost</th>
+                                <th class="checkbox-column"><input type="checkbox" id="selectAllFile1"></th>
+                                <th>Name</th>
+                                <th>Units</th>
+                                <th>Cost per Equipment</th>
+                                <th>Redundancy</th>
+                                <th>Total Cost</th>
+                                <th>MTBF</th>
+                                <th>Gamma (hours)</th>
+                                <th>Beta</th>
+                                <th>Eta (hours)</th>
+                                <th>Cost per Maintenance Event</th>
                                 <th>Maintenance Type</th>
                             </tr>
                         </thead>
                         <tbody id="file1-details">
-                            {% if table_data_file1 %}
-                                {% for key, value in table_data_file1.items() %}
-                                    <tr>
-                                        <td class="checkbox-column"><input type="checkbox" class="selectRowFile1"></td>
-                                        <td>{{ key }}</td>
-                                        <td>{{ value }}</td>
-                                    </tr>
-                                {% endfor %}
-                            {% endif %}
+                            <!-- Data will be inserted here -->
                         </tbody>
                         <tfoot>
                             <tr>
                                 <th colspan="11">Total</th>
-                                <th id="file1-totalCost">{{ table_data_file1|length > 1 and table_data_file1.values()|last }}</th>
+                                <th id="file1-totalCost"></th>
                             </tr>
                         </tfoot>
                     </table>
@@ -110,607 +99,689 @@
 
             <div class="form-group" id="file2-group">
                 <label for="file2">Add the second HTM/SQL file:</label>
-                <input type="file" class="form-control" id="file2" name="file2" onchange="showFileModal(this, 'file2')">
+                <input type="file" class="form-control" id="file2" name="file2" onchange="showModal(this, 'file2')">
                 <div class="mt-2 mb-2">
-                    <button type="button" class="btn btn-primary" onclick="showAddModal()">Add</button>
+                    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addModal">Add</button>
                     <button type="button" class="btn btn-danger" onclick="removeSelectedRows('file2')">Remove</button>
                     <button type="button" class="btn btn-warning" onclick="clearTable('file2')">Clear</button>
                 </div>
                 <div class="table-container">
-                    <table class="table table-bordered table-wider" id="file2-table">
+                    <table class="table table-bordered" id="file2-table">
                         <thead>
                             <tr>
-                                <th class="checkbox-column"></th>
-                                <th rowspan="2">Name</th>
-                                <th rowspan="2">Units</th>
-                                <th rowspan="2">Cost per Equipment</th>
-                                <th rowspan="2">Redundancy</th>
-                                <th rowspan="2">MTBF</th>
-                                <th rowspan="2">Gamma (hours)</th>
-                                <th rowspan="2">Beta</th>
-                                <th rowspan="2">Eta (hours)</th>
-                                <th colspan="2">Cost per Maintenance Event</th>
-                                <th rowspan="2">Total Cost</th>
-                            </tr>
-                            <tr>
-                                <th><input type="checkbox" id="selectAllFile2"></th>
-                                <th>Original Cost</th>
+                                <th class="checkbox-column"><input type="checkbox" id="selectAllFile2"></th>
+                                <th>Name</th>
+                                <th>Units</th>
+                                <th>Cost per Equipment</th>
+                                <th>Redundancy</th>
+                                <th>Total Cost</th>
+                                <th>MTBF</th>
+                                <th>Gamma (hours)</th>
+                                <th>Beta</th>
+                                <th>Eta (hours)</th>
+                                <th>Cost per Maintenance Event</th>
                                 <th>Maintenance Type</th>
                             </tr>
                         </thead>
                         <tbody id="file2-details">
-                            {% if table_data_file2 %}
-                                {% for key, value in table_data_file2.items() %}
-                                    <tr>
-                                        <td class="checkbox-column"><input type="checkbox" class="selectRowFile2"></td>
-                                        <td>{{ key }}</td>
-                                        <td>{{ value }}</td>
-                                    </tr>
-                                {% endfor %}
-                            {% endif %}
+                            <!-- Data will be inserted here -->
                         </tbody>
                         <tfoot>
                             <tr>
                                 <th colspan="11">Total</th>
-                                <th id="file2-totalCost">{{ table_data_file2|length > 1 and table_data_file2.values()|last }}</th>
+                                <th id="file2-totalCost"></th>
                             </tr>
                         </tfoot>
                     </table>
                 </div>
             </div>
-            <button type="submit" class="btn btn-primary">Submit</button>
+            <button type="button" class="btn btn-primary" onclick="generateGraph()">Submit</button>
         </form>
 
-        <div class="graph-container">
-            <h2>Graphs</h2>
-            <div>
-                <h3>ROI Graph</h3>
-                <div id="roi-graph"></div>
-            </div>
-            <div>
-                <h3>IRR Graph</h3>
-                <div id="irr-graph"></div>
-            </div>
-            <div>
-                <h3>NPV Graph</h3>
-                <div id="npv-graph"></div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Modal for file input -->
-    <div class="modal fade" id="fileInputModal" tabindex="-1" role="dialog" aria-labelledby="fileInputModalLabel" aria-hidden="true">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="fileInputModalLabel">Enter Values for File</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    <form id="fileModalForm">
-                        <div class="form-group">
-                            <label for="fileModalMTBF">MTBF:</label>
-                            <input type="text" class="form-control" id="fileModalMTBF">
-                        </div>
-                        <div class="form-group">
-                            <label for="fileModalGamma">Gamma (hours):</label>
-                            <input type="text" class="form-control" id="fileModalGamma">
-                        </div>
-                        <div class="form-group">
-                            <label for="fileModalBeta">Beta:</label>
-                            <input type="text" class="form-control" id="fileModalBeta">
-                        </div>
-                        <div class="form-group">
-                            <label for="fileModalEta">Eta (hours):</label>
-                            <input type="text" class="form-control" id="fileModalEta">
-                        </div>
-                        <div class="form-group">
-                            <label for="fileModalCostPerMaintenanceEvent">Cost per Maintenance Event:</label>
-                            <input type="text" class="form-control" id="fileModalCostPerMaintenanceEvent">
-                        </div>
-                    </form>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                    <button type="button" class="btn btn-primary" onclick="submitFileModalForm()">Submit</button>
+        <!-- Modal for input -->
+        <div class="modal fade" id="inputModal" tabindex="-1" role="dialog" aria-labelledby="inputModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="inputModalLabel">Enter Values</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="modalForm">
+                            <div class="form-group">
+                                <label for="modalMTBF">MTBF:</label>
+                                <input type="text" class="form-control" id="modalMTBF">
+                            </div>
+                            <div class="form-group">
+                                <label for="modalGamma">Gamma (hours):</label>
+                                <input type="text" class="form-control" id="modalGamma">
+                            </div>
+                            <div class="form-group">
+                                <label for="modalBeta">Beta:</label>
+                                <input type="text" class="form-control" id="modalBeta">
+                            </div>
+                            <div class="form-group">
+                                <label for="modalEta">Eta (hours):</label>
+                                <input type="text" class="form-control" id="modalEta">
+                            </div>
+                            <div class="form-group">
+                                <label for="modalCostPerMaintenanceEvent">Cost per Maintenance Event:</label>
+                                <input type="text" class="form-control" id="modalCostPerMaintenanceEvent">
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-primary" onclick="submitModalForm()">Submit</button>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
 
-    <!-- Modal for adding new entry -->
-    <div class="modal fade" id="inputModal" tabindex="-1" role="dialog" aria-labelledby="inputModalLabel" aria-hidden="true">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="inputModalLabel">Enter Values</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    <form id="modalForm">
-                        <div class="form-group">
-                            <label for="modalName">Name:</label>
-                            <input type="text" class="form-control" id="modalName">
-                        </div>
-                        <div class="form-group">
-                            <label for="modalUnits">Units:</label>
-                            <select class="form-control" id="modalUnits">
-                                <option value="per_datacenter">per Datacenter</option>
-                                <option value="per_room">per Room</option>
-                                <option value="per_row">per Row</option>
-                                <option value="per_server">per Server</option>
-                                <option value="per_rack">per Rack</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label for="modalCostPerEquipment">Cost per Equipment:</label>
-                            <input type="text" class="form-control" id="modalCostPerEquipment">
-                        </div>
-                        <div class="form-group">
-                            <label for="modalRedundancy">Redundancy:</label>
-                            <select class="form-control" id="modalRedundancy">
-                                <option value="N">N</option>
-                                <option value="N+1">N+1</option>
-                                <option value="N+2">N+2</option>
-                                <option value="2N">2N</option>
-                                <option value="2N+1">2N+1</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label for="modalMTBF">MTBF:</label>
-                            <input type="text" class="form-control" id="modalMTBF">
-                        </div>
-                        <div class="form-group">
-                            <label for="modalGamma">Gamma (hours):</label>
-                            <input type="text" class="form-control" id="modalGamma">
-                        </div>
-                        <div class="form-group">
-                            <label for="modalBeta">Beta:</label>
-                            <input type="text" class="form-control" id="modalBeta">
-                        </div>
-                        <div class="form-group">
-                            <label for="modalEta">Eta (hours):</label>
-                            <input type="text" class="form-control" id="modalEta">
-                        </div>
-                        <div class="form-group">
-                            <label for="modalCostPerMaintenanceEvent">Cost per Maintenance Event:</label>
-                            <input type="text" class="form-control" id="modalCostPerMaintenanceEvent">
-                        </div>
-                        <div class="form-group">
-                            <label for="modalMaintenanceType">Maintenance Type:</label>
-                            <select class="form-control" id="modalMaintenanceType">
-                                <option value="Cost per maintenance">Cost per maintenance</option>
-                                <option value="% of purchase price">% of purchase price</option>
-                                <option value="Flat fee per year">Flat fee per year</option>
-                            </select>
-                        </div>
-                    </form>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                    <button type="button" class="btn btn-primary" onclick="submitModalForm()">Submit</button>
+        <!-- Modal for adding a new component -->
+        <div class="modal fade" id="addModal" tabindex="-1" role="dialog" aria-labelledby="addModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="addModalLabel">Add New Cooling System Component</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="addModalForm">
+                            <div class="form-group">
+                                <label for="modalName">Name:</label>
+                                <input type="text" class="form-control" id="modalName">
+                            </div>
+                            <div class="form-group">
+                                <label for="modalCostPerEquipment">Cost per Equipment:</label>
+                                <input type="text" class="form-control" id="modalCostPerEquipment">
+                            </div>
+                            <div class="form-group">
+                                <label for="modalRedundancy">Redundancy:</label>
+                                <select class="form-control" id="modalRedundancy">
+                                    <option value="N">N</option>
+                                    <option value="N+1">N+1</option>
+                                    <option value="N+2">N+2</option>
+                                    <option value="2N">2N</option>
+                                    <option value="2N+1">2N+1</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="modalMTBF">MTBF:</label>
+                                <input type="text" class="form-control" id="modalMTBF">
+                            </div>
+                            <div class="form-group">
+                                <label for="modalGamma">Gamma (hours):</label>
+                                <input type="text" class="form-control" id="modalGamma">
+                            </div>
+                            <div class="form-group">
+                                <label for="modalBeta">Beta:</label>
+                                <input type="text" class="form-control" id="modalBeta">
+                            </div>
+                            <div class="form-group">
+                                <label for="modalEta">Eta (hours):</label>
+                                <input type="text" class="form-control" id="modalEta">
+                            </div>
+                            <div class="form-group">
+                                <label for="modalCostPerMaintenanceEvent">Cost per Maintenance Event:</label>
+                                <input type="text" class="form-control" id="modalCostPerMaintenanceEvent">
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-primary" onclick="addNewComponent('file1')">Add to Reference</button>
+                        <button type="button" class="btn btn-primary" onclick="addNewComponent('file2')">Add to Analysis</button>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
 
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
 
-    <script>
-        let currentFileInput;
 
-        function saveState() {
-            const formData = new FormData(document.getElementById('fileForm'));
-            const table1Data = document.getElementById('file1-details').innerHTML;
-            const table2Data = document.getElementById('file2-details').innerHTML;
-            const totalCost1 = document.getElementById('file1-totalCost').textContent;
-            const totalCost2 = document.getElementById('file2-totalCost').textContent;
+        <div class="graph-container" id="graphContainer">
+            <!-- The generated graphs will be displayed here -->
+            <div id="roiGraphContainer"></div>
+            <div id="irrGraphContainer"></div>
+            <div id="npvGraphContainer"></div>
+        </div>
 
-            sessionStorage.setItem('formData', JSON.stringify(Object.fromEntries(formData.entries())));
-            sessionStorage.setItem('table1Data', table1Data);
-            sessionStorage.setItem('table2Data', table2Data);
-            sessionStorage.setItem('totalCost1', totalCost1);
-            sessionStorage.setItem('totalCost2', totalCost2);
-        }
+        <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+        <script>
+            let currentFileInput;
 
-        function restoreState() {
-            const formData = JSON.parse(sessionStorage.getItem('formData'));
-            const table1Data = sessionStorage.getItem('table1Data');
-            const table2Data = sessionStorage.getItem('table2Data');
-            const totalCost1 = sessionStorage.getItem('totalCost1');
-            const totalCost2 = sessionStorage.getItem('totalCost2');
+            function saveState() {
+                const formData = new FormData(document.getElementById('fileForm'));
+                const table1Data = document.getElementById('file1-details').innerHTML;
+                const table2Data = document.getElementById('file2-details').innerHTML;
+                const totalCost1 = document.getElementById('file1-totalCost').textContent;
+                const totalCost2 = document.getElementById('file2-totalCost').textContent;
 
-            if (formData) {
-                for (const [key, value] of Object.entries(formData)) {
-                    document.querySelector(`[name="${key}"]`).value = value;
+                sessionStorage.setItem('formData', JSON.stringify(Object.fromEntries(formData.entries())));
+                sessionStorage.setItem('table1Data', table1Data);
+                sessionStorage.setItem('table2Data', table2Data);
+                sessionStorage.setItem('totalCost1', totalCost1);
+                sessionStorage.setItem('totalCost2', totalCost2);
+            }
+
+            function restoreState() {
+                const formData = JSON.parse(sessionStorage.getItem('formData'));
+                const table1Data = sessionStorage.getItem('table1Data');
+                const table2Data = sessionStorage.getItem('table2Data');
+                const totalCost1 = sessionStorage.getItem('totalCost1');
+                const totalCost2 = sessionStorage.getItem('totalCost2');
+
+                if (formData) {
+                    for (const [key, value] of Object.entries(formData)) {
+                        document.querySelector(`[name="${key}"]`).value = value;
+                    }
+                }
+                if (table1Data) {
+                    document.getElementById('file1-details').innerHTML = table1Data;
+                }
+                if (table2Data) {
+                    document.getElementById('file2-details').innerHTML = table2Data;
+                }
+                if (totalCost1) {
+                    document.getElementById('file1-totalCost').textContent = totalCost1;
+                }
+                if (totalCost2) {
+                    document.getElementById('file2-totalCost').textContent = totalCost2;
                 }
             }
-            if (table1Data) {
-                document.getElementById('file1-details').innerHTML = table1Data;
+
+            document.addEventListener('DOMContentLoaded', restoreState);
+
+            function showModal(input, fileId) {
+                currentFileInput = input;
+                currentFileInput.fileId = fileId;
+                $('#inputModal').modal('show');
             }
-            if (table2Data) {
-                document.getElementById('file2-details').innerHTML = table2Data;
+
+            function submitModalForm() {
+                const mtbf = document.getElementById('modalMTBF').value;
+                const gamma = document.getElementById('modalGamma').value;
+                const beta = document.getElementById('modalBeta').value;
+                const eta = document.getElementById('modalEta').value;
+                const costPerMaintenanceEvent = document.getElementById('modalCostPerMaintenanceEvent').value;
+
+                if (mtbf && gamma && beta && eta && costPerMaintenanceEvent) {
+                    const reader = new FileReader();
+                    reader.onload = function() {
+                        const content = reader.result;
+
+                        // Remove existing hidden inputs if they exist
+                        removeHiddenInputs(currentFileInput.fileId);
+
+                        // Add new hidden inputs
+                        addHiddenInput(currentFileInput.fileId, 'mtbf', mtbf.trim());
+                        addHiddenInput(currentFileInput.fileId, 'gamma', gamma.trim());
+                        addHiddenInput(currentFileInput.fileId, 'beta', beta.trim());
+                        addHiddenInput(currentFileInput.fileId, 'eta', eta.trim());
+                        addHiddenInput(currentFileInput.fileId, 'costPerMaintenanceEvent', costPerMaintenanceEvent.trim());
+
+                        const formData = new FormData();
+                        formData.append('fileContent', content);
+                        formData.append('mtbf', mtbf.trim());
+                        formData.append('gamma', gamma.trim());
+                        formData.append('beta', beta.trim());
+                        formData.append('eta', eta.trim());
+                        formData.append('costPerMaintenanceEvent', costPerMaintenanceEvent.trim());
+
+                        fetch('/process_file', {
+                            method: 'POST',
+                            body: formData
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            console.log("Server response received", data);
+                            displayCoolingSystemDetails(data.cooling_system_details, currentFileInput.fileId);
+                            calculateTotalCost(data.total_cooling_cost);
+                            updateGraphs(data.roi_image, data.irr_image, data.npv_image);
+                        })
+                        .catch(error => {
+                            console.error("Error occurred:", error);
+                        });
+
+                        $('#inputModal').modal('hide');
+                    };
+                    reader.onerror = function() {
+                        console.error("Could not read file");
+                    };
+                    reader.readAsText(currentFileInput.files[0]);
+                } else {
+                    alert("All values are required.");
+                }
             }
-            if (totalCost1) {
-                document.getElementById('file1-totalCost').textContent = totalCost1;
-            }
-            if (totalCost2) {
-                document.getElementById('file2-totalCost').textContent = totalCost2;
-            }
-        }
 
-        document.addEventListener('DOMContentLoaded', restoreState);
+            function addNewComponent(fileId) {
+                const name = document.getElementById('modalName').value;
+                const costPerEquipment = document.getElementById('modalCostPerEquipment').value;
+                const redundancy = document.getElementById('modalRedundancy').value;
+                const mtbf = document.getElementById('modalMTBF').value;
+                const gamma = document.getElementById('modalGamma').value;
+                const beta = document.getElementById('modalBeta').value;
+                const eta = document.getElementById('modalEta').value;
+                const costPerMaintenanceEvent = document.getElementById('modalCostPerMaintenanceEvent').value;
 
-        function showFileModal(input, fileId) {
-            currentFileInput = input;
-            currentFileInput.fileId = fileId;
-            $('#fileInputModal').modal('show');
-        }
+                console.log("Captured values: ", { name, costPerEquipment, redundancy, mtbf, gamma, beta, eta, costPerMaintenanceEvent });
 
-        function submitFileModalForm() {
-            const file = currentFileInput.files[0];
-            if (file) {
-                const formData = new FormData();
-                formData.append('file1', file);
-
-                const mtbf = document.getElementById('fileModalMTBF').value || 'defaultMTBF';
-                const gamma = document.getElementById('fileModalGamma').value || 'defaultGamma';
-                const beta = document.getElementById('fileModalBeta').value || 'defaultBeta';
-                const eta = document.getElementById('fileModalEta').value || 'defaultEta';
-                const costPerMaintenanceEvent = document.getElementById('fileModalCostPerMaintenanceEvent').value || 'defaultCostPerMaintenanceEvent';
-
-                formData.append('mtbf', mtbf);
-                formData.append('gamma', gamma);
-                formData.append('beta', beta);
-                formData.append('eta', eta);
-                formData.append('costPerMaintenanceEvent', costPerMaintenanceEvent);
-
-                // Check if the file is an HTM or SQL file
-                const isHTM = file.name.endsWith('.htm') || file.name.endsWith('.html');
-                const isSQL = file.name.endsWith('.sql') || file.name.endsWith('.sqlite');
-
-                if (isHTM || isSQL) {
-                    fetch('/process_file', {
+                if (name && costPerEquipment && redundancy && mtbf && gamma && beta && eta && costPerMaintenanceEvent) {
+                    fetch('/add_cooling_system', {
                         method: 'POST',
-                        body: formData
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            name: name.trim(),
+                            costPerEquipment: costPerEquipment.trim(),
+                            redundancy: redundancy.trim(),
+                            mtbf: mtbf.trim(),
+                            gamma: gamma.trim(),
+                            beta: beta.trim(),
+                            eta: eta.trim(),
+                            costPerMaintenanceEvent: costPerMaintenanceEvent.trim(),
+                            fileId: fileId
+                        })
                     })
                     .then(response => response.json())
                     .then(data => {
-                        console.log("File processed successfully", data);
-                        if (file.name === 'file1') {
-                            displayCoolingSystemDetails(data, 'file1-details');
-                        } else if (file.name === 'file2') {
-                            displayCoolingSystemDetails(data, 'file2-details');
-                        }
+                        console.log("Component added successfully", data);
+                        displayCoolingSystemDetails(data.cooling_system_details, fileId);
                         calculateTotalCost(data.total_cooling_cost);
-                        plotResults(data.roi, data.irr, data.net_npv, data.n_time);
                     })
                     .catch(error => {
-                        console.error("Error occurred while processing file", error);
+                        console.error("Error occurred while adding component", error);
                     });
 
-                    $('#fileInputModal').modal('hide');
+                    $('#addModal').modal('hide');
                 } else {
-                    alert("Please upload a valid HTM or SQL file.");
+                    alert("All values are required.");
                 }
             }
-        }
 
-        function showAddModal() {
-            $('#inputModal').modal('show');
-        }
+            function removeHiddenInputs(fileId) {
+                const hiddenInputs = document.querySelectorAll(`#${fileId}-group input[type='hidden']`);
+                hiddenInputs.forEach(input => input.remove());
+            }
 
-        function submitModalForm() {
-            const name = document.getElementById('modalName').value;
-            const units = document.getElementById('modalUnits').value;
-            const costPerEquipment = document.getElementById('modalCostPerEquipment').value;
-            const redundancy = document.getElementById('modalRedundancy').value;
-            const mtbf = document.getElementById('modalMTBF').value;
-            const gamma = document.getElementById('modalGamma').value;
-            const beta = document.getElementById('modalBeta').value;
-            const eta = document.getElementById('modalEta').value;
-            const costPerMaintenanceEvent = document.getElementById('modalCostPerMaintenanceEvent').value;
-            const maintenanceType = document.getElementById('modalMaintenanceType').value;
+            function addHiddenInput(fileId, name, value) {
+                const input = document.createElement('input');
+                input.type = 'hidden';
+                input.id = `${fileId}-${name}`;
+                input.name = name;
+                input.value = value;
+                document.getElementById(fileId + '-group').appendChild(input);
+            }
 
-            if (name && units && costPerEquipment && redundancy && mtbf && gamma && beta && eta && costPerMaintenanceEvent && maintenanceType) {
-                const newEntry = {
-                    name,
-                    units,
-                    costPerEquipment,
-                    redundancy,
-                    mtbf,
-                    gamma,
-                    beta,
-                    eta,
-                    costPerMaintenanceEvent,
-                    maintenanceType
-                };
-
-                fetch('/add_cooling_system', {
+            function updateRedundancy(rowIndex, redundancy) {
+                fetch('/update_redundancy', {
                     method: 'POST',
                     headers: {
-                        'Content-Type': 'application/json'
+                        'Content-Type': 'application/x-www-form-urlencoded'
                     },
-                    body: JSON.stringify(newEntry)
+                    body: new URLSearchParams({
+                        index: rowIndex,
+                        redundancy: redundancy
+                    })
                 })
                 .then(response => response.json())
                 .then(data => {
-                    console.log("Server response received", data);
-                    displayCoolingSystemDetails(data.cooling_system_details, 'file1-details');
+                    console.log("Redundancy updated successfully", data);
+                    displayCoolingSystemDetails(data.cooling_system_details, currentFileInput.fileId);
                     calculateTotalCost(data.total_cooling_cost);
-                    plotResults(data.roi, data.irr, data.net_npv, data.n_time);
+                })
+                .catch(error => {
+                    console.error("Error occurred while updating redundancy", error);
+                });
+            }
+
+            function handleFormSubmit(event) {
+                event.preventDefault();
+
+                const form = event.target;
+                const formData = new FormData(form);
+
+                fetch('/process_file', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    console.log("Form submitted successfully", data);
+                    updateGraphs(data.roi_image, data.irr_image, data.npv_image);
                 })
                 .catch(error => {
                     console.error("Error occurred:", error);
                 });
-
-                $('#inputModal').modal('hide');
-            } else {
-                alert("All values are required.");
             }
-        }
 
-        function removeHiddenInputs(fileId) {
-            const hiddenInputs = document.querySelectorAll(`#${fileId}-group input[type='hidden']`);
-            hiddenInputs.forEach(input => input.remove());
-        }
+            function plotGraphs(npv_values, roi_values, irr_values, years) {
+                // Plot NPV
+                const npvData = [{
+                    x: years,
+                    y: npv_values,
+                    type: 'scatter',
+                    mode: 'lines+markers',
+                    name: 'NPV'
+                }];
+                const npvLayout = {
+                    title: 'NPV Over Time',
+                    xaxis: { title: 'Year' },
+                    yaxis: { title: 'NPV ($)' }
+                };
+                Plotly.newPlot('npvGraphContainer', npvData, npvLayout);
 
-        function addHiddenInput(fileId, name, value) {
-            const input = document.createElement('input');
-            input.type = 'hidden';
-            input.id = `${fileId}-${name}`;
-            input.name = name;
-            input.value = value;
-            document.getElementById(fileId + '-group').appendChild(input);
-        }
+                // Plot ROI
+                const roiData = [{
+                    x: years,
+                    y: roi_values,
+                    type: 'scatter',
+                    mode: 'lines+markers',
+                    name: 'ROI'
+                }];
+                const roiLayout = {
+                    title: 'ROI Over Time',
+                    xaxis: { title: 'Year' },
+                    yaxis: { title: 'ROI' }
+                };
+                Plotly.newPlot('roiGraphContainer', roiData, roiLayout);
 
-        function handleFormSubmit(event) {
-            event.preventDefault();
+                // Plot IRR
+                const irrData = [{
+                    x: years,
+                    y: irr_values,
+                    type: 'scatter',
+                    mode: 'lines+markers',
+                    name: 'IRR'
+                }];
+                const irrLayout = {
+                    title: 'IRR Over Time',
+                    xaxis: { title: 'Year' },
+                    yaxis: { title: 'IRR' }
+                };
+                Plotly.newPlot('irrGraphContainer', irrData, irrLayout);
+            }
 
-            const form = event.target;
-            const formData = new FormData(form);
+            function displayCoolingSystemDetails(details, fileId) {
+                let tbody = "";
+                details.forEach((row, index) => {
+                    if (index === 0) return; // Skip the header row
+                    tbody += "<tr>";
+                    tbody += `<td><input type="checkbox" class="selectRowFile1"></td>`;
+                    tbody += `<td>${row[0]}</td>`; // Name
+                    tbody += `<td>
+                                <select class="form-control">
+                                    <option value="per_datacenter" ${row[1] === 'per_datacenter' ? 'selected' : ''}>per Datacenter</option>
+                                    <option value="per_room" ${row[1] === 'per_room' ? 'selected' : ''}>per Room</option>
+                                    <option value="per_row" ${row[1] === 'per_row' ? 'selected' : ''}>per Row</option>
+                                    <option value="per_server" ${row[1] === 'per_server' ? 'selected' : ''}>per Server</option>
+                                    <option value="per_rack" ${row[1] === 'per_rack' ? 'selected' : ''}>per Rack</option>
+                                </select>
+                              </td>`;
+                    tbody += `<td>${row[2]}</td>`; // Cost per Equipment
+                    tbody += `<td>
+                                <select class="form-control" onchange="updateRedundancy(${index - 1}, this.value)">
+                                    <option value="N" ${row[3] === 'N' ? 'selected' : ''}>N</option>
+                                    <option value="N+1" ${row[3] === 'N+1' ? 'selected' : ''}>N+1</option>
+                                    <option value="N+2" ${row[3] === 'N+2' ? 'selected' : ''}>N+2</option>
+                                    <option value="2N" ${row[3] === '2N' ? 'selected' : ''}>2N</option>
+                                    <option value="2N+1" ${row[3] === '2N+1' ? 'selected' : ''}>2N+1</option>
+                                </select>
+                              </td>`;
+                    tbody += `<td>${row[4]}</td>`; // Total Cost
+                    tbody += `<td>${row[5]}</td>`; // MTBF
+                    tbody += `<td>${row[6]}</td>`; // Gamma
+                    tbody += `<td>${row[7]}</td>`; // Beta
+                    tbody += `<td>${row[8]}</td>`; // Eta
+                    tbody += `<td>${row[9]}</td>`; // Cost per Maintenance Event
+                    tbody += `<td>
+                                <select class="form-control" onchange="updateMaintenanceType(${index - 1}, this.value)">
+                                    <option value="Cost per maintenance" ${row[10] === 'Cost per maintenance' ? 'selected' : ''}>Cost per maintenance</option>
+                                    <option value="% of purchase price" ${row[10] === '% of purchase price' ? 'selected' : ''}>% of purchase price</option>
+                                    <option value="Flat fee per year" ${row[10] === 'Flat fee per year' ? 'selected' : ''}>Flat fee per year</option>
+                                </select>
+                              </td>`;
+                    tbody += "</tr>";
+                });
 
-            fetch('/process_file', {
-                method: 'POST',
-                body: formData
-            })
-            .then(response => response.json())
-            .then(data => {
-                console.log("Form submitted successfully", data);
-                plotResults(data.roi, data.irr, data.net_npv, data.n_time);
-            })
-            .catch(error => {
-                console.error("Error occurred:", error);
-            });
-        }
+                document.getElementById(`${fileId}-details`).innerHTML = tbody;
+                updateTotalCost(fileId);
+            }
 
-        function displayCoolingSystemDetails(details, tableId) {
-            let tbody = "";
-            details.forEach((row, index) => {
-                tbody += "<tr>";
-                tbody += `<td class="checkbox-column"><input type="checkbox" class="selectRow${tableId}"></td>`;
-                tbody += `<td>${row.Name}</td>`;
-                tbody += `<td>${row.Units}</td>`;
-                tbody += `<td>${row.Cost_per_equipment}</td>`;
-                tbody += `<td>${row.Redundancy}</td>`;
-                tbody += `<td>${row.MTBF}</td>`;
-                tbody += `<td>${row.Gamma}</td>`;
-                tbody += `<td>${row.Beta}</td>`;
-                tbody += `<td>${row.Eta}</td>`;
-                tbody += `<td>${row.Cost_per_maintenance_event}</td>`;
-                tbody += `<td>${row.Total_cost_of_cooling_system}</td>`;
-                tbody += "</tr>";
-            });
+            function duplicateTable() {
+                // Gather data from the first table
+                const tableData = [];
+                const rows = document.querySelectorAll('#file1-details tr');
+                rows.forEach(row => {
+                    const cells = row.querySelectorAll('td');
+                    const rowData = Array.from(cells).map(cell => cell.innerText.trim());
+                    tableData.push(rowData);
+                });
 
-            document.getElementById(tableId).innerHTML = tbody;
-            updateTotalCost(tableId);
-        }
+                // Debugging: Log the extracted table data
+                console.log('Extracted table data:', tableData);
 
-        function updateTotalCost(tableId) {
-            const rows = document.querySelectorAll(`#${tableId} tr`);
-            let totalCost = 0;
-            rows.forEach(row => {
-                const cells = row.children;
-                const costPerEquipment = parseFloat(cells[2].textContent.replace(/[^0-9.-]+/g, ""));
-                const redundancy = cells[3].textContent;
-                let multiplier = 1;
-                if (redundancy === "N+1") {
-                    multiplier = 2;
-                } else if (redundancy === "N+2") {
-                    multiplier = 3;
-                } else if (redundancy === "2N") {
-                    multiplier = 2;
-                } else if (redundancy === "2N+1") {
-                    multiplier = 3;
+                // Send data to the server
+                $.ajax({
+                    url: '/duplicateTable',
+                    method: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify({ tableData: tableData }),
+                    success: function(response) {
+                        console.log('Success:', response); // Debugging line
+                        updateSecondTable(response.cooling_system_details);
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('Error duplicating table:', error); // Debugging line
+                    }
+                });
+            }
+
+            function updateSecondTable(data) {
+                let tbody = "";
+                data.forEach((row, index) => {
+                    // Debugging: Log each row's data
+                    console.log('Row data:', row);
+
+                    tbody += "<tr>";
+                    tbody += `<td><input type="checkbox" class="selectRowFile2"></td>`;
+                    tbody += `<td>${row[1]}</td>`; // Name
+                    tbody += `<td>
+                                <select class="form-control">
+                                    <option value="per_datacenter" ${row[2] === 'per_datacenter' ? 'selected' : ''}>per Datacenter</option>
+                                    <option value="per_room" ${row[2] === 'per_room' ? 'selected' : ''}>per Room</option>
+                                    <option value="per_row" ${row[2] === 'per_row' ? 'selected' : ''}>per Row</option>
+                                    <option value="per_server" ${row[2] === 'per_server' ? 'selected' : ''}>per Server</option>
+                                    <option value="per_rack" ${row[2] === 'per_rack' ? 'selected' : ''}>per Rack</option>
+                                </select>
+                            </td>`;
+                    tbody += `<td>${row[3]}</td>`; // Cost per Equipment
+                    tbody += `<td>
+                                <select class="form-control">
+                                    <option value="N" ${row[4] === 'N' ? 'selected' : ''}>N</option>
+                                    <option value="N+1" ${row[4] === 'N+1' ? 'selected' : ''}>N+1</option>
+                                    <option value="N+2" ${row[4] === 'N+2' ? 'selected' : ''}>N+2</option>
+                                    <option value="2N" ${row[4] === '2N' ? 'selected' : ''}>2N</option>
+                                    <option value="2N+1" ${row[4] === '2N+1' ? 'selected' : ''}>2N+1</option>
+                                </select>
+                            </td>`;
+                    tbody += `<td>${row[5]}</td>`; // Total Cost
+                    tbody += `<td>${row[6]}</td>`; // MTBF
+                    tbody += `<td>${row[7]}</td>`; // Gamma
+                    tbody += `<td>${row[8]}</td>`; // Beta
+                    tbody += `<td>${row[9]}</td>`; // Cost per Maintenance Event
+                    tbody += `<td>
+                                <select class="form-control">
+                                    <option value="Cost per maintenance" ${row[10] === 'Cost per maintenance' ? 'selected' : ''}>Cost per maintenance</option>
+                                    <option value="% of purchase price" ${row[10] === '% of purchase price' ? 'selected' : ''}>% of purchase price</option>
+                                    <option value="Flat fee per year" ${row[10] === 'Flat fee per year' ? 'selected' : ''}>Flat fee per year</option>
+                                </select>
+                            </td>`;
+                    tbody += "</tr>";
+                });
+                document.getElementById('file2-details').innerHTML = tbody;
+                updateTotalCost('file2');
+            }
+
+            function updateTotalCost(fileId) {
+                const rows = document.querySelectorAll(`#${fileId}-details tr`);
+                let totalCost = 0;
+                rows.forEach(row => {
+                    const cells = row.children;
+                    const costPerEquipment = parseFloat(cells[3].textContent.replace(/[^0-9.-]+/g, ""));
+                    const redundancy = cells[4].querySelector('select').value;
+                    let multiplier = 1;
+                    if (redundancy === "N+1") {
+                        multiplier = 2;
+                    } else if (redundancy === "N+2") {
+                        multiplier = 3;
+                    } else if (redundancy === "2N") {
+                        multiplier = 2;
+                    } else if (redundancy === "2N+1") {
+                        multiplier = 3;
+                    }
+                    const totalCostForRow = costPerEquipment * multiplier;
+                    cells[5].textContent = `$${totalCostForRow.toFixed(2)}`;
+                    totalCost += totalCostForRow;
+                });
+                document.getElementById(`${fileId}-totalCost`).textContent = `$${totalCost.toFixed(2)}`;
+            }
+
+            function calculateTotalCost(totalCost) {
+                document.getElementById('file1-totalCost').textContent = totalCost;
+                document.getElementById('file2-totalCost').textContent = totalCost;
+            }
+
+            function clearTable(fileId) {
+                document.getElementById(`${fileId}-details`).innerHTML = "";
+                document.getElementById(`${fileId}-totalCost`).textContent = "";
+            }
+
+            function updateMaintenanceType(rowIndex, maintenanceType) {
+                fetch('/update_maintenance_type', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded'
+                    },
+                    body: new URLSearchParams({
+                        index: rowIndex,
+                        maintenanceType: maintenanceType
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    console.log("Maintenance type updated successfully", data);
+                    displayCoolingSystemDetails(data.cooling_system_details, currentFileInput.fileId);
+                    calculateTotalCost(data.total_cooling_cost);
+                })
+                .catch(error => {
+                    console.error("Error occurred while updating maintenance type", error);
+                });
+            }
+
+            function removeSelectedRows(fileId) {
+                const selectedRows = document.querySelectorAll(`#${fileId}-details .selectRow:checked`);
+                const indicesToRemove = Array.from(selectedRows).map(row => {
+                    return Array.from(row.closest('tr').parentNode.children).indexOf(row.closest('tr'));
+                });
+
+                if (indicesToRemove.length > 0) {
+                    fetch('/remove_cooling_system', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ indices: indicesToRemove, fileId: fileId })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        console.log("Rows removed successfully", data);
+                        displayCoolingSystemDetails(data.cooling_system_details, fileId);
+                        calculateTotalCost(data.total_cooling_cost);
+                    })
+                    .catch(error => {
+                        console.error("Error occurred while removing rows", error);
+                    });
                 }
-                const totalCostForRow = costPerEquipment * multiplier;
-                cells[10].textContent = `$${totalCostForRow.toFixed(2)}`;
-                totalCost += totalCostForRow;
-            });
-            document.getElementById(`${tableId}-totalCost`).textContent = `$${totalCost.toFixed(2)}`;
-        }
+            }
 
-        function calculateTotalCost(totalCost) {
-            document.getElementById('file1-totalCost').textContent = totalCost;
-            document.getElementById('file2-totalCost').textContent = totalCost;
-        }
 
-        function clearTable(fileId) {
-            document.getElementById(`${fileId}-details`).innerHTML = "";
-            document.getElementById(`${fileId}-totalCost`).textContent = "";
-        }
+            function makeEditable(cell) {
+                const originalContent = cell.textContent;
+                const input = document.createElement('input');
+                input.type = 'text';
+                input.value = originalContent;
+                input.className = 'form-control editable';
+                input.addEventListener('blur', function() {
+                    cell.textContent = input.value;
+                    updateCell(cell, input.value);
+                });
+                input.addEventListener('keydown', function(event) {
+                    if (event.key === 'Enter') {
+                        cell.textContent = input.value;
+                        updateCell(cell, input.value);
+                    } else if (event.key === 'Escape') {
+                        cell.textContent = originalContent;
+                    }
+                });
+                cell.textContent = '';
+                cell.appendChild(input);
+                input.focus();
+            }
 
-        function removeSelectedRows(fileId) {
-            const selectedRows = document.querySelectorAll(`#${fileId}-details .selectRow${fileId}:checked`);
-            const indicesToRemove = Array.from(selectedRows).map(row => {
-                return Array.from(row.closest('tr').parentNode.children).indexOf(row.closest('tr'));
-            });
+            function updateCell(cell, newValue) {
+                const row = cell.parentNode;
+                const table = row.parentNode;
+                const rowIndex = Array.prototype.indexOf.call(table.children, row);
+                const cellIndex = Array.prototype.indexOf.call(row.children, cell);
 
-            if (indicesToRemove.length > 0) {
-                fetch('/remove_cooling_system', {
+                // Send an AJAX request to update the cell data on the server
+                fetch('/update_cell', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify({ indices: indicesToRemove, fileId: fileId })
+                    body: JSON.stringify({
+                        rowIndex: rowIndex,
+                        cellIndex: cellIndex,
+                        newValue: newValue
+                    })
                 })
                 .then(response => response.json())
                 .then(data => {
-                    console.log("Rows removed successfully", data);
-                    displayCoolingSystemDetails(data.cooling_system_details, fileId);
-                    calculateTotalCost(data.total_cooling_cost);
-                    plotResults(data.roi, data.irr, data.net_npv, data.n_time);
+                    console.log("Cell updated successfully", data);
                 })
                 .catch(error => {
-                    console.error("Error occurred while removing rows", error);
+                    console.error("Error occurred while updating cell", error);
                 });
             }
-        }
 
-        function makeEditable(cell) {
-            const originalContent = cell.textContent;
-            const input = document.createElement('input');
-            input.type = 'text';
-            input.value = originalContent;
-            input.className = 'form-control editable';
-            input.addEventListener('blur', function() {
-                cell.textContent = input.value;
-                updateCell(cell, input.value);
-                updateTotalCost(cell.closest('tbody').id.replace('-details', ''));
-            });
-            input.addEventListener('keydown', function(event) {
-                if (event.key === 'Enter') {
-                    cell.textContent = input.value;
-                    updateCell(cell, input.value);
-                    updateTotalCost(cell.closest('tbody').id.replace('-details', ''));
-                } else if (event.key === 'Escape') {
-                    cell.textContent = originalContent;
-                }
-            });
-            cell.textContent = '';
-            cell.appendChild(input);
-            input.focus();
-        }
-
-        function updateCell(cell, newValue) {
-            const row = cell.parentNode;
-            const table = row.parentNode;
-            const rowIndex = Array.prototype.indexOf.call(table.children, row);
-            const cellIndex = Array.prototype.indexOf.call(row.children, cell);
-
-            fetch('/update_cell', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    rowIndex: rowIndex,
-                    cellIndex: cellIndex,
-                    newValue: newValue
-                })
-            })
-            .then(response => response.json())
-            .then(data => {
-                console.log("Cell updated successfully", data);
-            })
-            .catch(error => {
-                console.error("Error occurred while updating cell", error);
-            });
-        }
-
-        function updateRedundancy(rowIndex, redundancy) {
-            fetch('/update_redundancy', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded'
-                },
-                body: new URLSearchParams({
-                    index: rowIndex,
-                    redundancy: redundancy
-                })
-            })
-            .then(response => response.json())
-            .then(data => {
-                console.log("Redundancy updated successfully", data);
-                displayCoolingSystemDetails(data.cooling_system_details, 'file1-details');
-                calculateTotalCost(data.total_cooling_cost);
-                plotResults(data.roi, data.irr, data.net_npv, data.n_time);
-            })
-            .catch(error => {
-                console.error("Error occurred while updating redundancy", error);
-            });
-        }
-
-        function updateMaintenanceType(rowIndex, maintenanceType) {
-            fetch('/update_maintenance_type', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded'
-                },
-                body: new URLSearchParams({
-                    index: rowIndex,
-                    maintenanceType: maintenanceType
-                })
-            })
-            .then(response => response.json())
-            .then(data => {
-                console.log("Maintenance type updated successfully", data);
-                displayCoolingSystemDetails(data.cooling_system_details, 'file1-details');
-                calculateTotalCost(data.total_cooling_cost);
-                plotResults(data.roi, data.irr, data.net_npv, data.n_time);
-            })
-            .catch(error => {
-                console.error("Error occurred while updating maintenance type", error);
-            });
-        }
-
-        function plotResults(roi, irr, net_npv, n_time) {
-            // Plot ROI
-            const roiData = [{
-                x: n_time,
-                y: roi,
-                type: 'scatter'
-            }];
-            const roiLayout = {
-                title: 'ROI over Time',
-                xaxis: { title: 'Year' },
-                yaxis: { title: 'ROI' }
-            };
-            Plotly.newPlot('roi-graph', roiData, roiLayout);
-
-            // Plot IRR
-            const irrData = [{
-                x: n_time,
-                y: irr,
-                type: 'scatter'
-            }];
-            const irrLayout = {
-                title: 'IRR over Time',
-                xaxis: { title: 'Year' },
-                yaxis: { title: 'IRR' }
-            };
-            Plotly.newPlot('irr-graph', irrData, irrLayout);
-
-            // Plot NPV
-            const npvData = [{
-                x: n_time,
-                y: net_npv,
-                type: 'scatter'
-            }];
-            const npvLayout = {
-                title: 'NPV over Time',
-                xaxis: { title: 'Year' },
-                yaxis: { title: 'NPV' }
-            };
-            Plotly.newPlot('npv-graph', npvData, npvLayout);
-        }
-    </script>
+            function generateGraph() {
+                console.log('Button clicked'); // Debugging line
+                $.ajax({
+                    url: '/generateGraphs',
+                    method: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify({ time_years: [1, 2, 3, 4] }), // Adjust the time_years data as needed
+                    success: function(response) {
+                        console.log('Success:', response); // Debugging line
+                        $('#roiGraphContainer').html('<img src="data:image/png;base64,' + response.roi_image + '" class="img-fluid" />');
+                        $('#irrGraphContainer').html('<img src="data:image/png;base64,' + response.irr_image + '" class="img-fluid" />');
+                        $('#npvGraphContainer').html('<img src="data:image/png;base64,' + response.npv_image + '" class="img-fluid" />');
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('Error generating graph:', error); // Debugging line
+                    }
+                });
+            }
+        </script>
+    </div>
 </body>
 </html>
