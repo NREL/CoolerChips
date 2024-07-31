@@ -115,7 +115,8 @@ function updateProgress() {
         isSimulationRunning = false;
       } else if (progress === previousProgress) {
         noProgressCount++;
-        statusElement.style.display = 'none';
+        statusElement.innerHTML = `Checking if simulation live: ${noProgressCount}/${maxNoProgressCount}`;
+        statusElement.style.display = 'inline';
         statusSpinner.style.display = 'inline-block';
         if (noProgressCount >= maxNoProgressCount) {
           statusElement.innerText = 'Stopped';
