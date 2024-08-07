@@ -11,3 +11,6 @@ modes.csv
 build/
 *.egg-info/
 MOSTcool
+frontend/node_modules*
+.DS_Store
+
