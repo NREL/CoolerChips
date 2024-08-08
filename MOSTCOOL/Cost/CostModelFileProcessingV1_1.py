@@ -36,6 +36,37 @@ table_lookup = {
     }
 }
 
+def extract_energy_value(data):
+    energy_value = 8510000000
+    duration = 1888
+
+    # Extract duration
+    for key, value in data.items():
+        if isinstance(value, str) and 'Values gathered over' in value:
+            duration_text = value
+            duration = int(''.join(filter(str.isdigit, duration_text)))
+            break
+
+    # Extract energy value
+    for key, value in data.items():
+        if isinstance(value, str):
+            if 'Total site energy' in value:
+                energy_value = float(value.split(':')[1].strip().split()[0])
+                break
+            elif 'Total energy in [GJ]' in value:
+                energy_value = float(value.split(':')[1].strip().split()[0])
+                break
+
+    if energy_value and duration:
+        energy_per_hour = energy_value / duration
+    else:
+        energy_per_hour = None
+
+    print(energy_value)
+    print(duration)
+
+    return energy_per_hour
+
 def extract_value(df, key):
     lookup_text = table_lookup[key]["lookup_text"]
     field_name = table_lookup[key]["field_name"]

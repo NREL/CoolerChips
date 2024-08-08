@@ -533,7 +533,7 @@ def calculate_irr():
     B_AnnualRecoveredHeat = 1200  # million kWh
 
     # New Inputs
-    N_CapitolCost = float(calculate_total_cooling_cost("Analysis")) / 1000000  # assume 10% more for test case
+    N_CapitolCost = float(calculate_total_cooling_cost("Analysis")) / 1000000  # million dollars
     N_Life = 12  # 12
     N_MTBF = 60000  # self.MTBF2
     CoolingMaintenanceCost2 = 300000  # self.CostPerMaintenanceEvent2

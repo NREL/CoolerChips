@@ -47,30 +47,31 @@
 </head>
 <body>
     <div class="container-fluid">
-        <h1 class="mt-4">Cost Model Demonstration V1.1</h1>
+        <h1 class="mt-4">Cost Model Demonstration V2.0</h1>
 
         <div class="mt-3">
             <a href="/settings" class="btn btn-secondary" onclick="saveState()">Default Parameters</a>
-            <a href="/elements.html" class="btn btn-secondary" onclick="saveState()">Cost Elements Menu</a>
+            <!-- <a href="/elements.html" class="btn btn-secondary" onclick="saveState()">Cost Elements Menu</a>-->
+            <a href="/dataCenter" class="btn btn-secondary" onclick="saveState()">Data Center Parameters</a>
             <button class="btn btn-secondary" id="saveBtn" onclick="saveState()">Save</button>
-            <button class="btn btn-secondary" id="loadBtn">Load</button>
+            <button class="btn btn-secondary" id="loadBtn" onclick="loadState()">Load</button>
         </div>
 
         <form id="fileForm" method="post" action="/process_file" onsubmit="return handleFormSubmit(event);">
             <div class="form-group" id="file1-group">
-                <label for="file1">Add the first HTM/SQL file:</label>
+                <label for="file1">Add the Reference Case HTM/SQL file:</label>
                 <input type="file" class="form-control" id="file1" name="file1" onchange="showModal(this, 'file1')">
                 <div class="mt-2 mb-2">
                     <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addModal">Add</button>
                     <button type="button" class="btn btn-danger" onclick="removeSelectedRows('file1')">Remove</button>
                     <button type="button" class="btn btn-warning" onclick="clearTable('file1')">Clear</button>
-                    <button type="button" class="btn btn-secondary" onclick="duplicateTable()">Duplicate Table</button>
+                    <button type="button" class="btn btn-secondary" onclick="duplicateTable()">Duplicate Reference Table to Analysis Case</button>
                 </div>
                 <div class="table-container">
                     <table class="table table-bordered" id="file1-table">
                         <thead>
                             <tr>
-                                <th class="checkbox-column"><input type="checkbox" id="selectAllFile1"></th>
+                                <th class="checkbox-column"><input type="checkbox" id="selectAllFile1" class="selectRow"></th>
                                 <th>Name</th>
                                 <th>Units</th>
                                 <th>Cost per Equipment</th>
@@ -95,10 +96,11 @@
                         </tfoot>
                     </table>
                 </div>
+                <div id="energy-value" style="margin-top: 20px; font-weight: bold;"></div>
             </div>
 
             <div class="form-group" id="file2-group">
-                <label for="file2">Add the second HTM/SQL file:</label>
+                <label for="file2">Add the Analysis Case HTM/SQL file:</label>
                 <input type="file" class="form-control" id="file2" name="file2" onchange="showModal(this, 'file2')">
                 <div class="mt-2 mb-2">
                     <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addModal">Add</button>
@@ -109,7 +111,7 @@
                     <table class="table table-bordered" id="file2-table">
                         <thead>
                             <tr>
-                                <th class="checkbox-column"><input type="checkbox" id="selectAllFile2"></th>
+                                <th class="checkbox-column"><input type="checkbox" id="selectAllFile2" class="selectRow"></th>
                                 <th>Name</th>
                                 <th>Units</th>
                                 <th>Cost per Equipment</th>
@@ -134,6 +136,7 @@
                         </tfoot>
                     </table>
                 </div>
+                <div id="energy-value" style="margin-top: 20px; font-weight: bold;"></div>
             </div>
             <button type="button" class="btn btn-primary" onclick="generateGraph()">Submit</button>
         </form>
@@ -253,50 +256,40 @@
         <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
         <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+        <script id="initial-data" type="application/json"
+            data-cooling-system-details-ref='{{ cooling_system_details_ref|safe }}'
+            data-cooling-system-details-analysis='{{ cooling_system_details_analysis|safe }}'
+            data-variables='{{ variables|safe }}'
+            data-data-center-details='{{ data_center_details|safe }}'
+            data-graphs-displayed='{{ graphs_displayed|safe }}'></script>
         <script>
             let currentFileInput;
 
-            function saveState() {
-                const formData = new FormData(document.getElementById('fileForm'));
-                const table1Data = document.getElementById('file1-details').innerHTML;
-                const table2Data = document.getElementById('file2-details').innerHTML;
-                const totalCost1 = document.getElementById('file1-totalCost').textContent;
-                const totalCost2 = document.getElementById('file2-totalCost').textContent;
-
-                sessionStorage.setItem('formData', JSON.stringify(Object.fromEntries(formData.entries())));
-                sessionStorage.setItem('table1Data', table1Data);
-                sessionStorage.setItem('table2Data', table2Data);
-                sessionStorage.setItem('totalCost1', totalCost1);
-                sessionStorage.setItem('totalCost2', totalCost2);
+            function restoreState(loadedData) {
+                Cooling_System_Details_Ref = loadedData.Cooling_System_Details_Ref;
+                Cooling_System_Details_Analysis = loadedData.Cooling_System_Details_Analysis;
+                document.getElementById('file1-details').innerHTML = loadedData.tableDisplayed;
+                document.getElementById('npv-graph').innerHTML = loadedData.graphsDisplayed.npv;
+                document.getElementById('roi-graph').innerHTML = loadedData.graphsDisplayed.roi;
+                document.getElementById('irr-graph').innerHTML = loadedData.graphsDisplayed.irr;
+                variables = loadedData.variables;
+                dataCenterDetails = loadedData.dataCenterDetails;
             }
 
-            function restoreState() {
-                const formData = JSON.parse(sessionStorage.getItem('formData'));
-                const table1Data = sessionStorage.getItem('table1Data');
-                const table2Data = sessionStorage.getItem('table2Data');
-                const totalCost1 = sessionStorage.getItem('totalCost1');
-                const totalCost2 = sessionStorage.getItem('totalCost2');
+            document.addEventListener('DOMContentLoaded', function() {
+                restoreState();
 
-                if (formData) {
-                    for (const [key, value] of Object.entries(formData)) {
-                        document.querySelector(`[name="${key}"]`).value = value;
-                    }
-                }
-                if (table1Data) {
-                    document.getElementById('file1-details').innerHTML = table1Data;
-                }
-                if (table2Data) {
-                    document.getElementById('file2-details').innerHTML = table2Data;
-                }
-                if (totalCost1) {
-                    document.getElementById('file1-totalCost').textContent = totalCost1;
-                }
-                if (totalCost2) {
-                    document.getElementById('file2-totalCost').textContent = totalCost2;
-                }
+                // Attach the dblclick event to table cells after restoring state
+                attachEditableEvents();
+            });
+
+            function attachEditableEvents() {
+                const cells = document.querySelectorAll('#file1-details td, #file2-details td');
+                cells.forEach(cell => {
+                    cell.addEventListener('dblclick', makeEditable);
+                });
             }
-
-            document.addEventListener('DOMContentLoaded', restoreState);
 
             function showModal(input, fileId) {
                 currentFileInput = input;
@@ -448,18 +441,77 @@
                 const form = event.target;
                 const formData = new FormData(form);
 
-                fetch('/process_file', {
+                formData.append('mtbf', document.getElementById('modalMTBF').value);
+                formData.append('gamma', document.getElementById('modalGamma').value);
+                formData.append('beta', document.getElementById('modalBeta').value);
+                formData.append('eta', document.getElementById('modalEta').value);
+                formData.append('costPerMaintenanceEvent', document.getElementById('modalCostPerMaintenanceEvent').value);
+
+                $.ajax({
+                    url: '/process_file',
                     method: 'POST',
-                    body: formData
-                })
-                .then(response => response.json())
-                .then(data => {
-                    console.log("Form submitted successfully", data);
-                    updateGraphs(data.roi_image, data.irr_image, data.npv_image);
-                })
-                .catch(error => {
-                    console.error("Error occurred:", error);
+                    contentType: false,
+                    processData: false,
+                    data: formData,
+                    success: function(response) {
+                        console.log('Success:', response); // Debugging line
+                        displayCoolingSystemDetails(response.cooling_system_details);
+                        displayEnergyValue(response.energy_per_hour);
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('Error processing file:', error); // Debugging line
+                    }
                 });
+            }
+
+            function updateTable(details) {
+                let tbody = "";
+                details.forEach((row, index) => {
+                    tbody += "<tr>";
+                    row.forEach((cell, cellIndex) => {
+                        if (cellIndex === 0) { // Checkbox column
+                            tbody += `<td><input type="checkbox" class="selectRow"></td>`;
+                        } else if (cellIndex === 2) { // Units column
+                            tbody += `<td>
+                                        <select class="form-control">
+                                            <option value="per_datacenter" ${cell === 'per_datacenter' ? 'selected' : ''}>per Datacenter</option>
+                                            <option value="per_room" ${cell === 'per_room' ? 'selected' : ''}>per Room</option>
+                                            <option value="per_row" ${cell === 'per_row' ? 'selected' : ''}>per Row</option>
+                                            <option value="per_server" ${cell === 'per_server' ? 'selected' : ''}>per Server</option>
+                                            <option value="per_rack" ${cell === 'per_rack' ? 'selected' : ''}>per Rack</option>
+                                        </select>
+                                    </td>`;
+                        } else if (cellIndex === 4) { // Redundancy column
+                            tbody += `<td>
+                                        <select class="form-control">
+                                            <option value="N" ${cell === 'N' ? 'selected' : ''}>N</option>
+                                            <option value="N+1" ${cell === 'N+1' ? 'selected' : ''}>N+1</option>
+                                            <option value="N+2" ${cell === 'N+2' ? 'selected' : ''}>N+2</option>
+                                            <option value="2N" ${cell === '2N' ? 'selected' : ''}>2N</option>
+                                            <option value="2N+1" ${cell === '2N+1' ? 'selected' : ''}>2N+1</option>
+                                        </select>
+                                    </td>`;
+                        } else if (cellIndex === 11) { // Maintenance Type column
+                            tbody += `<td>
+                                        <select class="form-control">
+                                            <option value="Cost per maintenance" ${cell === 'Cost per maintenance' ? 'selected' : ''}>Cost per maintenance</option>
+                                            <option value="% of purchase price" ${cell === '% of purchase price' ? 'selected' : ''}>% of purchase price</option>
+                                            <option value="Flat fee per year" ${cell === 'Flat fee per year' ? 'selected' : ''}>Flat fee per year</option>
+                                        </select>
+                                    </td>`;
+                        } else {
+                            tbody += `<td>${cell}</td>`;
+                        }
+                    });
+                    tbody += "</tr>";
+                });
+
+                document.getElementById('file2-details').innerHTML = tbody;
+            }
+
+            function displayEnergyValue(energy_per_hour) {
+                const energyValueElement = document.getElementById('energy-value');
+                energyValueElement.innerText = `Energy per hour: ${energy_per_hour}`;
             }
 
             function plotGraphs(npv_values, roi_values, irr_values, years) {
@@ -514,7 +566,7 @@
                 details.forEach((row, index) => {
                     if (index === 0) return; // Skip the header row
                     tbody += "<tr>";
-                    tbody += `<td><input type="checkbox" class="selectRowFile1"></td>`;
+                    tbody += `<td><input type="checkbox" class="selectRow"></td>`;
                     tbody += `<td>${row[0]}</td>`; // Name
                     tbody += `<td>
                                 <select class="form-control">
@@ -556,6 +608,21 @@
             }
 
             function duplicateTable() {
+                // Request user input
+                let userInput = prompt("Enter the percentage for duplication:", "100");
+
+                // Validate user input
+                if (userInput === null || userInput.trim() === "") {
+                    alert("Input is required to proceed.");
+                    return;
+                }
+
+                userInput = parseFloat(userInput);
+                if (isNaN(userInput) || userInput <= 0) {
+                    alert("Please enter a valid positive number.");
+                    return;
+                }
+
                 // Gather data from the first table
                 const tableData = [];
                 const rows = document.querySelectorAll('#file1-details tr');
@@ -573,10 +640,10 @@
                     url: '/duplicateTable',
                     method: 'POST',
                     contentType: 'application/json',
-                    data: JSON.stringify({ tableData: tableData }),
+                    data: JSON.stringify({ tableData: tableData, percentage: userInput }),
                     success: function(response) {
                         console.log('Success:', response); // Debugging line
-                        updateSecondTable(response.cooling_system_details);
+                        updateSecondTable(response.cooling_system_details_analysis);
                     },
                     error: function(xhr, status, error) {
                         console.error('Error duplicating table:', error); // Debugging line
@@ -584,51 +651,80 @@
                 });
             }
 
-            function updateSecondTable(data) {
-                let tbody = "";
-                data.forEach((row, index) => {
-                    // Debugging: Log each row's data
-                    console.log('Row data:', row);
+            function updateSecondTable(details) {
+                const tbody = document.getElementById('file2-details');
+                tbody.innerHTML = ""; // Clear existing data
 
-                    tbody += "<tr>";
-                    tbody += `<td><input type="checkbox" class="selectRowFile2"></td>`;
-                    tbody += `<td>${row[1]}</td>`; // Name
-                    tbody += `<td>
-                                <select class="form-control">
-                                    <option value="per_datacenter" ${row[2] === 'per_datacenter' ? 'selected' : ''}>per Datacenter</option>
-                                    <option value="per_room" ${row[2] === 'per_room' ? 'selected' : ''}>per Room</option>
-                                    <option value="per_row" ${row[2] === 'per_row' ? 'selected' : ''}>per Row</option>
-                                    <option value="per_server" ${row[2] === 'per_server' ? 'selected' : ''}>per Server</option>
-                                    <option value="per_rack" ${row[2] === 'per_rack' ? 'selected' : ''}>per Rack</option>
-                                </select>
-                            </td>`;
-                    tbody += `<td>${row[3]}</td>`; // Cost per Equipment
-                    tbody += `<td>
-                                <select class="form-control">
-                                    <option value="N" ${row[4] === 'N' ? 'selected' : ''}>N</option>
-                                    <option value="N+1" ${row[4] === 'N+1' ? 'selected' : ''}>N+1</option>
-                                    <option value="N+2" ${row[4] === 'N+2' ? 'selected' : ''}>N+2</option>
-                                    <option value="2N" ${row[4] === '2N' ? 'selected' : ''}>2N</option>
-                                    <option value="2N+1" ${row[4] === '2N+1' ? 'selected' : ''}>2N+1</option>
-                                </select>
-                            </td>`;
-                    tbody += `<td>${row[5]}</td>`; // Total Cost
-                    tbody += `<td>${row[6]}</td>`; // MTBF
-                    tbody += `<td>${row[7]}</td>`; // Gamma
-                    tbody += `<td>${row[8]}</td>`; // Beta
-                    tbody += `<td>${row[9]}</td>`; // Cost per Maintenance Event
-                    tbody += `<td>
-                                <select class="form-control">
-                                    <option value="Cost per maintenance" ${row[10] === 'Cost per maintenance' ? 'selected' : ''}>Cost per maintenance</option>
-                                    <option value="% of purchase price" ${row[10] === '% of purchase price' ? 'selected' : ''}>% of purchase price</option>
-                                    <option value="Flat fee per year" ${row[10] === 'Flat fee per year' ? 'selected' : ''}>Flat fee per year</option>
-                                </select>
-                            </td>`;
-                    tbody += "</tr>";
+                details.slice(1).forEach((row, index) => {  // Skip the first row
+                    const tr = document.createElement('tr');
+
+                    // Add checkbox in the first column
+                    const checkboxTd = document.createElement('td');
+                    checkboxTd.classList.add('checkbox-column');
+                    const checkbox = document.createElement('input');
+                    checkbox.type = 'checkbox';
+                    checkbox.classList.add('selectRowFile2');
+                    checkboxTd.appendChild(checkbox);
+                    tr.appendChild(checkboxTd);
+
+                    row.forEach((cell, cellIndex) => {
+                        const td = document.createElement('td');
+
+                        // Add the select elements in their respective columns
+                        if (cellIndex === 1) {
+                            // Units column
+                            const select = document.createElement('select');
+                            select.classList.add('form-control');
+                            ['per_datacenter', 'per_room', 'per_row', 'per_server', 'per_rack'].forEach(optionValue => {
+                                const option = document.createElement('option');
+                                option.value = optionValue;
+                                option.text = optionValue.replace('_', ' ');
+                                if (cell === optionValue) {
+                                    option.selected = true;
+                                }
+                                select.appendChild(option);
+                            });
+                            td.appendChild(select);
+                        } else if (cellIndex === 4) {
+                            // Redundancy column
+                            const select = document.createElement('select');
+                            select.classList.add('form-control');
+                            ['N', 'N+1', 'N+2', '2N', '2N+1'].forEach(optionValue => {
+                                const option = document.createElement('option');
+                                option.value = optionValue;
+                                option.text = optionValue;
+                                if (cell === optionValue) {
+                                    option.selected = true;
+                                }
+                                select.appendChild(option);
+                            });
+                            td.appendChild(select);
+                        } else if (cellIndex === 11) {
+                            // Maintenance Type column
+                            const select = document.createElement('select');
+                            select.classList.add('form-control');
+                            ['Cost per maintenance', '% of purchase price', 'Flat fee per year'].forEach(optionValue => {
+                                const option = document.createElement('option');
+                                option.value = optionValue;
+                                option.text = optionValue;
+                                if (cell === optionValue) {
+                                    option.selected = true;
+                                }
+                                select.appendChild(option);
+                            });
+                            td.appendChild(select);
+                        } else {
+                            td.textContent = cell;
+                        }
+
+                        tr.appendChild(td);
+                    });
+
+                    tbody.appendChild(tr);
                 });
-                document.getElementById('file2-details').innerHTML = tbody;
-                updateTotalCost('file2');
             }
+
+
 
             function updateTotalCost(fileId) {
                 const rows = document.querySelectorAll(`#${fileId}-details tr`);
@@ -687,10 +783,24 @@
             }
 
             function removeSelectedRows(fileId) {
-                const selectedRows = document.querySelectorAll(`#${fileId}-details .selectRow:checked`);
-                const indicesToRemove = Array.from(selectedRows).map(row => {
-                    return Array.from(row.closest('tr').parentNode.children).indexOf(row.closest('tr'));
+                console.log(`Removing selected rows for fileId: ${fileId}`);
+
+                // Select the table body of the specified file
+                const tableBody = document.querySelector(`#${fileId}-details`);
+
+                // Select all checkboxes within the table body
+                const selectedRows = tableBody.querySelectorAll('.selectRow:checked');
+                console.log(`Selected checkboxes:`, selectedRows);
+
+                const indicesToRemove = [];
+                selectedRows.forEach(checkbox => {
+                    const row = checkbox.closest('tr');
+                    const index = Array.from(tableBody.children).indexOf(row);
+                    indicesToRemove.push(index);
+                    console.log(`Row to remove:`, row.innerText, `at index: ${index}`);
                 });
+
+                console.log(`Indices to remove:`, indicesToRemove);
 
                 if (indicesToRemove.length > 0) {
                     fetch('/remove_cooling_system', {
@@ -700,49 +810,65 @@
                         },
                         body: JSON.stringify({ indices: indicesToRemove, fileId: fileId })
                     })
-                    .then(response => response.json())
+                    .then(response => {
+                        console.log(`Server response status: ${response.status}`);
+                        return response.json();
+                    })
                     .then(data => {
                         console.log("Rows removed successfully", data);
+                        if (data.error) {
+                            console.error("Error from server:", data.error);
+                            return;
+                        }
                         displayCoolingSystemDetails(data.cooling_system_details, fileId);
                         calculateTotalCost(data.total_cooling_cost);
                     })
                     .catch(error => {
                         console.error("Error occurred while removing rows", error);
                     });
+                } else {
+                    alert("No rows selected for removal. Please select at least one checkbox.");
                 }
             }
 
-
-            function makeEditable(cell) {
-                const originalContent = cell.textContent;
+            function makeEditable(event) {
+                const cell = event.target;
+                const originalContent = cell.innerText;
                 const input = document.createElement('input');
                 input.type = 'text';
                 input.value = originalContent;
                 input.className = 'form-control editable';
+                
                 input.addEventListener('blur', function() {
-                    cell.textContent = input.value;
-                    updateCell(cell, input.value);
+                    saveCellChanges(cell, input.value, originalContent);
                 });
+
                 input.addEventListener('keydown', function(event) {
                     if (event.key === 'Enter') {
-                        cell.textContent = input.value;
-                        updateCell(cell, input.value);
+                        saveCellChanges(cell, input.value, originalContent);
                     } else if (event.key === 'Escape') {
-                        cell.textContent = originalContent;
+                        cell.innerText = originalContent;
                     }
                 });
-                cell.textContent = '';
+
+                cell.innerText = '';
                 cell.appendChild(input);
                 input.focus();
             }
 
-            function updateCell(cell, newValue) {
-                const row = cell.parentNode;
-                const table = row.parentNode;
-                const rowIndex = Array.prototype.indexOf.call(table.children, row);
-                const cellIndex = Array.prototype.indexOf.call(row.children, cell);
+            function saveCellChanges(cell, newValue, originalContent) {
+                cell.innerText = newValue;
+                if (newValue !== originalContent) {
+                    const row = cell.parentNode;
+                    const table = row.parentNode;
+                    const rowIndex = Array.prototype.indexOf.call(table.children, row);
+                    const cellIndex = Array.prototype.indexOf.call(row.children, cell);
+                    
+                    updateCell(rowIndex, cellIndex, newValue);
+                }
+            }
 
-                // Send an AJAX request to update the cell data on the server
+            function updateCell(rowIndex, cellIndex, newValue) {
                 fetch('/update_cell', {
                     method: 'POST',
                     headers: {
@@ -756,10 +882,11 @@
                 })
                 .then(response => response.json())
                 .then(data => {
-                    console.log("Cell updated successfully", data);
+                    console.log('Cell updated successfully', data);
+                    // Optionally, you can refresh the table or show a success message
                 })
                 .catch(error => {
-                    console.error("Error occurred while updating cell", error);
+                    console.error('Error occurred while updating cell', error);
                 });
             }
 
@@ -781,6 +908,192 @@
                     }
                 });
             }
+
+            function saveState() {
+                const state = {
+                    coolingSystemDetailsRef: coolingSystemDetailsRef,
+                    coolingSystemDetailsAnalysis: coolingSystemDetailsAnalysis,
+                    variables: variables,
+                    dataCenterDetails: dataCenterDetails,
+                    graphsDisplayed: graphsDisplayed
+                };
+
+                const blob = new Blob([JSON.stringify(state)], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'state.json';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            }
+
+            function loadStateFromFile(event) {
+                const file = event.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        const loadedData = JSON.parse(e.target.result);
+                        restoreState(loadedData);
+                    };
+                    reader.readAsText(file);
+                }
+            }
+
+            function loadState() {
+                const input = document.createElement('input');
+                input.type = 'file';
+                input.accept = 'application/json';
+                input.onchange = function(event) {
+                    const file = event.target.files[0];
+                    if (file) {
+                        const reader = new FileReader();
+                        reader.onload = function(e) {
+                            const state = JSON.parse(e.target.result);
+                            fetch('/load_state', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json'
+                                },
+                                body: JSON.stringify(state)
+                            })
+                            .then(response => response.json())
+                            .then(data => {
+                                if (data.success) {
+                                    location.reload(); // Reload the page to reflect the loaded state
+                                } else {
+                                    alert('Failed to load state');
+                                }
+                            })
+                            .catch(error => {
+                                console.error('Error loading state:', error);
+                                alert('Error loading state');
+                            });
+                        };
+                        reader.readAsText(file);
+                    }
+                };
+                input.click();
+            }
+
+            function loadInitialData() {
+                const scriptTag = document.getElementById('initial-data');
+                const coolingSystemDetailsRef = JSON.parse(scriptTag.getAttribute('data-cooling-system-details-ref'));
+                const coolingSystemDetailsAnalysis = JSON.parse(scriptTag.getAttribute('data-cooling-system-details-analysis'));
+                const variables = JSON.parse(scriptTag.getAttribute('data-variables'));
+                const dataCenterDetails = JSON.parse(scriptTag.getAttribute('data-data-center-details'));
+                const graphsDisplayed = JSON.parse(scriptTag.getAttribute('data-graphs-displayed'));
+
+                // Use the loaded data in your JavaScript
+                console.log(coolingSystemDetailsRef, coolingSystemDetailsAnalysis, variables, dataCenterDetails, graphsDisplayed);
+            }
+
+            function updateFirstTable(details) {
+                let tbody = "";
+                details.forEach((row, index) => {
+                    tbody += "<tr>";
+                    if (index === 0) {  // Header row
+                        row.forEach(cell => {
+                            tbody += `<th>${cell}</th>`;
+                        });
+                    } else {  // Data rows
+                        tbody += `<td class="checkbox-column"><input type="checkbox" class="selectRowFile1"></td>`;
+                        row.forEach((cell, cellIndex) => {
+                            if (cellIndex === 2) {  // Units column
+                                tbody += `<td>
+                                            <select class="form-control">
+                                                <option value="per_datacenter" ${cell === 'per_datacenter' ? 'selected' : ''}>per Datacenter</option>
+                                                <option value="per_room" ${cell === 'per_room' ? 'selected' : ''}>per Room</option>
+                                                <option value="per_row" ${cell === 'per_row' ? 'selected' : ''}>per Row</option>
+                                                <option value="per_server" ${cell === 'per_server' ? 'selected' : ''}>per Server</option>
+                                                <option value="per_rack" ${cell === 'per_rack' ? 'selected' : ''}>per Rack</option>
+                                            </select>
+                                        </td>`;
+                            } else if (cellIndex === 4) {  // Redundancy column
+                                tbody += `<td>
+                                            <select class="form-control">
+                                                <option value="N" ${cell === 'N' ? 'selected' : ''}>N</option>
+                                                <option value="N+1" ${cell === 'N+1' ? 'selected' : ''}>N+1</option>
+                                                <option value="N+2" ${cell === 'N+2' ? 'selected' : ''}>N+2</option>
+                                                <option value="2N" ${cell === '2N' ? 'selected' : ''}>2N</option>
+                                                <option value="2N+1" ${cell === '2N+1' ? 'selected' : ''}>2N+1</option>
+                                            </select>
+                                        </td>`;
+                            } else if (cellIndex === 11) {  // Maintenance Type column
+                                tbody += `<td>
+                                            <select class="form-control">
+                                                <option value="Cost per maintenance" ${cell === 'Cost per maintenance' ? 'selected' : ''}>Cost per maintenance</option>
+                                                <option value="% of purchase price" ${cell === '% of purchase price' ? 'selected' : ''}>% of purchase price</option>
+                                                <option value="Flat fee per year" ${cell === 'Flat fee per year' ? 'selected' : ''}>Flat fee per year</option>
+                                            </select>
+                                        </td>`;
+                            } else {
+                                tbody += `<td ondblclick="makeEditable(this)">${cell}</td>`;
+                            }
+                        });
+                    }
+                    tbody += "</tr>";
+                });
+
+                document.getElementById('file1-details').innerHTML = tbody;
+                updateTotalCost('file1');
+            }
+
+            function updateSecondTable(details) {
+                let tbody = "";
+                details.forEach((row, index) => {
+                    tbody += "<tr>";
+                    if (index === 0) {  // Header row
+                        row.forEach(cell => {
+                            tbody += `<th>${cell}</th>`;
+                        });
+                    } else {  // Data rows
+                        tbody += `<td class="checkbox-column"><input type="checkbox" class="selectRowFile2"></td>`;
+                        row.forEach((cell, cellIndex) => {
+                            if (cellIndex === 2) {  // Units column
+                                tbody += `<td>
+                                            <select class="form-control">
+                                                <option value="per_datacenter" ${cell === 'per_datacenter' ? 'selected' : ''}>per Datacenter</option>
+                                                <option value="per_room" ${cell === 'per_room' ? 'selected' : ''}>per Room</option>
+                                                <option value="per_row" ${cell === 'per_row' ? 'selected' : ''}>per Row</option>
+                                                <option value="per_server" ${cell === 'per_server' ? 'selected' : ''}>per Server</option>
+                                                <option value="per_rack" ${cell === 'per_rack' ? 'selected' : ''}>per Rack</option>
+                                            </select>
+                                        </td>`;
+                            } else if (cellIndex === 4) {  // Redundancy column
+                                tbody += `<td>
+                                            <select class="form-control">
+                                                <option value="N" ${cell === 'N' ? 'selected' : ''}>N</option>
+                                                <option value="N+1" ${cell === 'N+1' ? 'selected' : ''}>N+1</option>
+                                                <option value="N+2" ${cell === 'N+2' ? 'selected' : ''}>N+2</option>
+                                                <option value="2N" ${cell === '2N' ? 'selected' : ''}>2N</option>
+                                                <option value="2N+1" ${cell === '2N+1' ? 'selected' : ''}>2N+1</option>
+                                            </select>
+                                        </td>`;
+                            } else if (cellIndex === 11) {  // Maintenance Type column
+                                tbody += `<td>
+                                            <select class="form-control">
+                                                <option value="Cost per maintenance" ${cell === 'Cost per maintenance' ? 'selected' : ''}>Cost per maintenance</option>
+                                                <option value="% of purchase price" ${cell === '% of purchase price' ? 'selected' : ''}>% of purchase price</option>
+                                                <option value="Flat fee per year" ${cell === 'Flat fee per year' ? 'selected' : ''}>Flat fee per year</option>
+                                            </select>
+                                        </td>`;
+                            } else {
+                                tbody += `<td ondblclick="makeEditable(this)">${cell}</td>`;
+                            }
+                        });
+                    }
+                    tbody += "</tr>";
+                });
+
+                document.getElementById('file2-details').innerHTML = tbody;
+                updateTotalCost('file2');
+            }
+
+            document.getElementById('saveBtn').addEventListener('click', saveState);
+            document.getElementById('loadBtn').addEventListener('click', loadState);
+
         </script>
     </div>
 </body>

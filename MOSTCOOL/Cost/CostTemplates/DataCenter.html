@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Settings</title>
+    <title>Data Center Details</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
 </head>
 <body>
     <div class="container">
-        <h1 class="mt-4">Settings</h1>
-        <form action="/settings" method="post">
+        <h1 class="mt-4">Data Center Details</h1>
+        <form action="/dataCenter" method="post">
             {% for var, val in variables.items() %}
                 <div class="form-group">
                     <label for="{{ var }}">{{ var }}</label>
