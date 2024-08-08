@@ -16,8 +16,8 @@ from time import sleep
 import sys
 sys.path.append('/app/Cost')
 import CostModelGuiV1_1
-from CostModelFileCalculationsV1_1 import variables, Cooling_System_Details, update_cooling_system_details, get_cooling_system_details, get_redundancy_multiplier, calculate_total_cooling_cost, calculate_irr, format_currency
-from CostModelFileProcessingV1_1 import table_lookup, process_html_content
+# from CostModelFileCalculationsV1_1 import variables, Cooling_System_Details, update_cooling_system_details, get_cooling_system_details, get_redundancy_multiplier, calculate_total_cooling_cost, calculate_irr, format_currency
+# from CostModelFileProcessingV1_1 import table_lookup, process_html_content
 
 
 
