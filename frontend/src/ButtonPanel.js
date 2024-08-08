@@ -1,5 +1,4 @@
-// ButtonPanel.js
-import React  from 'react';
+import React, { useState } from 'react';
 import imageMap from './App';
 import * as XLSX from 'xlsx';
 
@@ -166,6 +165,10 @@ function ButtonPanel({ addNode, edges, nodeDetails, setNodes, setEdges,nodes ,se
     
         setNodeDetails(transformedData);
         console.log("Node details updated from Excel file:", transformedData);
+
+        Object.keys(transformedData).forEach((key) => {
+          localStorage.setItem(key, JSON.stringify(transformedData[key]));
+        });
       };
     
       reader.readAsArrayBuffer(file);
