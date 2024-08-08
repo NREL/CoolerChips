@@ -692,21 +692,21 @@ Schedule:Compact,
     THROUGH: 12/31,          !- Field 1
     FOR: AllDays,            !- Field 2
     UNTIL: 2:00,             !- Field 3
-    -500000,                 !- Field 4
+    -50000,                 !- Field 4
     UNTIL: 4:00,             !- Field 5
-    -400000,                 !- Field 6
+    -40000,                 !- Field 6
     UNTIL: 8:00,             !- Field 7
-    -600000,                 !- Field 8
+    -60000,                 !- Field 8
     UNTIL: 12:00,            !- Field 9
-    -1000000,                !- Field 10
+    -100000,                !- Field 10
     UNTIL: 16:00,            !- Field 11
-    -1200000,                !- Field 12
+    -120000,                !- Field 12
     UNTIL: 18:00,            !- Field 13
-    -1000000,                !- Field 14
+    -100000,                !- Field 14
     UNTIL: 20:00,            !- Field 15
-    -800000,                 !- Field 16
+    -80000,                 !- Field 16
     UNTIL: 24:00,            !- Field 17
-    -600000;                 !- Field 18
+    -60000;                 !- Field 18
 
 Schedule:Compact,
     Load Profile 1 Load Schedule-backup,  !- Name
@@ -2703,7 +2703,7 @@ LoadProfile:Plant,
     Demand Load Profile 1 Inlet Node,  !- Inlet Node Name
     Demand Load Profile 1 Outlet Node,  !- Outlet Node Name
     Load Profile 1 Load Schedule,  !- Load Schedule Name
-    0.068,                   !- Peak Flow Rate {m3/s}
+    0.0068,                   !- Peak Flow Rate {m3/s}
     Load Profile 1 Flow Frac Schedule,  !- Flow Rate Fraction Schedule Name
     Water;                   !- Plant Loop Fluid Type
 
