@@ -131,7 +131,7 @@ SimulationControl,
     Yes,                     !- Do Plant Sizing Calculation
     No,                      !- Run Simulation for Sizing Periods
     Yes,                     !- Run Simulation for Weather File Run Periods
-    No,                     !- Do HVAC Sizing Simulation for Sizing Periods
+    No,                      !- Do HVAC Sizing Simulation for Sizing Periods
     1;                       !- Maximum Number of HVAC Sizing Simulation Passes
 
 
@@ -250,7 +250,7 @@ RunPeriod,
     7,                       !- Begin Month
     1,                       !- Begin Day of Month
     ,                        !- Begin Year
-    7,                      !- End Month
+    7,                       !- End Month
     14,                      !- End Day of Month
     ,                        !- End Year
     Tuesday,                 !- Day of Week for Start Day
@@ -530,9 +530,8 @@ Schedule:Compact,
     Until: 24:00,            !- Field 3
     1.00,                    !- Field 4
     For: AllOtherDays,       !- Field 5
-    Until: 24:00,             !- Field 6
-    1.00;                    !- Field 15
-
+    Until: 24:00,            !- Field 6
+    1.00;                    !- Field 7
 
 Schedule:Compact,
     LIGHTS-1,                !- Name
@@ -688,34 +687,34 @@ Schedule:Compact,
     1;                       !- Field 4
 
 Schedule:Compact,
-    Load Profile 1 Load Schedule-backup,  !- Name
-    Any Number,              !- Schedule Type Limits Name
-    THROUGH: 12/31,          !- Field 1
-    FOR: AllDays,            !- Field 2
-    UNTIL: 2:00,             !- Field 3
-    -50000,                  !- Field 4
-    UNTIL: 4:00,             !- Field 5
-    -40000,                  !- Field 6
-    UNTIL: 8:00,             !- Field 7
-    -60000,                  !- Field 8
-    UNTIL: 12:00,            !- Field 9
-    -100000,                 !- Field 10
-    UNTIL: 16:00,            !- Field 11
-    -120000,                 !- Field 12
-    UNTIL: 18:00,            !- Field 13
-    -100000,                 !- Field 14
-    UNTIL: 20:00,            !- Field 15
-    -80000,                  !- Field 16
-    UNTIL: 24:00,            !- Field 17
-    -60000;                  !- Field 18
-
-Schedule:Compact,
     Load Profile 1 Load Schedule,  !- Name
     Any Number,              !- Schedule Type Limits Name
     THROUGH: 12/31,          !- Field 1
     FOR: AllDays,            !- Field 2
+    UNTIL: 2:00,             !- Field 3
+    -500000,                 !- Field 4
+    UNTIL: 4:00,             !- Field 5
+    -400000,                 !- Field 6
+    UNTIL: 8:00,             !- Field 7
+    -600000,                 !- Field 8
+    UNTIL: 12:00,            !- Field 9
+    -1000000,                !- Field 10
+    UNTIL: 16:00,            !- Field 11
+    -1200000,                !- Field 12
+    UNTIL: 18:00,            !- Field 13
+    -1000000,                !- Field 14
+    UNTIL: 20:00,            !- Field 15
+    -800000,                 !- Field 16
     UNTIL: 24:00,            !- Field 17
-    -80000;                  !- Field 18
+    -600000;                 !- Field 18
+
+Schedule:Compact,
+    Load Profile 1 Load Schedule-backup,  !- Name
+    Any Number,              !- Schedule Type Limits Name
+    THROUGH: 12/31,          !- Field 1
+    FOR: AllDays,            !- Field 2
+    UNTIL: 24:00,            !- Field 3
+    -80000;                  !- Field 4
 
 Schedule:Compact,
     Load Profile 1 Flow Frac Schedule,  !- Name
@@ -724,9 +723,6 @@ Schedule:Compact,
     FOR: AllDays,            !- Field 2
     UNTIL: 24:00,            !- Field 3
     1.0;                     !- Field 4
-
-
-
 
 Schedule:Compact,
     Tower-Loop-Temp-Schedule,!- Name
@@ -737,7 +733,7 @@ Schedule:Compact,
     25.0;                    !- Field 4
 
 Schedule:Compact,
-    CRAH-Supply-Temp-Schedule,!- Name
+    CRAH-Supply-Temp-Schedule,  !- Name
     Temperature,             !- Schedule Type Limits Name
     Through: 12/31,          !- Field 1
     For: AllDays,            !- Field 2
@@ -751,6 +747,16 @@ Schedule:Constant,
     Data Center Operation Schedule,  !- Name
     Any Number,              !- Schedule Type Limits Name
     1.0;                     !- Hourly Value
+
+Schedule:Constant,
+    Supply Temperature Difference Schedule Mod,  !- Name
+    Any Number,              !- Schedule Type Limits Name
+    2;                       !- Hourly Value
+
+Schedule:Constant,
+    Return Temperature Difference Schedule Mod,  !- Name
+    Any Number,              !- Schedule Type Limits Name
+    -1;                      !- Hourly Value
 
 
 !-   ===========  ALL OBJECTS IN CLASS: MATERIAL ===========
@@ -1680,21 +1686,10 @@ ElectricEquipment:ITE:AirCooled,
     ITE-CPU,                 !- CPU End-Use Subcategory
     ITE-Fans,                !- Fan End-Use Subcategory
     ITE-UPS,                 !- Electric Power Supply End-Use Subcategory
-    ,                       !- Supply Temperature Difference {deltaC}
-    Supply Temperature Difference Schedule Mod,                        !- Supply Temperature Difference Schedule
-    ,                      !- Return Temperature Difference {deltaC}
-    Return Temperature Difference Schedule Mod;                        !- Return Temperature Difference Schedule
-
-
-Schedule:Constant,
-    Supply Temperature Difference Schedule Mod,                  !- Name
-    Any Number,                    !- Schedule Type Limits Name
-    2;                       !- Hourly Value
-
-  Schedule:Constant,
-    Return Temperature Difference Schedule Mod,                  !- Name
-    Any Number,                    !- Schedule Type Limits Name
-    -1;                       !- Hourly Value
+    ,                        !- Supply Temperature Difference {deltaC}
+    Supply Temperature Difference Schedule Mod,  !- Supply Temperature Difference Schedule
+    ,                        !- Return Temperature Difference {deltaC}
+    Return Temperature Difference Schedule Mod;  !- Return Temperature Difference Schedule
 
 
 !-   ===========  ALL OBJECTS IN CLASS: DESIGNSPECIFICATION:OUTDOORAIR ===========
@@ -1848,29 +1843,21 @@ Sizing:Plant,
     Cooling,                 !- Loop Type
     7.0,                     !- Design Loop Exit Temperature {C}
     5,                       !- Loop Design Temperature Difference {deltaC}
-    NonCoincident;              !- Sizing Option
+    NonCoincident;           !- Sizing Option
 
 Sizing:Plant,
     Condenser Loop,          !- Plant or Condenser Loop Name
     Condenser,               !- Loop Type
     29,                      !- Design Loop Exit Temperature {C}
     5.0,                     !- Loop Design Temperature Difference {deltaC}
-    NonCoincident;              !- Sizing Option
-
-Sizing:Plant,
-    Use Loop,                !- Plant or Condenser Loop Name
-    Cooling,                 !- Loop Type
-    17,                      !- Design Loop Exit Temperature {C}
-    5,                       !- Loop Design Temperature Difference {deltaC}
-    NonCoincident,              !- Sizing Option
-    1;                       !- Zone Timesteps in Averaging Window
+    NonCoincident;           !- Sizing Option
 
 Sizing:Plant,
     TRANSFER Loop,           !- Plant or Condenser Loop Name
     Cooling,                 !- Loop Type
-    12,                      !- Design Loop Exit Temperature {C}
-    5,                       !- Loop Design Temperature Difference {deltaC}
-    NonCoincident,              !- Sizing Option
+    17,                      !- Design Loop Exit Temperature {C}
+    10,                      !- Loop Design Temperature Difference {deltaC}
+    NonCoincident,           !- Sizing Option
     1;                       !- Zone Timesteps in Averaging Window
 
 
@@ -2215,7 +2202,7 @@ Branch,
 Branch,
     Condenser Supply Tower Branch,  !- Name
     ,                        !- Pressure Drop Curve Name
-    CoolingTower:SingleSpeed,  !- Component 1 Object Type
+    CoolingTower:SingleSpeed,!- Component 1 Object Type
     Cooling Tower,           !- Component 1 Name
     Condenser Tower Inlet Node,  !- Component 1 Inlet Node Name
     Condenser Tower Outlet Node;  !- Component 1 Outlet Node Name
@@ -2267,38 +2254,6 @@ Branch,
     Condenser Demand Outlet Pipe,  !- Component 1 Name
     Condenser Demand Exit Pipe Inlet Node,  !- Component 1 Inlet Node Name
     Condenser Demand Outlet Node;  !- Component 1 Outlet Node Name
-
-Branch,
-    USE Supply Inlet Branch, !- Name
-    ,                        !- Pressure Drop Curve Name
-    Pump:VariableSpeed,      !- Component 1 Object Type
-    USE Pump,                !- Component 1 Name
-    USE Supply Inlet Node,   !- Component 1 Inlet Node Name
-    USE Supply Pump-Heating Node;  !- Component 1 Outlet Node Name
-
-Branch,
-    USE Cooling Branch,      !- Name
-    ,                        !- Pressure Drop Curve Name
-    HeatExchanger:FluidToFluid,  !- Component 1 Object Type
-    TRANSFER to USE HX,      !- Component 1 Name
-    USE Supply Cooling Inlet Node,  !- Component 1 Inlet Node Name
-    USE Supply Cooling Outlet Node;  !- Component 1 Outlet Node Name
-
-Branch,
-    USE Supply Outlet Branch,!- Name
-    ,                        !- Pressure Drop Curve Name
-    Pipe:Adiabatic,          !- Component 1 Object Type
-    USE Supply Outlet Pipe,  !- Component 1 Name
-    USE Supply Heating-Pipe Node,  !- Component 1 Inlet Node Name
-    USE Supply Outlet Node;  !- Component 1 Outlet Node Name
-
-Branch,
-    USE Supply Bypass Branch,!- Name
-    ,                        !- Pressure Drop Curve Name
-    Pipe:Adiabatic,          !- Component 1 Object Type
-    USE Supply Bypass Pipe,  !- Component 1 Name
-    USE Supply Bypass Inlet Node,  !- Component 1 Inlet Node Name
-    USE Supply Bypass Outlet Node;  !- Component 1 Outlet Node Name
 
 Branch,
     USE Demand Inlet Branch, !- Name
@@ -2365,38 +2320,6 @@ Branch,
     TRANSFER Supply Bypass Outlet Node;  !- Component 1 Outlet Node Name
 
 Branch,
-    TRANSFER Demand Inlet Branch,  !- Name
-    ,                        !- Pressure Drop Curve Name
-    Pipe:Adiabatic,          !- Component 1 Object Type
-    TRANSFER Demand Inlet Pipe,  !- Component 1 Name
-    TRANSFER Demand Inlet Node,  !- Component 1 Inlet Node Name
-    TRANSFER Demand Pipe-Load Profile Node;  !- Component 1 Outlet Node Name
-
-Branch,
-    TRANSFER Demand HX Branch 1,  !- Name
-    ,                        !- Pressure Drop Curve Name
-    HeatExchanger:FluidToFluid,  !- Component 1 Object Type
-    TRANSFER to USE HX,      !- Component 1 Name
-    TRANSFER Demand HX Inlet Node,  !- Component 1 Inlet Node Name
-    TRANSFER Demand HX Outlet Node;  !- Component 1 Outlet Node Name
-
-Branch,
-    TRANSFER Demand Bypass Branch,  !- Name
-    ,                        !- Pressure Drop Curve Name
-    Pipe:Adiabatic,          !- Component 1 Object Type
-    TRANSFER Demand Bypass Pipe,  !- Component 1 Name
-    TRANSFER Demand Bypass Pipe Inlet Node,  !- Component 1 Inlet Node Name
-    TRANSFER Demand Bypass Pipe Outlet Node;  !- Component 1 Outlet Node Name
-
-Branch,
-    TRANSFER Demand Outlet Branch,  !- Name
-    ,                        !- Pressure Drop Curve Name
-    Pipe:Adiabatic,          !- Component 1 Object Type
-    TRANSFER Demand Outlet Pipe,  !- Component 1 Name
-    TRANSFER Demand HX-Pipe Node,  !- Component 1 Inlet Node Name
-    TRANSFER Demand Outlet Node;  !- Component 1 Outlet Node Name
-
-Branch,
     SOURCE Demand HX Branch, !- Name
     ,                        !- Pressure Drop Curve Name
     HeatExchanger:FluidToFluid,  !- Component 1 Object Type
@@ -2447,13 +2370,6 @@ BranchList,
     Condenser Demand Outlet Branch;  !- Branch 4 Name
 
 BranchList,
-    USE Supply Branches,     !- Name
-    USE Supply Inlet Branch, !- Branch 1 Name
-    USE Cooling Branch,      !- Branch 2 Name
-    USE Supply Bypass Branch,!- Branch 3 Name
-    USE Supply Outlet Branch;!- Branch 4 Name
-
-BranchList,
     USE Demand Branches,     !- Name
     USE Demand Inlet Branch, !- Branch 1 Name
     USE Load Profile Branch 1,  !- Branch 2 Name
@@ -2466,13 +2382,6 @@ BranchList,
     TRANSFER Cooling Branch, !- Branch 2 Name
     TRANSFER Supply Bypass Branch,  !- Branch 3 Name
     TRANSFER Supply Outlet Branch;  !- Branch 4 Name
-
-BranchList,
-    TRANSFER Demand Branches,!- Name
-    TRANSFER Demand Inlet Branch,  !- Branch 1 Name
-    TRANSFER Demand HX Branch 1,  !- Branch 2 Name
-    TRANSFER Demand Bypass Branch,  !- Branch 3 Name
-    TRANSFER Demand Outlet Branch;  !- Branch 4 Name
 
 
 !-   ===========  ALL OBJECTS IN CLASS: CONNECTOR:SPLITTER ===========
@@ -2503,12 +2412,6 @@ Connector:Splitter,
     Condenser Demand Bypass Branch;  !- Outlet Branch 2 Name
 
 Connector:Splitter,
-    USE Supply Splitter,     !- Name
-    USE Supply Inlet Branch, !- Inlet Branch Name
-    USE Cooling Branch,      !- Outlet Branch 1 Name
-    USE Supply Bypass Branch;!- Outlet Branch 2 Name
-
-Connector:Splitter,
     USE Demand Splitter,     !- Name
     USE Demand Inlet Branch, !- Inlet Branch Name
     USE Load Profile Branch 1,  !- Outlet Branch 1 Name
@@ -2519,12 +2422,6 @@ Connector:Splitter,
     TRANSFER Supply Inlet Branch,  !- Inlet Branch Name
     TRANSFER Cooling Branch, !- Outlet Branch 1 Name
     TRANSFER Supply Bypass Branch;  !- Outlet Branch 2 Name
-
-Connector:Splitter,
-    TRANSFER Demand Splitter,!- Name
-    TRANSFER Demand Inlet Branch,  !- Inlet Branch Name
-    TRANSFER Demand HX Branch 1,  !- Outlet Branch 1 Name
-    TRANSFER Demand Bypass Branch;  !- Outlet Branch 2 Name
 
 
 !-   ===========  ALL OBJECTS IN CLASS: CONNECTOR:MIXER ===========
@@ -2555,12 +2452,6 @@ Connector:Mixer,
     Condenser Demand Bypass Branch;  !- Inlet Branch 2 Name
 
 Connector:Mixer,
-    USE Supply Mixer,        !- Name
-    USE Supply Outlet Branch,!- Outlet Branch Name
-    USE Cooling Branch,      !- Inlet Branch 1 Name
-    USE Supply Bypass Branch;!- Inlet Branch 2 Name
-
-Connector:Mixer,
     USE Demand Mixer,        !- Name
     USE Demand Outlet Branch,!- Outlet Branch Name
     USE Load Profile Branch 1,  !- Inlet Branch 1 Name
@@ -2571,12 +2462,6 @@ Connector:Mixer,
     TRANSFER Supply Outlet Branch,  !- Outlet Branch Name
     TRANSFER Cooling Branch, !- Inlet Branch 1 Name
     TRANSFER Supply Bypass Branch;  !- Inlet Branch 2 Name
-
-Connector:Mixer,
-    TRANSFER Demand Mixer,   !- Name
-    TRANSFER Demand Outlet Branch,  !- Outlet Branch Name
-    TRANSFER Demand HX Branch 1,  !- Inlet Branch 1 Name
-    TRANSFER Demand Bypass Branch;  !- Inlet Branch 2 Name
 
 
 !-   ===========  ALL OBJECTS IN CLASS: CONNECTORLIST ===========
@@ -2614,13 +2499,6 @@ ConnectorList,
     Condenser Demand Mixer;  !- Connector 2 Name
 
 ConnectorList,
-    USE Supply Connectors,   !- Name
-    Connector:Splitter,      !- Connector 1 Object Type
-    USE Supply Splitter,     !- Connector 1 Name
-    Connector:Mixer,         !- Connector 2 Object Type
-    USE Supply Mixer;        !- Connector 2 Name
-
-ConnectorList,
     USE Demand Connectors,   !- Name
     Connector:Splitter,      !- Connector 1 Object Type
     USE Demand Splitter,     !- Connector 1 Name
@@ -2633,13 +2511,6 @@ ConnectorList,
     TRANSFER Supply Splitter,!- Connector 1 Name
     Connector:Mixer,         !- Connector 2 Object Type
     TRANSFER Supply Mixer;   !- Connector 2 Name
-
-ConnectorList,
-    TRANSFER Demand Connectors,  !- Name
-    Connector:Splitter,      !- Connector 1 Object Type
-    TRANSFER Demand Splitter,!- Connector 1 Name
-    Connector:Mixer,         !- Connector 2 Object Type
-    TRANSFER Demand Mixer;   !- Connector 2 Name
 
 
 !-   ===========  ALL OBJECTS IN CLASS: NODELIST ===========
@@ -2747,16 +2618,6 @@ Pipe:Adiabatic,
     Condenser Demand Outlet Node;  !- Outlet Node Name
 
 Pipe:Adiabatic,
-    USE Supply Outlet Pipe,  !- Name
-    USE Supply Heating-Pipe Node,  !- Inlet Node Name
-    USE Supply Outlet Node;  !- Outlet Node Name
-
-Pipe:Adiabatic,
-    USE Supply Bypass Pipe,  !- Name
-    USE Supply Bypass Inlet Node,  !- Inlet Node Name
-    USE Supply Bypass Outlet Node;  !- Outlet Node Name
-
-Pipe:Adiabatic,
     USE Demand Bypass Pipe,  !- Name
     USE Demand Bypass Pipe Inlet Node,  !- Inlet Node Name
     USE Demand Bypass Pipe Outlet Node;  !- Outlet Node Name
@@ -2781,21 +2642,6 @@ Pipe:Adiabatic,
     TRANSFER Supply Bypass Inlet Node,  !- Inlet Node Name
     TRANSFER Supply Bypass Outlet Node;  !- Outlet Node Name
 
-Pipe:Adiabatic,
-    TRANSFER Demand Inlet Pipe,  !- Name
-    TRANSFER Demand Inlet Node,  !- Inlet Node Name
-    TRANSFER Demand Pipe-Load Profile Node;  !- Outlet Node Name
-
-Pipe:Adiabatic,
-    TRANSFER Demand Bypass Pipe,  !- Name
-    TRANSFER Demand Bypass Pipe Inlet Node,  !- Inlet Node Name
-    TRANSFER Demand Bypass Pipe Outlet Node;  !- Outlet Node Name
-
-Pipe:Adiabatic,
-    TRANSFER Demand Outlet Pipe,  !- Name
-    TRANSFER Demand HX-Pipe Node,  !- Inlet Node Name
-    TRANSFER Demand Outlet Node;  !- Outlet Node Name
-
 
 !-   ===========  ALL OBJECTS IN CLASS: PUMP:VARIABLESPEED ===========
 
@@ -2806,22 +2652,6 @@ Pump:VariableSpeed,
     CW Pump Outlet Node,     !- Outlet Node Name
     autosize,                !- Design Maximum Flow Rate {m3/s}
     160000,                  !- Design Pump Head {Pa}
-    autosize,                !- Design Power Consumption {W}
-    0.87,                    !- Motor Efficiency
-    0.0,                     !- Fraction of Motor Inefficiencies to Fluid Stream
-    0,                       !- Coefficient 1 of the Part Load Performance Curve
-    1,                       !- Coefficient 2 of the Part Load Performance Curve
-    0,                       !- Coefficient 3 of the Part Load Performance Curve
-    0,                       !- Coefficient 4 of the Part Load Performance Curve
-    0,                       !- Design Minimum Flow Rate {m3/s}
-    INTERMITTENT;            !- Pump Control Type
-
-Pump:VariableSpeed,
-    USE Pump,                !- Name
-    USE Supply Inlet Node,   !- Inlet Node Name
-    USE Supply Pump-Heating Node,  !- Outlet Node Name
-    autosize,                !- Design Maximum Flow Rate {m3/s}
-    300000,                  !- Design Pump Head {Pa}
     autosize,                !- Design Power Consumption {W}
     0.87,                    !- Motor Efficiency
     0.0,                     !- Fraction of Motor Inefficiencies to Fluid Stream
@@ -2873,7 +2703,7 @@ LoadProfile:Plant,
     Demand Load Profile 1 Inlet Node,  !- Inlet Node Name
     Demand Load Profile 1 Outlet Node,  !- Outlet Node Name
     Load Profile 1 Load Schedule,  !- Load Schedule Name
-    0.2143,                   !- Peak Flow Rate {m3/s}
+    0.068,                   !- Peak Flow Rate {m3/s}
     Load Profile 1 Flow Frac Schedule,  !- Flow Rate Fraction Schedule Name
     Water;                   !- Plant Loop Fluid Type
 
@@ -2923,10 +2753,10 @@ CoolingTower:SingleSpeed,
     Cooling Tower,           !- Name
     Condenser Tower Inlet Node,  !- Water Inlet Node Name
     Condenser Tower Outlet Node,  !- Water Outlet Node Name
-    autosize,                        !- Design Water Flow Rate {m3/s}
-    autosize,                        !- Design Air Flow Rate {m3/s}
-    autosize,                        !- Design Fan Power {W}
-    autosize,                        !- Design U-Factor Times Area Value {W/K}
+    autosize,                !- Design Water Flow Rate {m3/s}
+    autosize,                !- Design Air Flow Rate {m3/s}
+    autosize,                !- Design Fan Power {W}
+    autosize,                !- Design U-Factor Times Area Value {W/K}
     ,                        !- Free Convection Regime Air Flow Rate {m3/s}
     0.1,                     !- Free Convection Regime Air Flow Rate Sizing Factor
     ,                        !- Free Convection Regime U-Factor Times Area Value {W/K}
@@ -2960,25 +2790,7 @@ CoolingTower:SingleSpeed,
     General;                 !- End-Use Subcategory
 
 
-
-
 !-   ===========  ALL OBJECTS IN CLASS: HEATEXCHANGER:FLUIDTOFLUID ===========
-
-HeatExchanger:FluidToFluid,
-    TRANSFER to USE HX,      !- Name
-    AlwaysOnSchedule,        !- Availability Schedule Name
-    TRANSFER Demand HX Inlet Node,  !- Loop Demand Side Inlet Node Name
-    TRANSFER Demand HX Outlet Node,  !- Loop Demand Side Outlet Node Name
-    autosize,                !- Loop Demand Side Design Flow Rate {m3/s}
-    USE Supply Cooling Inlet Node,  !- Loop Supply Side Inlet Node Name
-    USE Supply Cooling Outlet Node,  !- Loop Supply Side Outlet Node Name
-    autosize,                !- Loop Supply Side Design Flow Rate {m3/s}
-    CounterFlow,             !- Heat Exchange Model Type
-    autosize,                !- Heat Exchanger U-Factor Times Area Value {W/K}
-    CoolingSetpointModulated,!- Control Type
-    Use Supply Outlet Node,  !- Heat Exchanger Setpoint Node Name
-    0.2,                     !- Minimum Temperature Difference to Activate Heat Exchanger {deltaC}
-    LoopToLoop;              !- Heat Transfer Metering End Use Type
 
 HeatExchanger:FluidToFluid,
     SOURCE to TRANSFER HX,   !- Name
@@ -2991,7 +2803,7 @@ HeatExchanger:FluidToFluid,
     autosize,                !- Loop Supply Side Design Flow Rate {m3/s}
     CrossFlowBothMixed,      !- Heat Exchange Model Type
     autosize,                !- Heat Exchanger U-Factor Times Area Value {W/K}
-    OperationSchemeModulated,!- Control Type
+    CoolingSetpointModulated,!- Control Type
     TRANSFER Supply Outlet Node,  !- Heat Exchanger Setpoint Node Name
     0.2,                     !- Minimum Temperature Difference to Activate Heat Exchanger {deltaC}
     LoopToLoop;              !- Heat Transfer Metering End Use Type
@@ -3024,28 +2836,6 @@ PlantLoop,
     Cooling Demand Side Connectors,  !- Demand Side Connector List Name
     Optimal;                 !- Load Distribution Scheme
 
-! from here on => plantloopChainCooling
-PlantLoop,
-    Use Loop,                !- Name
-    WATER,                   !- Fluid Type
-    ,                        !- User Defined Fluid Type
-    Use Loop Operation,      !- Plant Equipment Operation Scheme Name
-    Use Supply Outlet Node,  !- Loop Temperature Setpoint Node Name
-    100,                     !- Maximum Loop Temperature {C}
-    3,                       !- Minimum Loop Temperature {C}
-    autosize,                !- Maximum Loop Flow Rate {m3/s}
-    0,                       !- Minimum Loop Flow Rate {m3/s}
-    autocalculate,           !- Plant Loop Volume {m3}
-    Use Supply Inlet Node,   !- Plant Side Inlet Node Name
-    Use Supply Outlet Node,  !- Plant Side Outlet Node Name
-    Use Supply Branches,     !- Plant Side Branch List Name
-    Use Supply Connectors,   !- Plant Side Connector List Name
-    Use Demand Inlet Node,   !- Demand Side Inlet Node Name
-    Use Demand Outlet Node,  !- Demand Side Outlet Node Name
-    Use Demand Branches,     !- Demand Side Branch List Name
-    Use Demand Connectors,   !- Demand Side Connector List Name
-    OPTIMAL;                 !- Load Distribution Scheme
-
 ! END USE Loop
 !___________________________________________________________________________________
 !
@@ -3065,10 +2855,10 @@ PlantLoop,
     TRANSFER Supply Outlet Node,  !- Plant Side Outlet Node Name
     TRANSFER Supply Branches,!- Plant Side Branch List Name
     TRANSFER Supply Connectors,  !- Plant Side Connector List Name
-    TRANSFER Demand Inlet Node,  !- Demand Side Inlet Node Name
-    TRANSFER Demand Outlet Node,  !- Demand Side Outlet Node Name
-    TRANSFER Demand Branches,!- Demand Side Branch List Name
-    TRANSFER Demand Connectors,  !- Demand Side Connector List Name
+    Use Demand Inlet Node,   !- Demand Side Inlet Node Name
+    Use Demand Outlet Node,  !- Demand Side Outlet Node Name
+    Use Demand Branches,     !- Demand Side Branch List Name
+    Use Demand Connectors,   !- Demand Side Connector List Name
     OPTIMAL;                 !- Load Distribution Scheme
 
 
@@ -3105,15 +2895,6 @@ PlantEquipmentList,
     Chiller:Electric:EIR,    !- Equipment 1 Object Type
     Chiller;                 !- Equipment 1 Name
 
-!PlantEquipmentList,
-!    Tower Plant,             !- Name
-!    CoolingTower:VariableSpeed,  !- Equipment 1 Object Type
-!    Cooling Tower;           !- Equipment 1 Name
-PlantEquipmentList,
-    TRANSFER to USE HX equip,!- Name
-    HeatExchanger:FluidToFluid,  !- Equipment 1 Object Type
-    TRANSFER to USE HX;      !- Equipment 1 Name
-
 PlantEquipmentList,
     TRANSFER Cooling Plant,  !- Name
     HeatExchanger:FluidToFluid,  !- Equipment 1 Object Type
@@ -3124,19 +2905,15 @@ PlantEquipmentList,
 
 CondenserEquipmentList,
     Tower Plant,             !- Name
-    CoolingTower:SingleSpeed,  !- Equipment 1 Object Type
+    CoolingTower:SingleSpeed,!- Equipment 1 Object Type
     Cooling Tower;           !- Equipment 1 Name
-
-
-!-   ===========  ALL OBJECTS IN CLASS: PLANTEQUIPMENTOPERATION:UNCONTROLLED ===========
-
-!PlantEquipmentOperation:Uncontrolled,
-!    USE operation,           !- Name
-!    TRANSFER to USE HX equip;!- Equipment List Name
 
 
 !-   ===========  ALL OBJECTS IN CLASS: PLANTEQUIPMENTOPERATION:COOLINGLOAD ===========
 
+!PlantEquipmentOperation:Uncontrolled,
+!    USE operation,           !- Name
+!    TRANSFER to USE HX equip;!- Equipment List Name
 PlantEquipmentOperation:CoolingLoad,
     CW Loop Cooling Load,    !- Name
     0,                       !- Load Range 1 Lower Limit {W}
@@ -3152,14 +2929,8 @@ PlantEquipmentOperation:CoolingLoad,
 PlantEquipmentOperation:CoolingLoad,
     TRANSFER HX,             !- Name
     0,                       !- Load Range 1 Lower Limit {W}
-    1000000000,                !- Load Range 1 Upper Limit {W}
+    1000000000,              !- Load Range 1 Upper Limit {W}
     TRANSFER Cooling Plant;  !- Range 1 Equipment List Name
-
-PlantEquipmentOperation:CoolingLoad,
-    Use operation,             !- Name
-    0,                       !- Load Range 1 Lower Limit {W}
-    1000000000,                !- Load Range 1 Upper Limit {W}
-    TRANSFER to USE HX equip;  !- Range 1 Equipment List Name
 
 
 !-   ===========  ALL OBJECTS IN CLASS: PLANTEQUIPMENTOPERATIONSCHEMES ===========
@@ -3175,12 +2946,6 @@ PlantEquipmentOperationSchemes,
 !    PlantEquipmentOperation:CoolingLoad,  !- Control Scheme 1 Object Type
 !    Tower Load,              !- Control Scheme 1 Name
 !    Tower AlwaysOnSchedule;  !- Control Scheme 1 Schedule Name
-PlantEquipmentOperationSchemes,
-    Use Loop Operation,      !- Name
-    PlantEquipmentOperation:CoolingLoad,  !- Control Scheme 1 Object Type
-    USE operation,           !- Control Scheme 1 Name
-    AlwaysOnSchedule;        !- Control Scheme 1 Schedule Name
-
 PlantEquipmentOperationSchemes,
     TRANSFER Loop Operation, !- Name
     PlantEquipmentOperation:CoolingLoad,  !- Control Scheme 1 Object Type
@@ -3295,21 +3060,15 @@ SetpointManager:Scheduled,
     CW Supply Outlet Node;   !- Setpoint Node or NodeList Name
 
 SetpointManager:Scheduled,
-    Use Loop Setpoint Manager,  !- Name
-    Temperature,             !- Control Variable
-    Use Loop Temp Sch,       !- Schedule Name
-    Use Loop Setpoint Node List;  !- Setpoint Node or NodeList Name
-
-SetpointManager:Scheduled,
     TRANSFER Loop Setpoint Manager,  !- Name
     Temperature,             !- Control Variable
-    TRANSFER Loop Temp Sch,  !- Schedule Name
+    Use Loop Temp Sch,       !- Schedule Name
     TRANSFER Loop Setpoint Node List;  !- Setpoint Node or NodeList Name
 
 SetpointManager:Scheduled,
     East System Setpoint manager,  !- Name
     Temperature,             !- Control Variable
-    CRAH-Supply-Temp-Schedule,                        !- Schedule Name
+    CRAH-Supply-Temp-Schedule,  !- Schedule Name
     East Sys Setpoint nodes; !- Setpoint Node or NodeList Name
 
 
@@ -3324,7 +3083,7 @@ SetpointManager:MixedAir,
     East Zone Mixed Air Node;!- Setpoint Node or NodeList Name
 
 
-!-   ===========  ALL OBJECTS IN CLASS: SETPOINTMANAGER:WARMEST ===========
+!-   ===========  ALL OBJECTS IN CLASS: CURVE:QUADRATIC ===========
 
 !SetpointManager:Warmest,
 !    East System Setpoint manager,  !- Name
@@ -3334,10 +3093,6 @@ SetpointManager:MixedAir,
 !    25.0,                    !- Maximum Setpoint Temperature {C}
 !    MAximumTemperature,      !- Strategy
 !    East Sys Setpoint nodes; !- Setpoint Node or NodeList Name
-
-
-!-   ===========  ALL OBJECTS IN CLASS: CURVE:QUADRATIC ===========
-
 Curve:Quadratic,
     Main Chiller RecipEIRFPLR,  !- Name
     0.088065,                !- Coefficient1 Constant
@@ -3823,852 +3578,852 @@ OutputControl:Table:Style,
 Output:Variable,
     *,                       !- Key Value
     Plant Load Profile Mass Flow Rate,  !- Variable Name
-    Timestep;                  !- Reporting Frequency
+    Timestep;                !- Reporting Frequency
 
 Output:Variable,
     *,                       !- Key Value
     Plant Load Profile Heat Transfer Rate,  !- Variable Name
-    Timestep;                  !- Reporting Frequency
+    Timestep;                !- Reporting Frequency
 
 Output:Variable,
     *,                       !- Key Value
     Plant Load Profile Heat Transfer Energy,  !- Variable Name
-    Timestep;                  !- Reporting Frequency
+    Timestep;                !- Reporting Frequency
 
 Output:Variable,
     *,                       !- Key Value
     Plant Load Profile Heating Energy,  !- Variable Name
-    Timestep;                  !- Reporting Frequency
+    Timestep;                !- Reporting Frequency
 
 Output:Variable,
     *,                       !- Key Value
     Plant Load Profile Cooling Energy,  !- Variable Name
-    Timestep;                  !- Reporting Frequency
+    Timestep;                !- Reporting Frequency
 
 Output:Variable,
     *,                       !- Key Value
     District Cooling Water Rate,  !- Variable Name
-    Timestep;                  !- Reporting Frequency
+    Timestep;                !- Reporting Frequency
 
 Output:Variable,
     *,                       !- Key Value
     District Cooling Water Energy,  !- Variable Name
-    Timestep;                  !- Reporting Frequency
+    Timestep;                !- Reporting Frequency
 
 Output:Variable,
     *,                       !- Key Value
     District Cooling Water Inlet Temperature,  !- Variable Name
-    Timestep;                  !- Reporting Frequency
+    Timestep;                !- Reporting Frequency
 
 Output:Variable,
     *,                       !- Key Value
     District Cooling Water Outlet Temperature,  !- Variable Name
-    Timestep;                  !- Reporting Frequency
+    Timestep;                !- Reporting Frequency
 
 Output:Variable,
     *,                       !- Key Value
     District Cooling Water Mass Flow Rate,  !- Variable Name
-    Timestep;                  !- Reporting Frequency
+    Timestep;                !- Reporting Frequency
 
 Output:Variable,
     *,                       !- Key Value
     Fluid Heat Exchanger Heat Transfer Rate,  !- Variable Name
-    Timestep;                  !- Reporting Frequency
+    Timestep;                !- Reporting Frequency
 
 Output:Variable,
     *,                       !- Key Value
     Fluid Heat Exchanger Heat Transfer Energy,  !- Variable Name
-    Timestep;                  !- Reporting Frequency
+    Timestep;                !- Reporting Frequency
 
 Output:Variable,
     *,                       !- Key Value
     Fluid Heat Exchanger Loop Supply Side Mass Flow Rate,  !- Variable Name
-    Timestep;                  !- Reporting Frequency
+    Timestep;                !- Reporting Frequency
 
 Output:Variable,
     *,                       !- Key Value
     Fluid Heat Exchanger Loop Supply Side Inlet Temperature,  !- Variable Name
-    Timestep;                  !- Reporting Frequency
+    Timestep;                !- Reporting Frequency
 
 Output:Variable,
     *,                       !- Key Value
     Fluid Heat Exchanger Loop Supply Side Outlet Temperature,  !- Variable Name
-    Timestep;                  !- Reporting Frequency
+    Timestep;                !- Reporting Frequency
 
 Output:Variable,
     *,                       !- Key Value
     Fluid Heat Exchanger Loop Demand Side Mass Flow Rate,  !- Variable Name
-    Timestep;                  !- Reporting Frequency
+    Timestep;                !- Reporting Frequency
 
 Output:Variable,
     *,                       !- Key Value
     Fluid Heat Exchanger Loop Demand Side Inlet Temperature,  !- Variable Name
-    Timestep;                  !- Reporting Frequency
+    Timestep;                !- Reporting Frequency
 
 Output:Variable,
     *,                       !- Key Value
     Fluid Heat Exchanger Loop Demand Side Outlet Temperature,  !- Variable Name
-    Timestep;                  !- Reporting Frequency
+    Timestep;                !- Reporting Frequency
 
 Output:Variable,
     *,                       !- Key Value
     Fluid Heat Exchanger Operation Status,  !- Variable Name
-    Timestep;                  !- Reporting Frequency
+    Timestep;                !- Reporting Frequency
 
 Output:Variable,
     *,                       !- Key Value
     Fluid Heat Exchanger Effectiveness,  !- Variable Name
-    Timestep;                  !- Reporting Frequency
+    Timestep;                !- Reporting Frequency
 
 Output:Variable,
     *,                       !- Key Value
     Plant Supply Side Cooling Demand Rate,  !- Variable Name
-    Timestep;                  !- Reporting Frequency
+    Timestep;                !- Reporting Frequency
 
 Output:Variable,
     *,                       !- Key Value
     Plant Supply Side Heating Demand Rate,  !- Variable Name
-    Timestep;                  !- Reporting Frequency
+    Timestep;                !- Reporting Frequency
 
 Output:Variable,
     *,                       !- Key Value
     Plant Supply Side Inlet Mass Flow Rate,  !- Variable Name
-    Timestep;                  !- Reporting Frequency
+    Timestep;                !- Reporting Frequency
 
 Output:Variable,
     *,                       !- Key Value
     Plant Supply Side Inlet Temperature,  !- Variable Name
-    Timestep;                  !- Reporting Frequency
+    Timestep;                !- Reporting Frequency
 
 Output:Variable,
     *,                       !- Key Value
     Plant Supply Side Outlet Temperature,  !- Variable Name
-    Timestep;                  !- Reporting Frequency
+    Timestep;                !- Reporting Frequency
 
 ! outputs for data center air cooling
 Output:Variable,
     *,                       !- Key Value
     Site Outdoor Air Drybulb Temperature,  !- Variable Name
-    Timestep;                  !- Reporting Frequency
+    Timestep;                !- Reporting Frequency
 
 Output:Variable,
     *,                       !- Key Value
     Power Utilization Effectiveness,  !- Variable Name
-    Timestep;                  !- Reporting Frequency
+    Timestep;                !- Reporting Frequency
 
 Output:Variable,
     West Zone,               !- Key Value
     Zone Air Temperature,    !- Variable Name
-    Timestep;                  !- Reporting Frequency
+    Timestep;                !- Reporting Frequency
 
 Output:Variable,
     East Zone,               !- Key Value
     Zone Air Temperature,    !- Variable Name
-    Timestep;                  !- Reporting Frequency
+    Timestep;                !- Reporting Frequency
 
 Output:Variable,
     West Zone,               !- Key Value
     Zone Air Relative Humidity,  !- Variable Name
-    Timestep;                  !- Reporting Frequency
+    Timestep;                !- Reporting Frequency
 
 Output:Variable,
     East Zone,               !- Key Value
     Zone Air Relative Humidity,  !- Variable Name
-    Timestep;                  !- Reporting Frequency
+    Timestep;                !- Reporting Frequency
 
 Output:Variable,
     *,                       !- Key Value
     Cooling Coil Total Cooling Rate,  !- Variable Name
-    Timestep;                  !- Reporting Frequency
+    Timestep;                !- Reporting Frequency
 
 Output:Variable,
     *,                       !- Key Value
     Cooling Coil Sensible Cooling Rate,  !- Variable Name
-    Timestep;                  !- Reporting Frequency
+    Timestep;                !- Reporting Frequency
 
 Output:Variable,
     West Outside Air Inlet Node,  !- Key Value
     System Node Mass Flow Rate,  !- Variable Name
-    Timestep;                  !- Reporting Frequency
+    Timestep;                !- Reporting Frequency
 
 Output:Variable,
     East Outside Air Inlet Node,  !- Key Value
     System Node Mass Flow Rate,  !- Variable Name
-    Timestep;                  !- Reporting Frequency
+    Timestep;                !- Reporting Frequency
 
 Output:Variable,
     West Outside Air Inlet Node,  !- Key Value
     System Node Temperature, !- Variable Name
-    Timestep;                  !- Reporting Frequency
+    Timestep;                !- Reporting Frequency
 
 Output:Variable,
     East Outside Air Inlet Node,  !- Key Value
     System Node Temperature, !- Variable Name
-    Timestep;                  !- Reporting Frequency
+    Timestep;                !- Reporting Frequency
 
 Output:Variable,
     West IEC Secondary Air Inlet Node,  !- Key Value
     System Node Mass Flow Rate,  !- Variable Name
-    Timestep;                  !- Reporting Frequency
+    Timestep;                !- Reporting Frequency
 
 Output:Variable,
     West IEC Secondary Air Inlet Node,  !- Key Value
     System Node Temperature, !- Variable Name
-    Timestep;                  !- Reporting Frequency
+    Timestep;                !- Reporting Frequency
 
 Output:Variable,
     East IEC Secondary Air Inlet Node,  !- Key Value
     System Node Mass Flow Rate,  !- Variable Name
-    Timestep;                  !- Reporting Frequency
+    Timestep;                !- Reporting Frequency
 
 Output:Variable,
     East IEC Secondary Air Inlet Node,  !- Key Value
     System Node Temperature, !- Variable Name
-    Timestep;                  !- Reporting Frequency
+    Timestep;                !- Reporting Frequency
 
 Output:Variable,
     East Zone Supply Fan Outlet Node,  !- Key Value
     System Node Temperature, !- Variable Name
-    Timestep;                  !- Reporting Frequency
+    Timestep;                !- Reporting Frequency
 
 Output:Variable,
     East Zone DEC Outlet Node,  !- Key Value
     System Node Temperature, !- Variable Name
-    Timestep;                  !- Reporting Frequency
+    Timestep;                !- Reporting Frequency
 
 Output:Variable,
     East Zone IEC Outlet Node,  !- Key Value
     System Node Temperature, !- Variable Name
-    Timestep;                  !- Reporting Frequency
+    Timestep;                !- Reporting Frequency
 
 Output:Variable,
     East Air Loop Outlet Node,  !- Key Value
     System Node Temperature, !- Variable Name
-    Timestep;                  !- Reporting Frequency
+    Timestep;                !- Reporting Frequency
 
 Output:Variable,
     East Zone Inlet Node,    !- Key Value
     System Node Mass Flow Rate,  !- Variable Name
-    Timestep;                  !- Reporting Frequency
+    Timestep;                !- Reporting Frequency
 
 Output:Variable,
     East Zone Inlet Node,    !- Key Value
     System Node Temperature, !- Variable Name
-    Timestep;                  !- Reporting Frequency
+    Timestep;                !- Reporting Frequency
 
 Output:Variable,
     *,                       !- Key Value
     Evaporative Cooler Stage Effectiveness,  !- Variable Name
-    Timestep;                  !- Reporting Frequency
+    Timestep;                !- Reporting Frequency
 
 Output:Variable,
     *,                       !- Key Value
     Evaporative Cooler Total Stage Effectiveness,  !- Variable Name
-    Timestep;                  !- Reporting Frequency
+    Timestep;                !- Reporting Frequency
 
 Output:Variable,
     *,                       !- Key Value
     Evaporative Cooler Operating Mode Status,  !- Variable Name
-    Timestep;                  !- Reporting Frequency
+    Timestep;                !- Reporting Frequency
 
 Output:Variable,
     *,                       !- Key Value
     Evaporative Cooler Electricity Rate,  !- Variable Name
-    Timestep;                  !- Reporting Frequency
+    Timestep;                !- Reporting Frequency
 
 Output:Variable,
     *,                       !- Key Value
     Evaporative Cooler Water Volume,  !- Variable Name
-    Timestep;                  !- Reporting Frequency
+    Timestep;                !- Reporting Frequency
 
 Output:Variable,
     *,                       !- Key Value
     ITE CPU Electricity Rate,!- Variable Name
-    Timestep;                  !- Reporting Frequency
+    Timestep;                !- Reporting Frequency
 
 Output:Variable,
     *,                       !- Key Value
     ITE Fan Electricity Rate,!- Variable Name
-    Timestep;                  !- Reporting Frequency
+    Timestep;                !- Reporting Frequency
 
 Output:Variable,
     *,                       !- Key Value
     ITE UPS Electricity Rate,!- Variable Name
-    Timestep;                  !- Reporting Frequency
+    Timestep;                !- Reporting Frequency
 
 Output:Variable,
     *,                       !- Key Value
     ITE CPU Electricity Rate at Design Inlet Conditions,  !- Variable Name
-    Timestep;                  !- Reporting Frequency
+    Timestep;                !- Reporting Frequency
 
 Output:Variable,
     *,                       !- Key Value
     ITE Fan Electricity Rate at Design Inlet Conditions,  !- Variable Name
-    Timestep;                  !- Reporting Frequency
+    Timestep;                !- Reporting Frequency
 
 Output:Variable,
     *,                       !- Key Value
     ITE UPS Heat Gain to Zone Rate,  !- Variable Name
-    Timestep;                  !- Reporting Frequency
+    Timestep;                !- Reporting Frequency
 
 Output:Variable,
     *,                       !- Key Value
     ITE Total Heat Gain to Zone Rate,  !- Variable Name
-    Timestep;                  !- Reporting Frequency
+    Timestep;                !- Reporting Frequency
 
 Output:Variable,
     *,                       !- Key Value
     ITE Standard Density Air Volume Flow Rate,  !- Variable Name
-    Timestep;                  !- Reporting Frequency
+    Timestep;                !- Reporting Frequency
 
 Output:Variable,
     *,                       !- Key Value
     ITE Air Inlet Dry-Bulb Temperature,  !- Variable Name
-    Timestep;                  !- Reporting Frequency
+    Timestep;                !- Reporting Frequency
 
 Output:Variable,
     *,                       !- Key Value
     ITE Air Inlet Dewpoint Temperature,  !- Variable Name
-    Timestep;                  !- Reporting Frequency
+    Timestep;                !- Reporting Frequency
 
 Output:Variable,
     *,                       !- Key Value
     ITE Air Inlet Relative Humidity,  !- Variable Name
-    Timestep;                  !- Reporting Frequency
+    Timestep;                !- Reporting Frequency
 
 Output:Variable,
     *,                       !- Key Value
     ITE Air Outlet Dry-Bulb Temperature,  !- Variable Name
-    Timestep;                  !- Reporting Frequency
+    Timestep;                !- Reporting Frequency
 
 Output:Variable,
     *,                       !- Key Value
     ITE Supply Heat Index,   !- Variable Name
-    Timestep;                  !- Reporting Frequency
+    Timestep;                !- Reporting Frequency
 
 Output:Variable,
     *,                       !- Key Value
     ITE Air Inlet Operating Range Exceeded Time,  !- Variable Name
-    Timestep;                  !- Reporting Frequency
+    Timestep;                !- Reporting Frequency
 
 Output:Variable,
     *,                       !- Key Value
     ITE Air Inlet Dry-Bulb Temperature Above Operating Range Time,  !- Variable Name
-    Timestep;                  !- Reporting Frequency
+    Timestep;                !- Reporting Frequency
 
 Output:Variable,
     *,                       !- Key Value
     ITE Air Inlet Dry-Bulb Temperature Below Operating Range Time,  !- Variable Name
-    Timestep;                  !- Reporting Frequency
+    Timestep;                !- Reporting Frequency
 
 Output:Variable,
     *,                       !- Key Value
     ITE Air Inlet Dewpoint Temperature Above Operating Range Time,  !- Variable Name
-    Timestep;                  !- Reporting Frequency
+    Timestep;                !- Reporting Frequency
 
 Output:Variable,
     *,                       !- Key Value
     ITE Air Inlet Dewpoint Temperature Below Operating Range Time,  !- Variable Name
-    Timestep;                  !- Reporting Frequency
+    Timestep;                !- Reporting Frequency
 
 Output:Variable,
     *,                       !- Key Value
     ITE Air Inlet Relative Humidity Above Operating Range Time,  !- Variable Name
-    Timestep;                  !- Reporting Frequency
+    Timestep;                !- Reporting Frequency
 
 Output:Variable,
     *,                       !- Key Value
     ITE Air Inlet Relative Humidity Below Operating Range Time,  !- Variable Name
-    Timestep;                  !- Reporting Frequency
+    Timestep;                !- Reporting Frequency
 
 Output:Variable,
     *,                       !- Key Value
     ITE Air Inlet Dry-Bulb Temperature Difference Above Operating Range,  !- Variable Name
-    Timestep;                  !- Reporting Frequency
+    Timestep;                !- Reporting Frequency
 
 Output:Variable,
     *,                       !- Key Value
     ITE Air Inlet Dry-Bulb Temperature Difference Below Operating Range,  !- Variable Name
-    Timestep;                  !- Reporting Frequency
+    Timestep;                !- Reporting Frequency
 
 Output:Variable,
     *,                       !- Key Value
     ITE Air Inlet Dewpoint Temperature Difference Above Operating Range,  !- Variable Name
-    Timestep;                  !- Reporting Frequency
+    Timestep;                !- Reporting Frequency
 
 Output:Variable,
     *,                       !- Key Value
     ITE Air Inlet Dewpoint Temperature Difference Below Operating Range,  !- Variable Name
-    Timestep;                  !- Reporting Frequency
+    Timestep;                !- Reporting Frequency
 
 Output:Variable,
     *,                       !- Key Value
     ITE Air Inlet Relative Humidity Difference Above Operating Range,  !- Variable Name
-    Timestep;                  !- Reporting Frequency
+    Timestep;                !- Reporting Frequency
 
 Output:Variable,
     *,                       !- Key Value
     ITE Air Inlet Relative Humidity Difference Below Operating Range,  !- Variable Name
-    Timestep;                  !- Reporting Frequency
+    Timestep;                !- Reporting Frequency
 
 Output:Variable,
     *,                       !- Key Value
     Zone ITE CPU Electricity Rate,  !- Variable Name
-    Timestep;                  !- Reporting Frequency
+    Timestep;                !- Reporting Frequency
 
 Output:Variable,
     *,                       !- Key Value
     Zone ITE Fan Electricity Rate,  !- Variable Name
-    Timestep;                  !- Reporting Frequency
+    Timestep;                !- Reporting Frequency
 
 Output:Variable,
     *,                       !- Key Value
     Zone ITE UPS Electricity Rate,  !- Variable Name
-    Timestep;                  !- Reporting Frequency
+    Timestep;                !- Reporting Frequency
 
 Output:Variable,
     *,                       !- Key Value
     Zone ITE CPU Electricity Rate at Design Inlet Conditions,  !- Variable Name
-    Timestep;                  !- Reporting Frequency
+    Timestep;                !- Reporting Frequency
 
 Output:Variable,
     *,                       !- Key Value
     Zone ITE Fan Electricity Rate at Design Inlet Conditions,  !- Variable Name
-    Timestep;                  !- Reporting Frequency
+    Timestep;                !- Reporting Frequency
 
 Output:Variable,
     *,                       !- Key Value
     Zone ITE UPS Heat Gain to Zone Rate,  !- Variable Name
-    Timestep;                  !- Reporting Frequency
+    Timestep;                !- Reporting Frequency
 
 Output:Variable,
     *,                       !- Key Value
     Zone ITE Total Heat Gain to Zone Rate,  !- Variable Name
-    Timestep;                  !- Reporting Frequency
+    Timestep;                !- Reporting Frequency
 
 Output:Variable,
     *,                       !- Key Value
     Chiller Part Load Ratio, !- Variable Name
-    Timestep;                  !- Reporting Frequency
+    Timestep;                !- Reporting Frequency
 
 Output:Variable,
     *,                       !- Key Value
     Chiller Cycling Ratio,   !- Variable Name
-    Timestep;                  !- Reporting Frequency
+    Timestep;                !- Reporting Frequency
 
 Output:Variable,
     *,                       !- Key Value
     Chiller Electricity Rate,!- Variable Name
-    Timestep;                  !- Reporting Frequency
+    Timestep;                !- Reporting Frequency
 
 Output:Variable,
     *,                       !- Key Value
     Chiller Evaporator Cooling Rate,  !- Variable Name
-    Timestep;                  !- Reporting Frequency
+    Timestep;                !- Reporting Frequency
 
 Output:Variable,
     *,                       !- Key Value
     Chiller False Load Heat Transfer Rate,  !- Variable Name
-    Timestep;                  !- Reporting Frequency
+    Timestep;                !- Reporting Frequency
 
 Output:Variable,
     *,                       !- Key Value
     Chiller Evaporator Inlet Temperature,  !- Variable Name
-    Timestep;                  !- Reporting Frequency
+    Timestep;                !- Reporting Frequency
 
 Output:Variable,
     *,                       !- Key Value
     Chiller Evaporator Outlet Temperature,  !- Variable Name
-    Timestep;                  !- Reporting Frequency
+    Timestep;                !- Reporting Frequency
 
 Output:Variable,
     *,                       !- Key Value
     Chiller Evaporator Mass Flow Rate,  !- Variable Name
-    Timestep;                  !- Reporting Frequency
+    Timestep;                !- Reporting Frequency
 
 Output:Variable,
     *,                       !- Key Value
     Chiller Condenser Heat Transfer Rate,  !- Variable Name
-    Timestep;                  !- Reporting Frequency
+    Timestep;                !- Reporting Frequency
 
 Output:Variable,
     *,                       !- Key Value
     Chiller COP,             !- Variable Name
-    Timestep;                  !- Reporting Frequency
+    Timestep;                !- Reporting Frequency
 
 Output:Variable,
     *,                       !- Key Value
     Chiller Capacity Temperature Modifier Multiplier,  !- Variable Name
-    Timestep;                  !- Reporting Frequency
+    Timestep;                !- Reporting Frequency
 
 Output:Variable,
     *,                       !- Key Value
     Chiller EIR Temperature Modifier Multiplier,  !- Variable Name
-    Timestep;                  !- Reporting Frequency
+    Timestep;                !- Reporting Frequency
 
 Output:Variable,
     *,                       !- Key Value
     Chiller EIR Part Load Modifier Multiplier,  !- Variable Name
-    Timestep;                  !- Reporting Frequency
+    Timestep;                !- Reporting Frequency
 
 Output:Variable,
     *,                       !- Key Value
     Chiller Condenser Inlet Temperature,  !- Variable Name
-    Timestep;                  !- Reporting Frequency
+    Timestep;                !- Reporting Frequency
 
 Output:Variable,
     *,                       !- Key Value
     Chiller Condenser Outlet Temperature,  !- Variable Name
-    Timestep;                  !- Reporting Frequency
+    Timestep;                !- Reporting Frequency
 
 Output:Variable,
     *,                       !- Key Value
     Chiller Condenser Mass Flow Rate,  !- Variable Name
-    Timestep;                  !- Reporting Frequency
+    Timestep;                !- Reporting Frequency
 
 Output:Variable,
     *,                       !- Key Value
     Pump Electricity Rate,   !- Variable Name
-    Timestep;                  !- Reporting Frequency
+    Timestep;                !- Reporting Frequency
 
 Output:Variable,
     *,                       !- Key Value
     Pump Shaft Power,        !- Variable Name
-    Timestep;                  !- Reporting Frequency
+    Timestep;                !- Reporting Frequency
 
 Output:Variable,
     *,                       !- Key Value
     Pump Fluid Heat Gain Rate,  !- Variable Name
-    Timestep;                  !- Reporting Frequency
+    Timestep;                !- Reporting Frequency
 
 Output:Variable,
     *,                       !- Key Value
     Pump Outlet Temperature, !- Variable Name
-    Timestep;                  !- Reporting Frequency
+    Timestep;                !- Reporting Frequency
 
 Output:Variable,
     *,                       !- Key Value
     Pump Mass Flow Rate,     !- Variable Name
-    Timestep;                  !- Reporting Frequency
+    Timestep;                !- Reporting Frequency
 
 Output:Variable,
     *,                       !- Key Value
     Plant Supply Side Cooling Demand Rate,  !- Variable Name
-    Timestep;                  !- Reporting Frequency
+    Timestep;                !- Reporting Frequency
 
 Output:Variable,
     *,                       !- Key Value
     Plant Supply Side Heating Demand Rate,  !- Variable Name
-    Timestep;                  !- Reporting Frequency
+    Timestep;                !- Reporting Frequency
 
 Output:Variable,
     *,                       !- Key Value
     Plant Supply Side Inlet Mass Flow Rate,  !- Variable Name
-    Timestep;                  !- Reporting Frequency
+    Timestep;                !- Reporting Frequency
 
 Output:Variable,
     *,                       !- Key Value
     Plant Supply Side Inlet Temperature,  !- Variable Name
-    Timestep;                  !- Reporting Frequency
+    Timestep;                !- Reporting Frequency
 
 Output:Variable,
     *,                       !- Key Value
     Plant Supply Side Outlet Temperature,  !- Variable Name
-    Timestep;                  !- Reporting Frequency
+    Timestep;                !- Reporting Frequency
 
 Output:Variable,
     *,                       !- Key Value
     Plant Supply Side Not Distributed Demand Rate,  !- Variable Name
-    Timestep;                  !- Reporting Frequency
+    Timestep;                !- Reporting Frequency
 
 Output:Variable,
     *,                       !- Key Value
     Plant Supply Side Unmet Demand Rate,  !- Variable Name
-    Timestep;                  !- Reporting Frequency
+    Timestep;                !- Reporting Frequency
 
 Output:Variable,
     *,                       !- Key Value
     Debug Plant Loop Bypass Fraction,  !- Variable Name
-    Timestep;                  !- Reporting Frequency
+    Timestep;                !- Reporting Frequency
 
 Output:Variable,
     *,                       !- Key Value
     Plant System Cycle On Off Status,  !- Variable Name
-    Timestep;                  !- Reporting Frequency
+    Timestep;                !- Reporting Frequency
 
 Output:Variable,
     *,                       !- Key Value
     Debug Plant Last Simulated Loop Side,  !- Variable Name
-    Timestep;                  !- Reporting Frequency
+    Timestep;                !- Reporting Frequency
 
 Output:Variable,
     *,                       !- Key Value
     Chiller Electricity Rate,!- Variable Name
-    Timestep;                  !- Reporting Frequency
+    Timestep;                !- Reporting Frequency
 
 Output:Variable,
     *,                       !- Key Value
     Chiller Evaporator Cooling Rate,  !- Variable Name
-    Timestep;                  !- Reporting Frequency
+    Timestep;                !- Reporting Frequency
 
 Output:Variable,
     *,                       !- Key Value
     Chiller Evaporator Inlet Temperature,  !- Variable Name
-    Timestep;                  !- Reporting Frequency
+    Timestep;                !- Reporting Frequency
 
 Output:Variable,
     *,                       !- Key Value
     Chiller Evaporator Outlet Temperature,  !- Variable Name
-    Timestep;                  !- Reporting Frequency
+    Timestep;                !- Reporting Frequency
 
 Output:Variable,
     *,                       !- Key Value
     Chiller Evaporator Mass Flow Rate,  !- Variable Name
-    Timestep;                  !- Reporting Frequency
+    Timestep;                !- Reporting Frequency
 
 Output:Variable,
     *,                       !- Key Value
     Chiller Condenser Heat Transfer Rate,  !- Variable Name
-    Timestep;                  !- Reporting Frequency
+    Timestep;                !- Reporting Frequency
 
 Output:Variable,
     *,                       !- Key Value
     Chiller COP,             !- Variable Name
-    Timestep;                  !- Reporting Frequency
+    Timestep;                !- Reporting Frequency
 
 Output:Variable,
     *,                       !- Key Value
     Chiller Condenser Inlet Temperature,  !- Variable Name
-    Timestep;                  !- Reporting Frequency
+    Timestep;                !- Reporting Frequency
 
 Output:Variable,
     *,                       !- Key Value
     Chiller Condenser Outlet Temperature,  !- Variable Name
-    Timestep;                  !- Reporting Frequency
+    Timestep;                !- Reporting Frequency
 
 Output:Variable,
     *,                       !- Key Value
     Chiller Condenser Mass Flow Rate,  !- Variable Name
-    Timestep;                  !- Reporting Frequency
+    Timestep;                !- Reporting Frequency
 
 Output:Variable,
     *,                       !- Key Value
     Cooling Tower Inlet Temperature,  !- Variable Name
-    Timestep;                  !- Reporting Frequency
+    Timestep;                !- Reporting Frequency
 
 Output:Variable,
     *,                       !- Key Value
     Cooling Tower Outlet Temperature,  !- Variable Name
-    Timestep;                  !- Reporting Frequency
+    Timestep;                !- Reporting Frequency
 
 Output:Variable,
     *,                       !- Key Value
     Cooling Tower Mass Flow Rate,  !- Variable Name
-    Timestep;                  !- Reporting Frequency
+    Timestep;                !- Reporting Frequency
 
 Output:Variable,
     *,                       !- Key Value
     Cooling Tower Heat Transfer Rate,  !- Variable Name
-    Timestep;                  !- Reporting Frequency
+    Timestep;                !- Reporting Frequency
 
 Output:Variable,
     *,                       !- Key Value
     Cooling Tower Fan Electricity Rate,  !- Variable Name
-    Timestep;                  !- Reporting Frequency
+    Timestep;                !- Reporting Frequency
 
 Output:Variable,
     *,                       !- Key Value
     Cooling Tower Air Flow Rate Ratio,  !- Variable Name
-    Timestep;                  !- Reporting Frequency
+    Timestep;                !- Reporting Frequency
 
 Output:Variable,
     *,                       !- Key Value
     Cooling Tower Fan Part Load Ratio,  !- Variable Name
-    Timestep;                  !- Reporting Frequency
+    Timestep;                !- Reporting Frequency
 
 Output:Variable,
     *,                       !- Key Value
     Cooling Tower Operating Cells Count,  !- Variable Name
-    Timestep;                  !- Reporting Frequency
+    Timestep;                !- Reporting Frequency
 
 Output:Variable,
     *,                       !- Key Value
     Cooling Tower Basin Heater Electricity Rate,  !- Variable Name
-    Timestep;                  !- Reporting Frequency
+    Timestep;                !- Reporting Frequency
 
 Output:Variable,
     *,                       !- Key Value
     Cooling Tower Make Up Water Volume Flow Rate,  !- Variable Name
-    Timestep;                  !- Reporting Frequency
+    Timestep;                !- Reporting Frequency
 
 Output:Variable,
     *,                       !- Key Value
     Cooling Tower Make Up Water Volume,  !- Variable Name
-    Timestep;                  !- Reporting Frequency
+    Timestep;                !- Reporting Frequency
 
 Output:Variable,
     *,                       !- Key Value
     Cooling Tower Make Up Mains Water Volume,  !- Variable Name
-    Timestep;                  !- Reporting Frequency
+    Timestep;                !- Reporting Frequency
 
 Output:Variable,
     *,                       !- Key Value
     Cooling Tower Water Evaporation Volume Flow Rate,  !- Variable Name
-    Timestep;                  !- Reporting Frequency
+    Timestep;                !- Reporting Frequency
 
 Output:Variable,
     *,                       !- Key Value
     Cooling Tower Water Evaporation Volume,  !- Variable Name
-    Timestep;                  !- Reporting Frequency
+    Timestep;                !- Reporting Frequency
 
 Output:Variable,
     *,                       !- Key Value
     Cooling Tower Water Drift Volume Flow Rate,  !- Variable Name
-    Timestep;                  !- Reporting Frequency
+    Timestep;                !- Reporting Frequency
 
 Output:Variable,
     *,                       !- Key Value
     Cooling Tower Water Drift Volume,  !- Variable Name
-    Timestep;                  !- Reporting Frequency
+    Timestep;                !- Reporting Frequency
 
 Output:Variable,
     *,                       !- Key Value
     Cooling Tower Water Blowdown Volume Flow Rate,  !- Variable Name
-    Timestep;                  !- Reporting Frequency
+    Timestep;                !- Reporting Frequency
 
 Output:Variable,
     *,                       !- Key Value
     Cooling Tower Water Blowdown Volume,  !- Variable Name
-    Timestep;                  !- Reporting Frequency
+    Timestep;                !- Reporting Frequency
 
 Output:Variable,
     Cond Supply Bypass Inlet Node,  !- Key Value
     System Node Temperature, !- Variable Name
-    Timestep;                  !- Reporting Frequency
+    Timestep;                !- Reporting Frequency
 
 Output:Variable,
     Cond Supply Bypass Inlet Node,  !- Key Value
     System Node Mass Flow Rate,  !- Variable Name
-    Timestep;                  !- Reporting Frequency
+    Timestep;                !- Reporting Frequency
 
 Output:Variable,
     Cond Supply Bypass Inlet Node,  !- Key Value
     System Node Setpoint Temperature,  !- Variable Name
-    Timestep;                  !- Reporting Frequency
+    Timestep;                !- Reporting Frequency
 
 Output:Variable,
     Cond Supply Bypass Outlet Node,  !- Key Value
     System Node Temperature, !- Variable Name
-    Timestep;                  !- Reporting Frequency
+    Timestep;                !- Reporting Frequency
 
 Output:Variable,
     Cond Supply Bypass Outlet Node,  !- Key Value
     System Node Mass Flow Rate,  !- Variable Name
-    Timestep;                  !- Reporting Frequency
+    Timestep;                !- Reporting Frequency
 
 Output:Variable,
     Cond Supply Bypass Outlet Node,  !- Key Value
     System Node Setpoint Temperature,  !- Variable Name
-    Timestep;                  !- Reporting Frequency
+    Timestep;                !- Reporting Frequency
 
 Output:Variable,
     Cond Demand Bypass Inlet Node,  !- Key Value
     System Node Temperature, !- Variable Name
-    Timestep;                  !- Reporting Frequency
+    Timestep;                !- Reporting Frequency
 
 Output:Variable,
     Cond Demand Bypass Inlet Node,  !- Key Value
     System Node Mass Flow Rate,  !- Variable Name
-    Timestep;                  !- Reporting Frequency
+    Timestep;                !- Reporting Frequency
 
 Output:Variable,
     Cond Demand Bypass Inlet Node,  !- Key Value
     System Node Setpoint Temperature,  !- Variable Name
-    Timestep;                  !- Reporting Frequency
+    Timestep;                !- Reporting Frequency
 
 Output:Variable,
     Cond Demand Bypass Outlet Node,  !- Key Value
     System Node Temperature, !- Variable Name
-    Timestep;                  !- Reporting Frequency
+    Timestep;                !- Reporting Frequency
 
 Output:Variable,
     Cond Demand Bypass Outlet Node,  !- Key Value
     System Node Mass Flow Rate,  !- Variable Name
-    Timestep;                  !- Reporting Frequency
+    Timestep;                !- Reporting Frequency
 
 Output:Variable,
     Cond Demand Bypass Outlet Node,  !- Key Value
     System Node Setpoint Temperature,  !- Variable Name
-    Timestep;                  !- Reporting Frequency
+    Timestep;                !- Reporting Frequency
 
 Output:Variable,
     Chiller Condenser Inlet Node,  !- Key Value
     System Node Temperature, !- Variable Name
-    Timestep;                  !- Reporting Frequency
+    Timestep;                !- Reporting Frequency
 
 Output:Variable,
     Chiller Condenser Inlet Node,  !- Key Value
     System Node Mass Flow Rate,  !- Variable Name
-    Timestep;                  !- Reporting Frequency
+    Timestep;                !- Reporting Frequency
 
 Output:Variable,
     Chiller Condenser Inlet Node,  !- Key Value
     System Node Setpoint Temperature,  !- Variable Name
-    Timestep;                  !- Reporting Frequency
+    Timestep;                !- Reporting Frequency
 
 Output:Variable,
     Chiller Condenser Outlet Node,  !- Key Value
     System Node Temperature, !- Variable Name
-    Timestep;                  !- Reporting Frequency
+    Timestep;                !- Reporting Frequency
 
 Output:Variable,
     Chiller Condenser Outlet Node,  !- Key Value
     System Node Mass Flow Rate,  !- Variable Name
-    Timestep;                  !- Reporting Frequency
+    Timestep;                !- Reporting Frequency
 
 Output:Variable,
     Chiller Condenser Outlet Node,  !- Key Value
     System Node Setpoint Temperature,  !- Variable Name
-    Timestep;                  !- Reporting Frequency
+    Timestep;                !- Reporting Frequency
 
 Output:Variable,
     *,                       !- Key Value
     Site Outdoor Air Wetbulb Temperature,  !- Variable Name
-    Timestep;                  !- Reporting Frequency
+    Timestep;                !- Reporting Frequency
 
 Output:Variable,
     Condenser Supply Outlet Node,  !- Key Value
     System Node Temperature, !- Variable Name
-    Timestep;                  !- Reporting Frequency
+    Timestep;                !- Reporting Frequency
 
 Output:Variable,
     Condenser Supply Outlet Node,  !- Key Value
     System Node Mass Flow Rate,  !- Variable Name
-    Timestep;                  !- Reporting Frequency
+    Timestep;                !- Reporting Frequency
 
 Output:Variable,
     Condenser Supply Outlet Node,  !- Key Value
     System Node Setpoint Temperature,  !- Variable Name
-    Timestep;                  !- Reporting Frequency
+    Timestep;                !- Reporting Frequency
 
 
 !-   ===========  ALL OBJECTS IN CLASS: OUTPUT:METER ===========
 
 Output:Meter,
     Cooling:Electricity,     !- Key Name
-    Timestep;                  !- Reporting Frequency
+    Timestep;                !- Reporting Frequency
 
 Output:Meter,
     General:Cooling:Electricity,  !- Key Name
-    Timestep;                  !- Reporting Frequency
+    Timestep;                !- Reporting Frequency
 
 Output:Meter,
     Cooling:PlantLoopCoolingDemand,  !- Key Name
-    Timestep;                  !- Reporting Frequency
+    Timestep;                !- Reporting Frequency
 
 Output:Meter,
     General:Cooling:PlantLoopCoolingDemand,  !- Key Name
-    Timestep;                  !- Reporting Frequency
+    Timestep;                !- Reporting Frequency
 
 
 !-   ===========  ALL OBJECTS IN CLASS: OUTPUT:SQLITE ===========
@@ -4680,5 +4435,5 @@ Output:SQLite,
 !-   ===========  ALL OBJECTS IN CLASS: OUTPUT:DIAGNOSTICS ===========
 
 Output:Diagnostics,
-    DisplayAdvancedReportVariables;      !- Key 1
+    DisplayAdvancedReportVariables;  !- Key 1
 
