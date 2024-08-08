@@ -1,0 +1,7 @@
+# Ignore python notebook files
+*.ipynb
+# Ignore .cgns files 
+*.cgns
+# Ignoring modes.csv files
+data_center/data/modes.csv
+myenv/
