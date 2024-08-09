@@ -19,6 +19,12 @@
         "exec": "python -u /app/mostcool/thermal/server_federate.py",
         "host": "localhost",
         "name": "Server_federate"
+      },
+      {
+        "directory": ".",
+        "exec": "python -u /app/mostcool/thermal/data_center/dc_federate.py",
+        "host": "localhost",
+        "name": "Datacenter_federate"
       }
 
     ]
